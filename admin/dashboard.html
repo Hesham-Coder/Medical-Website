@@ -1,0 +1,1143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Content Editor – Admin Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f0f2f5;
+            min-height: 100vh;
+        }
+        .header {
+            background: linear-gradient(135deg, #004A8D 0%, #0096D6 100%);
+            color: white;
+            padding: 16px 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .header-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .header h1 { font-size: 20px; font-weight: 700; }
+        .header-actions { display: flex; align-items: center; gap: 12px; }
+        .header-actions a {
+            color: rgba(255,255,255,0.95);
+            text-decoration: none;
+            font-size: 14px;
+            padding: 8px 12px;
+            border-radius: 6px;
+            background: rgba(255,255,255,0.15);
+        }
+        .header-actions a:hover { background: rgba(255,255,255,0.25); }
+        .header-actions .logout {
+            background: rgba(255,255,255,0.2);
+            border: 1px solid rgba(255,255,255,0.4);
+            cursor: pointer;
+            color: white;
+            font-size: 14px;
+            padding: 8px 14px;
+            border-radius: 6px;
+        }
+        .header-actions .logout:hover { background: rgba(255,255,255,0.3); }
+        .save-status {
+            font-size: 12px;
+            opacity: 0.9;
+        }
+        .save-status.saving { opacity: 0.7; }
+        .save-status.saved { color: #a5d6a7; }
+        .save-status.error { color: #ef9a9a; }
+        .container { max-width: 1200px; margin: 24px auto; padding: 0 24px; }
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            margin-bottom: 24px;
+        }
+        .card h2 {
+            font-size: 18px;
+            color: #1a1a1a;
+            margin-bottom: 16px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #eee;
+        }
+        .section-list { list-style: none; }
+        .section-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 14px;
+            margin-bottom: 6px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            cursor: grab;
+            border: 1px solid #eee;
+        }
+        .section-item:active { cursor: grabbing; }
+        .section-item.dragging { opacity: 0.6; }
+        .section-item .drag-handle {
+            color: #999;
+            cursor: grab;
+            font-size: 18px;
+            user-select: none;
+        }
+        .section-item .label { flex: 1; font-weight: 500; color: #333; }
+        .section-item .toggle-wrap { flex-shrink: 0; }
+        .toggle {
+            position: relative;
+            width: 44px;
+            height: 24px;
+            background: #ccc;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .toggle.on { background: #0096D6; }
+        .toggle::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            top: 2px;
+            left: 2px;
+            background: white;
+            border-radius: 50%;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+            transition: transform 0.2s;
+        }
+        .toggle.on::after { transform: translateX(20px); }
+        .editor-panel { margin-top: 16px; }
+        .editor-panel h3 { font-size: 14px; color: #555; margin-bottom: 12px; }
+        .form-group { margin-bottom: 14px; }
+        .form-group label {
+            display: block;
+            font-size: 12px;
+            font-weight: 600;
+            color: #555;
+            margin-bottom: 4px;
+        }
+        .form-group input, .form-group textarea {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+            font-family: inherit;
+        }
+        .form-group textarea { min-height: 80px; resize: vertical; }
+        .form-group input:focus, .form-group textarea:focus {
+            outline: none;
+            border-color: #0096D6;
+            box-shadow: 0 0 0 2px rgba(0,150,214,0.2);
+        }
+        .tabs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-bottom: 16px;
+        }
+        .tabs button {
+            padding: 8px 14px;
+            border: 1px solid #ddd;
+            background: #f8f9fa;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            color: #555;
+        }
+        .tabs button:hover { background: #eee; color: #333; }
+        .tabs button.active { background: #004A8D; color: white; border-color: #004A8D; }
+        .editor-section { display: none; }
+        .editor-section.active { display: block; }
+        .loading { text-align: center; padding: 40px; color: #666; }
+        .spinner {
+            display: inline-block;
+            width: 36px;
+            height: 36px;
+            border: 3px solid #eee;
+            border-top-color: #0096D6;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin-bottom: 12px;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 1000;
+            animation: fadeIn 0.2s ease;
+        }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+        .toast.success { background: #2e7d32; color: white; }
+        .toast.error { background: #c62828; color: white; }
+        .lang-tabs { display: flex; gap: 4px; margin-bottom: 16px; }
+        .lang-tabs button { padding: 6px 12px; border: 1px solid #ddd; background: #f5f5f5; border-radius: 6px; font-size: 12px; cursor: pointer; color: #555; }
+        .lang-tabs button.active { background: #004A8D; color: white; border-color: #004A8D; }
+        .lang-panel { display: none; }
+        .lang-panel.active { display: block; }
+        .drop-zone {
+            border: 2px dashed #ccc;
+            border-radius: 12px;
+            padding: 24px;
+            text-align: center;
+            background: #fafafa;
+            cursor: pointer;
+            transition: border-color 0.2s, background 0.2s;
+        }
+        .drop-zone:hover, .drop-zone.dragover { border-color: #0096D6; background: #f0f9ff; }
+        .drop-zone .drop-label { font-size: 13px; color: #666; margin-bottom: 8px; }
+        .drop-zone .drop-preview { max-width: 100%; max-height: 120px; margin-top: 12px; border-radius: 8px; }
+        .drop-zone input[type="file"] { display: none; }
+        .experts-list { list-style: none; }
+        .expert-row { display: flex; align-items: center; gap: 12px; padding: 10px 12px; margin-bottom: 6px; background: #f8f9fa; border-radius: 8px; border: 1px solid #eee; }
+        .expert-row .drag-handle { color: #999; cursor: grab; font-size: 16px; user-select: none; }
+        .expert-row .expert-thumb { width: 40px; height: 40px; border-radius: 8px; object-fit: cover; background: #e5e7eb; flex-shrink: 0; }
+        .expert-row .expert-thumb-icon { width: 40px; height: 40px; border-radius: 8px; background: #e0f2fe; display: flex; align-items: center; justify-content: center; flex-shrink: 0; color: #0096D6; font-size: 18px; font-weight: 700; }
+        .expert-row .expert-info { flex: 1; min-width: 0; }
+        .expert-row .expert-name { font-weight: 600; color: #1a1a1a; }
+        .expert-row .expert-title { font-size: 12px; color: #666; }
+        .expert-row .expert-actions { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+        .expert-row .btn-icon { padding: 6px; border: none; background: transparent; cursor: pointer; color: #666; border-radius: 6px; }
+        .expert-row .btn-icon:hover { background: #e5e7eb; color: #111; }
+        .expert-form { display: none; margin-top: 16px; padding-top: 16px; border-top: 1px solid #eee; }
+        .expert-form.show { display: block; }
+        .modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 999; display: flex; align-items: center; justify-content: center; padding: 20px; }
+        .modal-box { background: white; border-radius: 12px; padding: 24px; max-width: 400px; width: 100%; box-shadow: 0 20px 40px rgba(0,0,0,0.15); }
+        .modal-box h3 { font-size: 18px; margin-bottom: 12px; color: #1a1a1a; }
+        .modal-box p { font-size: 14px; color: #555; margin-bottom: 20px; }
+        .modal-actions { display: flex; gap: 12px; justify-content: flex-end; }
+        .btn-danger { background: #dc2626; color: white; border: none; padding: 10px 18px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; }
+        .btn-danger:hover { background: #b91c1c; }
+        .btn-secondary { background: #f3f4f6; color: #374151; border: 1px solid #e5e7eb; padding: 10px 18px; border-radius: 8px; font-size: 14px; cursor: pointer; }
+        .btn-secondary:hover { background: #e5e7eb; }
+        .btn-primary { background: #004A8D; color: white; border: none; padding: 10px 18px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; }
+        .btn-primary:hover { background: #003a70; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-inner">
+            <h1>Content Editor</h1>
+            <div class="header-actions">
+                <span class="save-status" id="saveStatus">Ready</span>
+                <a href="/" target="_blank">View live</a>
+                <a href="/?preview=1" target="_blank">Preview draft</a>
+                <button type="button" class="logout" id="publishBtn">Publish changes</button>
+                <span id="headerUsername">—</span>
+                <button type="button" class="logout" id="logoutBtn">Logout</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="card">
+            <h2>Page sections</h2>
+            <p style="font-size: 13px; color: #666; margin-bottom: 12px;">Drag to reorder. Toggle to show or hide a section on the website. Changes save automatically.</p>
+            <ul class="section-list" id="sectionList">
+                <li class="loading" id="sectionListLoading">Loading…</li>
+            </ul>
+        </div>
+
+        <div class="card">
+            <h2>Experts (Team / Specialists)</h2>
+            <p style="font-size: 13px; color: #666; margin-bottom: 12px;">Add, edit, reorder, or hide experts. Drag to reorder. Image preview updates before saving.</p>
+            <ul class="experts-list" id="expertsList"></ul>
+            <button type="button" class="btn-primary" id="addExpertBtn" style="margin-top: 12px;">Add expert</button>
+            <div class="expert-form" id="expertForm">
+                <h3 style="font-size: 16px; margin-bottom: 12px;" id="expertFormTitle">Edit expert</h3>
+                <div class="form-group">
+                    <label>Full name</label>
+                    <input type="text" id="expertName" placeholder="e.g. Dr. Sarah Chen">
+                </div>
+                <div class="form-group">
+                    <label>Title / role</label>
+                    <input type="text" id="expertTitle" placeholder="e.g. Chief Oncologist">
+                </div>
+                <div class="form-group">
+                    <label>Profile image</label>
+                    <div class="drop-zone" id="dropExpertImg">
+                        <div class="drop-label">Drag & drop or click to upload</div>
+                        <img class="drop-preview" id="previewExpertImg" src="" alt="" style="display: none; max-height: 100px;">
+                        <input type="file" id="fileExpertImg" accept="image/*">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Short bio</label>
+                    <textarea id="expertBio" rows="3" placeholder="Brief description"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Experience (optional)</label>
+                    <input type="text" id="expertExperience" placeholder="e.g. 15+ years in medical oncology">
+                </div>
+                <div class="form-group">
+                    <label>Certifications (optional)</label>
+                    <input type="text" id="expertCertifications" placeholder="e.g. Board certified in Medical Oncology">
+                </div>
+                <div class="form-group">
+                    <label>Profile CTA label (optional)</label>
+                    <input type="text" id="expertCtaLabel" placeholder="e.g. Discuss treatment options">
+                </div>
+                <div class="form-group">
+                    <label>Profile CTA link (optional)</label>
+                    <input type="text" id="expertCtaLink" placeholder="e.g. #contact or full URL">
+                </div>
+                <div class="form-group">
+                    <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                        <div class="toggle" id="expertVisibleToggle" role="button" tabindex="0"></div>
+                        <span>Visible on website</span>
+                    </label>
+                </div>
+                <div style="display: flex; gap: 10px; margin-top: 16px;">
+                    <button type="button" class="btn-primary" id="expertFormSave">Save</button>
+                    <button type="button" class="btn-secondary" id="expertFormCancel">Cancel</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>Services (Clinical & Support)</h2>
+            <p style="font-size: 13px; color: #666; margin-bottom: 12px;">Manage the list of services shown on the public page. Icons use Material Symbols names (e.g. <code>psychology</code>, <code>vaccines</code>, <code>healing</code>).</p>
+            <ul class="experts-list" id="servicesList"></ul>
+            <button type="button" class="btn-primary" id="addServiceBtn" style="margin-top: 12px;">Add service</button>
+            <div class="expert-form" id="serviceForm">
+                <h3 style="font-size: 16px; margin-bottom: 12px;" id="serviceFormTitle">Edit service</h3>
+                <div class="form-group">
+                    <label>Service title (English)</label>
+                    <input type="text" id="serviceTitleEn" placeholder="e.g. Multidisciplinary Assessment">
+                </div>
+                <div class="form-group">
+                    <label>Service title (Arabic)</label>
+                    <input type="text" id="serviceTitleAr" placeholder="مثال: تقييم متعدد التخصصات">
+                </div>
+                <div class="form-group">
+                    <label>Description (English)</label>
+                    <textarea id="serviceDescriptionEn" rows="3" placeholder="Short description shown on the card"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Description (Arabic)</label>
+                    <textarea id="serviceDescriptionAr" rows="3" placeholder="وصف مختصر يظهر على البطاقة"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Icon name</label>
+                    <input type="text" id="serviceIcon" placeholder="e.g. psychology">
+                </div>
+                <div class="form-group">
+                    <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                        <div class="toggle" id="serviceVisibleToggle" role="button" tabindex="0"></div>
+                        <span>Visible on website</span>
+                    </label>
+                </div>
+                <div style="display: flex; gap: 10px; margin-top: 16px;">
+                    <button type="button" class="btn-primary" id="serviceFormSave">Save</button>
+                    <button type="button" class="btn-secondary" id="serviceFormCancel">Cancel</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>Edit content</h2>
+            <p style="font-size: 13px; color: #666; margin-bottom: 12px;">Use <strong>English</strong> / <strong>Arabic</strong> tabs in each section to edit both languages. Changes save automatically.</p>
+            <div class="tabs" id="editorTabs"></div>
+            <div id="editorPanels"></div>
+        </div>
+
+        <div class="card">
+            <h2>Images</h2>
+            <p style="font-size: 13px; color: #666; margin-bottom: 16px;">Drag & drop or click to upload. Image preview updates before saving.</p>
+            <div class="form-group">
+                <label>Logo</label>
+                <div class="drop-zone" id="dropLogo" data-content-key="siteInfo.logoUrl">
+                    <div class="drop-label">Drag & drop or click to upload</div>
+                    <img class="drop-preview" id="previewLogo" src="" alt="" style="display: none;">
+                    <input type="file" id="fileLogo" accept="image/*">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Hero image</label>
+                <div class="drop-zone" id="dropHero" data-content-key="siteInfo.heroImageUrl">
+                    <div class="drop-label">Drag & drop or click to upload</div>
+                    <img class="drop-preview" id="previewHero" src="" alt="" style="display: none;">
+                    <input type="file" id="fileHero" accept="image/*">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast" class="toast" style="display: none;"></div>
+
+    <div id="confirmDeleteModal" class="modal-backdrop" style="display: none;">
+        <div class="modal-box">
+            <h3>Delete expert?</h3>
+            <p id="confirmDeleteMessage">This expert will be removed from the website. This cannot be undone.</p>
+            <div class="modal-actions">
+                <button type="button" class="btn-secondary" id="confirmDeleteCancel">Cancel</button>
+                <button type="button" class="btn-danger" id="confirmDeleteConfirm">Delete</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        (function() {
+            var content = null;
+            var saveTimer = null;
+            var SAVE_DEBOUNCE_MS = 600;
+            var csrfToken = null;
+
+            var sectionLabels = {
+                hero: 'Hero',
+                services: 'Services',
+                team: 'Team',
+                about: 'About',
+                contact: 'Contact',
+                cta: 'CTA Banner'
+            };
+
+            function showToast(message, type) {
+                var el = document.getElementById('toast');
+                el.textContent = message;
+                el.className = 'toast ' + (type || 'success');
+                el.style.display = 'block';
+                setTimeout(function() { el.style.display = 'none'; }, 3000);
+            }
+
+            function setSaveStatus(text, state) {
+                var el = document.getElementById('saveStatus');
+                el.textContent = text;
+                el.className = 'save-status ' + (state || '');
+            }
+
+            var DEFAULT_EXPERTS = [
+                { name: 'Dr. Sarah Chen', title: 'Chief Oncologist', imageUrl: '', bio: '25+ years specializing in precision oncology and immunotherapy.', icon: 'medical_services', visible: true },
+                { name: 'Dr. Michael Torres', title: 'Radiation Specialist', imageUrl: '', bio: 'Expert in advanced radiation therapy and treatment planning.', icon: 'radiology', visible: true },
+                { name: 'Dr. Priya Patel', title: 'Genetic Counselor', imageUrl: '', bio: 'Leading researcher in cancer genetics and hereditary screening.', icon: 'genetics', visible: true },
+                { name: 'Dr. James Wilson', title: 'Surgical Oncologist', imageUrl: '', bio: 'Pioneer in minimally invasive surgical techniques.', icon: 'surgical', visible: true }
+            ];
+            function applyDefaults(c) {
+                if (!c.sectionsOrder) c.sectionsOrder = ['hero', 'services', 'team', 'about', 'contact', 'cta'];
+                if (!c.sectionVisibility) {
+                    c.sectionVisibility = {};
+                    c.sectionsOrder.forEach(function(id) { c.sectionVisibility[id] = true; });
+                }
+                if (!c.teamSection) c.teamSection = { heading: 'World-Class Specialists', subheading: 'Our team combines decades of experience with cutting-edge research and compassionate care.' };
+                if (!Array.isArray(c.experts) || c.experts.length === 0) c.experts = DEFAULT_EXPERTS.slice();
+                return c;
+            }
+
+            function loadContent() {
+                return fetch('/api/admin/content').then(function(r) {
+                    if (!r.ok) throw new Error('Failed to load');
+                    return r.json();
+                }).then(function(data) {
+                    content = applyDefaults(data);
+                    return content;
+                });
+            }
+
+            function loadCsrfToken() {
+                return fetch('/api/admin/csrf-token', { credentials: 'same-origin' })
+                    .then(function(r) { return r.json(); })
+                    .then(function(data) {
+                        if (data && data.csrfToken) {
+                            csrfToken = data.csrfToken;
+                        }
+                    })
+                    .catch(function() {
+                        csrfToken = null;
+                    });
+            }
+
+            function saveContent() {
+                if (!content) return Promise.resolve();
+                setSaveStatus('Saving…', 'saving');
+                return fetch('/api/admin/content', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-Token': csrfToken || ''
+                    },
+                    body: JSON.stringify(content)
+                }).then(function(r) {
+                    return r.json().then(function(data) {
+                        if (r.ok && data.success) {
+                            setSaveStatus('Saved', 'saved');
+                            showToast('Changes saved', 'success');
+                        } else {
+                            setSaveStatus('Error', 'error');
+                            showToast(data.error || 'Save failed', 'error');
+                        }
+                        return data;
+                    });
+                }).catch(function(err) {
+                    setSaveStatus('Error', 'error');
+                    showToast('Save failed: ' + err.message, 'error');
+                    return null;
+                });
+            }
+
+            function scheduleSave() {
+                if (saveTimer) clearTimeout(saveTimer);
+                saveTimer = setTimeout(function() {
+                    saveTimer = null;
+                    saveContent();
+                }, SAVE_DEBOUNCE_MS);
+            }
+
+            function renderSectionList() {
+                var list = document.getElementById('sectionList');
+                var order = content.sectionsOrder || [];
+                list.innerHTML = '';
+                order.forEach(function(id) {
+                    var li = document.createElement('li');
+                    li.className = 'section-item';
+                    li.dataset.sectionId = id;
+                    li.innerHTML =
+                        '<span class="drag-handle" aria-hidden="true">⋮⋮</span>' +
+                        '<span class="label">' + (sectionLabels[id] || id) + '</span>' +
+                        '<div class="toggle-wrap"><div class="toggle' + (content.sectionVisibility[id] !== false ? ' on' : '') + '" data-section-id="' + id + '" role="button" tabindex="0" aria-label="Toggle visibility"></div></div>';
+                    list.appendChild(li);
+                });
+
+                // Sortable
+                if (window.Sortable) {
+                    new Sortable(list, {
+                        animation: 150,
+                        handle: '.drag-handle',
+                        onEnd: function(evt) {
+                            var ids = [];
+                            list.querySelectorAll('.section-item').forEach(function(item) {
+                                ids.push(item.dataset.sectionId);
+                            });
+                            content.sectionsOrder = ids;
+                            scheduleSave();
+                        }
+                    });
+                }
+
+                list.querySelectorAll('.toggle').forEach(function(tog) {
+                    tog.addEventListener('click', function() {
+                        var id = tog.dataset.sectionId;
+                        content.sectionVisibility[id] = !content.sectionVisibility[id];
+                        tog.classList.toggle('on', content.sectionVisibility[id]);
+                        scheduleSave();
+                    });
+                });
+            }
+
+            var editingExpertIndex = -1;
+            function renderExpertsList() {
+                var list = document.getElementById('expertsList');
+                if (!content || !content.experts) { list.innerHTML = ''; return; }
+                var experts = content.experts;
+                list.innerHTML = experts.map(function(ex, i) {
+                    var thumb = ex.imageUrl
+                        ? '<img class="expert-thumb" src="' + ex.imageUrl + '" alt="">'
+                        : '<div class="expert-thumb-icon" title="' + (ex.icon || '') + '">' + ((ex.name && ex.name[0]) || '?') + '</div>';
+                    return '<li class="expert-row" data-index="' + i + '">' +
+                        '<span class="drag-handle" aria-hidden="true">⋮⋮</span>' +
+                        thumb +
+                        '<div class="expert-info"><span class="expert-name">' + (ex.name || 'Untitled') + '</span><br><span class="expert-title">' + (ex.title || '') + '</span></div>' +
+                        '<div class="expert-actions">' +
+                        '<div class="toggle' + (ex.visible !== false ? ' on' : '') + '" data-expert-index="' + i + '" role="button" tabindex="0" aria-label="Toggle visibility"></div>' +
+                        '<button type="button" class="btn-icon" title="Edit" data-expert-edit="' + i + '">✎</button>' +
+                        '<button type="button" class="btn-icon" title="Delete" data-expert-delete="' + i + '">🗑</button>' +
+                        '</div></li>';
+                }).join('');
+                if (window.Sortable) {
+                    var sortable = list._expertSortable;
+                    if (sortable) sortable.destroy();
+                    list._expertSortable = new Sortable(list, {
+                        animation: 150,
+                        handle: '.drag-handle',
+                        onEnd: function() {
+                            var indices = [];
+                            list.querySelectorAll('.expert-row').forEach(function(row) { indices.push(parseInt(row.dataset.index, 10)); });
+                            var newExperts = indices.map(function(i) { return content.experts[i]; });
+                            content.experts = newExperts;
+                            scheduleSave();
+                            renderExpertsList();
+                        }
+                    });
+                }
+                list.querySelectorAll('.toggle[data-expert-index]').forEach(function(tog) {
+                    tog.onclick = function() {
+                        var i = parseInt(tog.getAttribute('data-expert-index'), 10);
+                        content.experts[i].visible = !content.experts[i].visible;
+                        tog.classList.toggle('on', content.experts[i].visible);
+                        scheduleSave();
+                    };
+                });
+                list.querySelectorAll('[data-expert-edit]').forEach(function(btn) {
+                    btn.onclick = function() { openExpertForm(parseInt(btn.getAttribute('data-expert-edit'), 10)); };
+                });
+                list.querySelectorAll('[data-expert-delete]').forEach(function(btn) {
+                    btn.onclick = function() { confirmDeleteExpert(parseInt(btn.getAttribute('data-expert-delete'), 10)); };
+                });
+            }
+            function openExpertForm(index) {
+                editingExpertIndex = index;
+                var ex = content.experts[index] || {};
+                document.getElementById('expertFormTitle').textContent = index >= 0 ? 'Edit expert' : 'Add expert';
+                document.getElementById('expertName').value = ex.name || '';
+                document.getElementById('expertTitle').value = ex.title || '';
+                document.getElementById('expertBio').value = ex.bio || '';
+                document.getElementById('expertExperience').value = ex.experience || '';
+                document.getElementById('expertCertifications').value = ex.certifications || '';
+                document.getElementById('expertCtaLabel').value = ex.profileCtaLabel || '';
+                document.getElementById('expertCtaLink').value = ex.profileCtaLink || '';
+                var toggle = document.getElementById('expertVisibleToggle');
+                toggle.classList.toggle('on', ex.visible !== false);
+                var preview = document.getElementById('previewExpertImg');
+                if (ex.imageUrl) { preview.src = ex.imageUrl; preview.style.display = 'block'; } else { preview.src = ''; preview.style.display = 'none'; }
+                document.getElementById('expertForm').classList.add('show');
+            }
+            function closeExpertForm() {
+                editingExpertIndex = -1;
+                document.getElementById('expertForm').classList.remove('show');
+            }
+            function confirmDeleteExpert(index) {
+                var name = (content.experts[index] && content.experts[index].name) || 'This expert';
+                document.getElementById('confirmDeleteMessage').textContent = 'Remove "' + name + '" from the website? This cannot be undone.';
+                var modal = document.getElementById('confirmDeleteModal');
+                document.getElementById('confirmDeleteConfirm').onclick = function() {
+                    content.experts.splice(index, 1);
+                    scheduleSave();
+                    renderExpertsList();
+                    modal.style.display = 'none';
+                    showToast('Expert removed', 'success');
+                };
+                document.getElementById('confirmDeleteCancel').onclick = function() { modal.style.display = 'none'; };
+                modal.style.display = 'flex';
+            }
+            function setupExpertsUI() {
+                document.getElementById('addExpertBtn').onclick = function() {
+                    content.experts = content.experts || [];
+                    content.experts.push({ name: '', title: '', imageUrl: '', bio: '', icon: 'person', visible: true });
+                    editingExpertIndex = content.experts.length - 1;
+                    openExpertForm(editingExpertIndex);
+                    document.getElementById('expertFormTitle').textContent = 'Add expert';
+                };
+                document.getElementById('expertFormSave').onclick = function() {
+                    var ex = content.experts[editingExpertIndex];
+                    if (!ex) return;
+                    ex.name = document.getElementById('expertName').value.trim() || 'Untitled';
+                    ex.title = document.getElementById('expertTitle').value.trim() || '';
+                    ex.bio = document.getElementById('expertBio').value.trim() || '';
+                    ex.experience = document.getElementById('expertExperience').value.trim() || '';
+                    ex.certifications = document.getElementById('expertCertifications').value.trim() || '';
+                    ex.profileCtaLabel = document.getElementById('expertCtaLabel').value.trim() || '';
+                    ex.profileCtaLink = document.getElementById('expertCtaLink').value.trim() || '';
+                    ex.visible = document.getElementById('expertVisibleToggle').classList.contains('on');
+                    scheduleSave();
+                    closeExpertForm();
+                    renderExpertsList();
+                    showToast('Expert saved', 'success');
+                };
+                document.getElementById('expertFormCancel').onclick = closeExpertForm;
+                document.getElementById('expertVisibleToggle').onclick = function() {
+                    this.classList.toggle('on');
+                };
+                setupExpertImageUpload();
+            }
+            function setupExpertImageUpload() {
+                var drop = document.getElementById('dropExpertImg');
+                var fileInput = document.getElementById('fileExpertImg');
+                var preview = document.getElementById('previewExpertImg');
+                if (!drop || !fileInput || !preview) return;
+                function uploadFile(file) {
+                    if (!file || !file.type.match(/^image\//)) { showToast('Please choose an image file', 'error'); return; }
+                    var fd = new FormData();
+                    fd.append('file', file);
+                    setSaveStatus('Uploading…', 'saving');
+                    fetch('/api/admin/upload', {
+                        method: 'POST',
+                        headers: csrfToken ? { 'X-CSRF-Token': csrfToken } : {},
+                        body: fd
+                    })
+                        .then(function(r) { return r.json(); })
+                        .then(function(data) {
+                            if (data.success && data.url && content.experts[editingExpertIndex]) {
+                                content.experts[editingExpertIndex].imageUrl = data.url;
+                                preview.src = data.url;
+                                preview.style.display = 'block';
+                                scheduleSave();
+                                showToast('Image saved', 'success');
+                            } else if (!data.success) showToast(data.error || 'Upload failed', 'error');
+                            setSaveStatus('Ready', '');
+                        })
+                        .catch(function() { showToast('Upload failed', 'error'); setSaveStatus('Ready', ''); });
+                }
+                drop.onclick = function(e) { if (e.target !== fileInput) fileInput.click(); };
+                fileInput.onchange = function() {
+                    if (fileInput.files && fileInput.files[0]) uploadFile(fileInput.files[0]);
+                    fileInput.value = '';
+                };
+                drop.ondragover = function(e) { e.preventDefault(); drop.classList.add('dragover'); };
+                drop.ondragleave = function() { drop.classList.remove('dragover'); };
+                drop.ondrop = function(e) {
+                    e.preventDefault();
+                    drop.classList.remove('dragover');
+                    if (e.dataTransfer.files && e.dataTransfer.files[0]) uploadFile(e.dataTransfer.files[0]);
+                };
+            }
+
+            // ----- Services management -----
+            var editingServiceIndex = -1;
+            function ensureServicesArray() {
+                if (!Array.isArray(content.services)) content.services = [];
+            }
+            function renderServicesList() {
+                ensureServicesArray();
+                var list = document.getElementById('servicesList');
+                if (!list) return;
+                var services = content.services;
+                list.innerHTML = services.map(function(s, i) {
+                    var title = (s.title && (s.title.en || s.title.ar)) || '';
+                    var desc = (s.description && (s.description.en || s.description.ar)) || '';
+                    return '<li class="expert-row" data-index="' + i + '">' +
+                        '<span class="drag-handle" aria-hidden="true">⋮⋮</span>' +
+                        '<div class="expert-thumb-icon">' + (s.icon || '✓') + '</div>' +
+                        '<div class="expert-info"><span class="expert-name">' + (title || 'Untitled service') + '</span><br><span class="expert-title">' + desc + '</span></div>' +
+                        '<div class="expert-actions">' +
+                        '<div class="toggle' + (s.visible !== false ? ' on' : '') + '" data-service-index="' + i + '" role="button" tabindex="0" aria-label="Toggle visibility"></div>' +
+                        '<button type="button" class="btn-icon" title="Edit" data-service-edit="' + i + '">✎</button>' +
+                        '<button type="button" class="btn-icon" title="Delete" data-service-delete="' + i + '">🗑</button>' +
+                        '</div></li>';
+                }).join('');
+                if (window.Sortable) {
+                    var sortable = list._serviceSortable;
+                    if (sortable) sortable.destroy();
+                    list._serviceSortable = new Sortable(list, {
+                        animation: 150,
+                        handle: '.drag-handle',
+                        onEnd: function() {
+                            var indices = [];
+                            list.querySelectorAll('.expert-row').forEach(function(row) { indices.push(parseInt(row.dataset.index, 10)); });
+                            var newServices = indices.map(function(i) { return content.services[i]; });
+                            content.services = newServices;
+                            scheduleSave();
+                            renderServicesList();
+                        }
+                    });
+                }
+                list.querySelectorAll('.toggle[data-service-index]').forEach(function(tog) {
+                    tog.onclick = function() {
+                        var i = parseInt(tog.getAttribute('data-service-index'), 10);
+                        content.services[i].visible = !content.services[i].visible;
+                        tog.classList.toggle('on', content.services[i].visible);
+                        scheduleSave();
+                    };
+                });
+                list.querySelectorAll('[data-service-edit]').forEach(function(btn) {
+                    btn.onclick = function() { openServiceForm(parseInt(btn.getAttribute('data-service-edit'), 10)); };
+                });
+                list.querySelectorAll('[data-service-delete]').forEach(function(btn) {
+                    btn.onclick = function() { confirmDeleteService(parseInt(btn.getAttribute('data-service-delete'), 10)); };
+                });
+            }
+            function openServiceForm(index) {
+                ensureServicesArray();
+                editingServiceIndex = index;
+                var s = content.services[index] || { title: { en: '', ar: '' }, description: { en: '', ar: '' }, icon: 'psychology', visible: true };
+                document.getElementById('serviceFormTitle').textContent = index >= 0 ? 'Edit service' : 'Add service';
+                document.getElementById('serviceTitleEn').value = (s.title && s.title.en) || '';
+                document.getElementById('serviceTitleAr').value = (s.title && s.title.ar) || '';
+                document.getElementById('serviceDescriptionEn').value = (s.description && s.description.en) || '';
+                document.getElementById('serviceDescriptionAr').value = (s.description && s.description.ar) || '';
+                document.getElementById('serviceIcon').value = s.icon || '';
+                var toggle = document.getElementById('serviceVisibleToggle');
+                toggle.classList.toggle('on', s.visible !== false);
+                document.getElementById('serviceForm').classList.add('show');
+            }
+            function closeServiceForm() {
+                editingServiceIndex = -1;
+                document.getElementById('serviceForm').classList.remove('show');
+            }
+            function confirmDeleteService(index) {
+                var s = content.services[index] || {};
+                var name = (s.title && (s.title.en || s.title.ar)) || 'this service';
+                document.getElementById('confirmDeleteMessage').textContent = 'Remove "' + name + '" from the website? This cannot be undone.';
+                var modal = document.getElementById('confirmDeleteModal');
+                document.getElementById('confirmDeleteConfirm').onclick = function() {
+                    content.services.splice(index, 1);
+                    scheduleSave();
+                    renderServicesList();
+                    modal.style.display = 'none';
+                    showToast('Service removed', 'success');
+                };
+                document.getElementById('confirmDeleteCancel').onclick = function() { modal.style.display = 'none'; };
+                modal.style.display = 'flex';
+            }
+            function setupServicesUI() {
+                ensureServicesArray();
+                document.getElementById('addServiceBtn').onclick = function() {
+                    ensureServicesArray();
+                    content.services.push({
+                        icon: 'psychology',
+                        title: { en: '', ar: '' },
+                        description: { en: '', ar: '' },
+                        visible: true
+                    });
+                    editingServiceIndex = content.services.length - 1;
+                    openServiceForm(editingServiceIndex);
+                    document.getElementById('serviceFormTitle').textContent = 'Add service';
+                };
+                document.getElementById('serviceFormSave').onclick = function() {
+                    if (editingServiceIndex < 0) return;
+                    ensureServicesArray();
+                    var s = content.services[editingServiceIndex];
+                    if (!s.title || typeof s.title !== 'object') s.title = { en: '', ar: '' };
+                    if (!s.description || typeof s.description !== 'object') s.description = { en: '', ar: '' };
+                    s.title.en = document.getElementById('serviceTitleEn').value.trim() || '';
+                    s.title.ar = document.getElementById('serviceTitleAr').value.trim() || '';
+                    s.description.en = document.getElementById('serviceDescriptionEn').value.trim() || '';
+                    s.description.ar = document.getElementById('serviceDescriptionAr').value.trim() || '';
+                    s.icon = document.getElementById('serviceIcon').value.trim() || 'psychology';
+                    s.visible = document.getElementById('serviceVisibleToggle').classList.contains('on');
+                    scheduleSave();
+                    closeServiceForm();
+                    renderServicesList();
+                    showToast('Service saved', 'success');
+                };
+                document.getElementById('serviceFormCancel').onclick = closeServiceForm;
+                document.getElementById('serviceVisibleToggle').onclick = function() {
+                    this.classList.toggle('on');
+                };
+            }
+
+            function bindEditorFields(panelId, getSet) {
+                var panel = document.getElementById(panelId);
+                if (!panel) return;
+                panel.querySelectorAll('input, textarea').forEach(function(input) {
+                    var key = input.dataset.key;
+                    if (!key) return;
+                    var keys = key.split('.');
+                    input.addEventListener('input', function() {
+                        var obj = content;
+                        for (var i = 0; i < keys.length - 1; i++) {
+                            if (!obj[keys[i]]) obj[keys[i]] = {};
+                            obj = obj[keys[i]];
+                        }
+                        obj[keys[keys.length - 1]] = input.value;
+                        scheduleSave();
+                    });
+                });
+            }
+
+            function getVal(key, lang) {
+                var obj = content;
+                var parts = key.split('.');
+                for (var i = 0; i < parts.length && obj != null; i++) obj = obj[parts[i]];
+                if (obj == null) return '';
+                if (Array.isArray(obj)) return (obj[0] !== undefined ? obj.join('\n') : '');
+                if (typeof obj === 'object' && (obj.en != null || obj.ar != null))
+                    return (obj[lang] != null && obj[lang] !== '') ? String(obj[lang]) : (obj.en != null ? String(obj.en) : String(obj.ar || ''));
+                return String(obj);
+            }
+            function setVal(key, lang, val) {
+                var parts = key.split('.');
+                var obj = content;
+                for (var i = 0; i < parts.length - 1; i++) {
+                    var p = parts[i];
+                    if (!obj[p]) obj[p] = /^\d+$/.test(parts[i + 1]) ? [] : {};
+                    obj = obj[p];
+                }
+                var last = parts[parts.length - 1];
+                var isNumber = /^(patientsServed|successRate|specialists)$/.test(last) || key.indexOf('stats.') === 0;
+                if (isNumber) {
+                    obj[last] = val;
+                    return;
+                }
+                var current = obj[last];
+                if (typeof current !== 'object' || current === null || Array.isArray(current))
+                    obj[last] = { en: typeof current === 'string' ? current : '', ar: '' };
+                obj[last][lang] = val;
+            }
+            function isBilingualKey(key) {
+                return key.indexOf('stats.') !== 0 && !/\.(patientsServed|successRate|specialists)$/.test(key);
+            }
+
+            function renderEditors() {
+                var tabsDiv = document.getElementById('editorTabs');
+                var panelsDiv = document.getElementById('editorPanels');
+                tabsDiv.innerHTML = '';
+                panelsDiv.innerHTML = '';
+
+                var sections = [
+                    { id: 'hero', label: 'Hero', fields: [
+                        { key: 'siteInfo.heroHeading', label: 'Heading', bilingual: true },
+                        { key: 'siteInfo.heroSubheading', label: 'Subheading', bilingual: true },
+                        { key: 'siteInfo.heroDescription', label: 'Description', bilingual: true },
+                        { key: 'siteInfo.heroCtaPrimary', label: 'Primary button', bilingual: true },
+                        { key: 'siteInfo.heroCtaSecondary', label: 'Secondary button', bilingual: true }
+                    ]},
+                    { id: 'siteInfo', label: 'Site & stats', fields: [
+                        { key: 'siteInfo.title', label: 'Site title', bilingual: true },
+                        { key: 'siteInfo.tagline', label: 'Tagline', bilingual: true },
+                        { key: 'stats.patientsServed', label: 'Stats: Patients (number)', bilingual: false },
+                        { key: 'stats.successRate', label: 'Stats: Success rate (number)', bilingual: false },
+                        { key: 'stats.specialists', label: 'Stats: Specialists (number)', bilingual: false }
+                    ]},
+                    { id: 'contact', label: 'Contact', fields: [
+                        { key: 'contact.phone', label: 'Phone', bilingual: true },
+                        { key: 'contact.emergencyPhone', label: 'Emergency phone', bilingual: true },
+                        { key: 'contact.email', label: 'Email', bilingual: true },
+                        { key: 'contact.address', label: 'Address', bilingual: true },
+                        { key: 'insurance.blurb', label: 'Insurance & finance blurb', bilingual: true }
+                    ]},
+                    { id: 'services', label: 'Services heading', fields: [
+                        { key: 'servicesSection.heading', label: 'Section heading', bilingual: true },
+                        { key: 'servicesSection.subheading', label: 'Subheading', bilingual: true },
+                        { key: 'servicesSection.badge', label: 'Badge label above heading', bilingual: true }
+                    ]},
+                    { id: 'teamSection', label: 'Experts section heading', fields: [
+                        { key: 'teamSection.heading', label: 'Section heading', bilingual: true },
+                        { key: 'teamSection.subheading', label: 'Subheading', bilingual: true }
+                    ]},
+                    { id: 'about', label: 'About', fields: [
+                        { key: 'aboutSection.heading', label: 'Heading', bilingual: true },
+                        { key: 'aboutSection.paragraphs.0', label: 'Paragraph 1', bilingual: true },
+                        { key: 'aboutSection.paragraphs.1', label: 'Paragraph 2', bilingual: true },
+                        { key: 'aboutSection.footerBlurb', label: 'Short footer blurb', bilingual: true }
+                    ]},
+                    { id: 'contactSection', label: 'Contact section', fields: [
+                        { key: 'contactSection.heading', label: 'Heading', bilingual: true },
+                        { key: 'contactSection.subheading', label: 'Subheading', bilingual: true },
+                        { key: 'contactSection.privacyNotice', label: 'Privacy notice below form', bilingual: true }
+                    ]},
+                    { id: 'cta', label: 'CTA banner', fields: [
+                        { key: 'ctaSection.heading', label: 'Heading', bilingual: true },
+                        { key: 'ctaSection.subheading', label: 'Subheading', bilingual: true },
+                        { key: 'ctaSection.buttonLabel', label: 'Button text', bilingual: true }
+                    ]},
+                    { id: 'footer', label: 'Footer & legal', fields: [
+                        { key: 'footer.copyright', label: 'Copyright', bilingual: true },
+                        { key: 'footer.hours', label: 'Clinic hours', bilingual: true },
+                        { key: 'footer.emergencyText', label: 'Emergency disclaimer', bilingual: true }
+                    ]},
+                    { id: 'seo', label: 'SEO & social', fields: [
+                        { key: 'seo.metaTitle', label: 'Meta title', bilingual: true },
+                        { key: 'seo.metaDescription', label: 'Meta description', bilingual: true }
+                    ]}
+                ];
+
+                sections.forEach(function(section, idx) {
+                    var tab = document.createElement('button');
+                    tab.type = 'button';
+                    tab.textContent = section.label;
+                    tab.className = 'tab' + (idx === 0 ? ' active' : '');
+                    tab.dataset.tab = section.id;
+                    tabsDiv.appendChild(tab);
+
+                    var panel = document.createElement('div');
+                    panel.id = 'panel-' + section.id;
+                    panel.className = 'editor-section' + (idx === 0 ? ' active' : '');
+
+                    var langTabs = document.createElement('div');
+                    langTabs.className = 'lang-tabs';
+                    langTabs.innerHTML = '<button type="button" class="lang-tab active" data-lang="en">English</button><button type="button" class="lang-tab" data-lang="ar">العربية</button>';
+                    panel.appendChild(langTabs);
+
+                    ['en', 'ar'].forEach(function(lang) {
+                        var langPanel = document.createElement('div');
+                        langPanel.className = 'lang-panel' + (lang === 'en' ? ' active' : '');
+                        langPanel.dataset.lang = lang;
+                        section.fields.forEach(function(f) {
+                            var wrap = document.createElement('div');
+                            wrap.className = 'form-group';
+                            var label = document.createElement('label');
+                            label.textContent = f.label + (f.bilingual ? ' (' + (lang === 'en' ? 'English' : 'Arabic') + ')' : '');
+                            var input = document.createElement(f.key.indexOf('paragraphs') !== -1 ? 'textarea' : 'input');
+                            input.type = !f.bilingual ? 'number' : (f.key.indexOf('paragraphs') !== -1 ? 'text' : 'text');
+                            input.dataset.key = f.key;
+                            input.dataset.lang = lang;
+                            input.value = getVal(f.key, f.bilingual ? lang : 'en');
+                            wrap.appendChild(label);
+                            wrap.appendChild(input);
+                            langPanel.appendChild(wrap);
+                        });
+                        panel.appendChild(langPanel);
+                    });
+
+                    panelsDiv.appendChild(panel);
+                });
+
+                tabsDiv.querySelectorAll('button[data-tab]').forEach(function(btn) {
+                    btn.addEventListener('click', function() {
+                        tabsDiv.querySelectorAll('button[data-tab]').forEach(function(b) { b.classList.remove('active'); });
+                        panelsDiv.querySelectorAll('.editor-section').forEach(function(p) { p.classList.remove('active'); });
+                        btn.classList.add('active');
+                        var p = document.getElementById('panel-' + btn.dataset.tab);
+                        if (p) p.classList.add('active');
+                    });
+                });
+
+                panelsDiv.querySelectorAll('.lang-tab').forEach(function(btn) {
+                    btn.addEventListener('click', function() {
+                        var panel = btn.closest('.editor-section');
+                        var lang = btn.getAttribute('data-lang');
+                        panel.querySelectorAll('.lang-tab').forEach(function(b) { b.classList.remove('active'); });
+                        panel.querySelectorAll('.lang-panel').forEach(function(p) { p.classList.remove('active'); });
+                        btn.classList.add('active');
+                        var langPanel = panel.querySelector('.lang-panel[data-lang="' + lang + '"]');
+                        if (langPanel) langPanel.classList.add('active');
+                    });
+                });
+
+                panelsDiv.querySelectorAll('input, textarea').forEach(function(input) {
+                    var key = input.dataset.key;
+                    var lang = input.dataset.lang || 'en';
+                    if (!key) return;
+                    input.addEventListener('input', function() {
+                        var f = sections.reduce(function(acc, s) { return acc || s.fields.filter(function(x) { return x.key === key; })[0]; }, null);
+                        setVal(key, f && f.bilingual ? lang : 'en', input.value);
+                        scheduleSave();
+                    });
+                });
+            }
+
+            function checkAuth() {
+                return fetch('/api/auth/check').then(function(r) { return r.json(); }).then(function(data) {
+                    if (!data.authenticated) {
+                        window.location.href = '/login.html';
+                        return false;
+                    }
+                    document.getElementById('headerUsername').textContent = data.username || 'Admin';
+                    return true;
+                });
+            }
+
+            function logout() {
+                fetch('/logout', { method: 'POST' }).then(function() {
+                    window.location.href = '/login.html';
+                });
+            }
+
+            document.getElementById('logoutBtn').addEventListener('click', logout);
+
+            function publishChanges() {
+                if (!csrfToken) {
+                    showToast('Missing security token. Please refresh the page and try again.', 'error');
+                    return;
+                }
+                if (!window.confirm('Publish the current draft content to the live website?')) return;
+                setSaveStatus('Publishing…', 'saving');
+                fetch('/api/admin/publish', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-Token': csrfToken
+                    },
+                    body: JSON.stringify({})
+                }).then(function(r) {
+                    return r.json().then(function(data) {
+                        if (r.ok && data.success) {
+                            setSaveStatus('Published', 'saved');
+                            showToast('Content published to live site', 'success');
+                        } else {
+                            setSaveStatus('Error', 'error');
+                            showToast(data.error || 'Publish failed', 'error');
+                        }
+                    });
+                }).catch(function(err) {
+                    setSaveStatus('Error', 'error');
+                    showToast('Publish failed: ' + err.message, 'error');
+                });
+            }
+
+            document.getElementById('publishBtn').addEventListener('click', publishChanges);
+
+            function setupImageUpload(dropId, fileId, previewId, contentKey) {
+                var drop = document.getElementById(dropId);
+                var fileInput = document.getElementById(fileId);
+                var preview = document.getElementById(previewId);
+                if (!drop || !fileInput || !preview) return;
+                function setPreview(url) {
+                    if (url) {
+                        preview.src = url;
+                        preview.style.display = 'block';
+                        preview.alt = 'Preview';
+                    } else {
+                        preview.src = '';
+                        preview.style.display = 'none';
+                    }
+                }
+                function uploadFile(file) {
+                    if (!file || !file.type.match(/^image\//)) { showToast('Please choose an image file', 'error'); return; }
+                    var fd = new FormData();
+                    fd.append('file', file);
+                    setSaveStatus('Uploading…', 'saving');
+                    fetch('/api/admin/upload', {
+                        method: 'POST',
+                        headers: csrfToken ? { 'X-CSRF-Token': csrfToken } : {},
+                        body: fd
+                    })
+                        .then(function(r) { return r.json(); })
+                        .then(function(data) {
+                            if (data.success && data.url) {
+                                var keys = contentKey.split('.');
+                                var obj = content;
+                                for (var i = 0; i < keys.length - 1; i++) {
+                                    if (!obj[keys[i]]) obj[keys[i]] = {};
+                                    obj = obj[keys[i]];
+                                }
+                                obj[keys[keys.length - 1]] = data.url;
+                                setPreview(data.url);
+                                scheduleSave();
+                                showToast('Image saved', 'success');
+                            } else showToast(data.error || 'Upload failed', 'error');
+                            setSaveStatus('Ready', '');
+                        })
+                        .catch(function() { showToast('Upload failed', 'error'); setSaveStatus('Ready', ''); });
+                }
+                drop.addEventListener('click', function(e) { if (e.target !== fileInput) fileInput.click(); });
+                fileInput.addEventListener('change', function() {
+                    if (fileInput.files && fileInput.files[0]) uploadFile(fileInput.files[0]);
+                    fileInput.value = '';
+                });
+                drop.addEventListener('dragover', function(e) { e.preventDefault(); drop.classList.add('dragover'); });
+                drop.addEventListener('dragleave', function() { drop.classList.remove('dragover'); });
+                drop.addEventListener('drop', function(e) {
+                    e.preventDefault();
+                    drop.classList.remove('dragover');
+                    if (e.dataTransfer.files && e.dataTransfer.files[0]) uploadFile(e.dataTransfer.files[0]);
+                });
+                var keys = contentKey.split('.');
+                var obj = content;
+                for (var i = 0; i < keys.length && obj != null; i++) obj = obj[keys[i]];
+                if (obj && typeof obj === 'string') setPreview(obj);
+            }
+
+            checkAuth().then(function(ok) {
+                if (!ok) return;
+                return Promise.all([loadContent(), loadCsrfToken()]);
+            }).then(function() {
+                if (!content) return;
+                setSaveStatus('Ready', '');
+                renderSectionList();
+                renderExpertsList();
+                setupExpertsUI();
+                renderServicesList();
+                setupServicesUI();
+                renderEditors();
+                setupImageUpload('dropLogo', 'fileLogo', 'previewLogo', 'siteInfo.logoUrl');
+                setupImageUpload('dropHero', 'fileHero', 'previewHero', 'siteInfo.heroImageUrl');
+            }).catch(function(err) {
+                document.getElementById('sectionList').innerHTML = '<li class="loading">Failed to load. <a href="/login.html">Log in again</a>.</li>';
+                console.error(err);
+            });
+        })();
+    </script>
+</body>
+</html>
