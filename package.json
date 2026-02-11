@@ -4,7 +4,9 @@
   "description": "Secure admin dashboard with JSON storage",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js"
+    "start": "NODE_ENV=production node server.js",
+    "dev": "node server.js",
+    "healthcheck": "node -e \"fetch('http://localhost:' + (process.env.PORT || 3000) + '/api/health').then(r => r.json()).then(d => { console.log(d); process.exit(d.status === 'ok' ? 0 : 1); }).catch(() => process.exit(1))\""
   },
   "keywords": [
     "admin",
@@ -15,6 +17,7 @@
   "license": "MIT",
   "dependencies": {
     "bcrypt": "^5.1.1",
+    "dotenv": "^16.4.7",
     "compression": "^1.8.1",
     "csurf": "^1.11.0",
     "express": "^4.18.2",

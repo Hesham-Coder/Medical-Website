@@ -3,12 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Login</title>
+    <meta name="robots" content="noindex, nofollow">
+    <title>Admin Login - Comprehensive Cancer Center</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #004A8D 0%, #0096D6 100%);
             min-height: 100vh;
             display: flex;
             align-items: center;
@@ -35,11 +36,11 @@
             font-size: 14px;
             transition: border-color 0.3s;
         }
-        input:focus { outline: none; border-color: #667eea; }
+        input:focus { outline: none;             border-color: #0096D6; }
         .btn {
             width: 100%;
             padding: 12px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #004A8D 0%, #0096D6 100%);
             color: white;
             border: none;
             border-radius: 5px;
@@ -48,7 +49,7 @@
             cursor: pointer;
             transition: transform 0.2s, box-shadow 0.2s;
         }
-        .btn:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4); }
+        .btn:hover { transform: translateY(-2px);             box-shadow: 0 5px 15px rgba(0, 74, 141, 0.4); }
         .btn:disabled { background: #ccc; cursor: not-allowed; transform: none; }
         .message {
             padding: 12px;
@@ -66,7 +67,7 @@
 <body>
     <div class="login-container">
         <h1>Admin Login</h1>
-        <p class="subtitle">Secure Dashboard Access</p>
+        <p class="subtitle">Comprehensive Cancer Center - Secure Access</p>
         <div id="message" class="message"></div>
         <form id="loginForm">
             <div class="form-group">
@@ -79,7 +80,7 @@
             </div>
             <button type="submit" class="btn" id="loginBtn">Sign In</button>
         </form>
-        <div class="footer">Powered by Admin Dashboard</div>
+        <div class="footer">Comprehensive Cancer Center Admin</div>
     </div>
     <script>
         const loginForm = document.getElementById('loginForm');

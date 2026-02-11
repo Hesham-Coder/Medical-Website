@@ -3,6 +3,7 @@
  * Serves: public website (/), admin dashboard (/dashboard.html), login (/login.html), and API.
  * Content and users are stored in data/ (single source of truth).
  */
+require('dotenv').config();
 const express = require('express');
 const session = require('express-session');
 const bcrypt = require('bcrypt');
@@ -239,6 +240,11 @@ function requireAuth(req, res, next) {
 
 // ----- Routes (defined before static so they take precedence) -----
 
+// Health check endpoint for monitoring / load balancers
+app.get('/api/health', (req, res) => {
+  res.json({ status: 'ok', uptime: process.uptime(), timestamp: new Date().toISOString() });
+});
+
 // Public website (single page)
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'website', 'index.html'));
@@ -463,7 +469,12 @@ app.use((req, res, next) => {
 
 // Central error handler
 app.use((err, req, res, next) => {
-  logger.error('Unhandled error', { error: err.message, stack: err.stack });
+  // Handle CSRF token errors gracefully
+  if (err.code === 'EBADCSRFTOKEN') {
+    logger.warn('CSRF token validation failed', { path: req.path, ip: req.ip });
+    return res.status(403).json({ error: 'Security token expired. Please refresh the page and try again.' });
+  }
+  logger.error('Unhandled error', { error: err.message, stack: isProduction ? undefined : err.stack });
   if (req.path.startsWith('/api/')) {
     return res.status(500).json({ error: 'Server error' });
   }
@@ -478,14 +489,29 @@ app.use((err, req, res, next) => {
 // Start
 async function startServer() {
   await initializeFiles();
-  app.listen(PORT, () => {
+  const server = app.listen(PORT, () => {
+    const base = isProduction
+      ? (process.env.SITE_URL || `http://0.0.0.0:${PORT}`)
+      : `http://localhost:${PORT}`;
     logger.info('Server started', {
       port: PORT,
-      website: `http://localhost:${PORT}/`,
-      login: `http://localhost:${PORT}/login.html`,
-      contactsApi: `http://localhost:${PORT}/api/contacts`,
+      env: isProduction ? 'production' : 'development',
+      website: `${base}/`,
+      login: `${base}/login.html`,
     });
   });
+
+  // Graceful shutdown
+  const shutdown = (signal) => {
+    logger.info(`${signal} received. Shutting down gracefully.`);
+    server.close(() => {
+      logger.info('Server closed.');
+      process.exit(0);
+    });
+    setTimeout(() => { process.exit(1); }, 10000);
+  };
+  process.on('SIGTERM', () => shutdown('SIGTERM'));
+  process.on('SIGINT', () => shutdown('SIGINT'));
 }
 
 startServer();
