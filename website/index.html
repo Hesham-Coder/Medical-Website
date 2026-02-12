@@ -329,84 +329,6 @@
         html.lang-ar, html.lang-ar body { font-family: 'Tajawal', sans-serif; }
         html.lang-en, html.lang-en body { font-family: 'Manrope', sans-serif; }
 
-        /* Attention-Guided Navigation (Depth-of-Field) */
-        :root {
-            --focus-ease: cubic-bezier(0.4, 0, 0.2, 1);
-            --focus-duration: 680ms;
-            --focus-inactive-opacity: 0.44;
-            --focus-inactive-scale: 0.95;
-            --focus-inactive-blur: 10px;
-            --focus-inactive-grayscale: 50%;
-            --focus-stagger-step: 90ms;
-        }
-
-        body.lang-transitioning {
-            opacity: 0;
-            transition: opacity 240ms var(--focus-ease);
-        }
-
-        main.dynamic-section-focus [data-section-id] {
-            transition:
-                opacity var(--focus-duration) var(--focus-ease),
-                transform var(--focus-duration) var(--focus-ease),
-                filter var(--focus-duration) var(--focus-ease);
-            transform-origin: center center;
-            transform-style: preserve-3d;
-            backface-visibility: hidden;
-            will-change: transform, opacity, filter;
-        }
-
-        main.dynamic-section-focus.has-focus-state [data-section-id] {
-            opacity: var(--focus-inactive-opacity);
-            transform: translateZ(0) scale(var(--focus-inactive-scale));
-            filter: blur(var(--focus-inactive-blur)) grayscale(var(--focus-inactive-grayscale));
-        }
-
-        main.dynamic-section-focus.has-focus-state [data-section-id].is-section-active {
-            opacity: 1;
-            transform: translateZ(0) scale(1);
-            filter: blur(0) grayscale(0%);
-            position: relative;
-            z-index: 2;
-        }
-
-        [data-focus-stagger-item] {
-            transform: translate3d(0, 10px, 0);
-            opacity: 0.75;
-            transition:
-                transform var(--focus-duration) var(--focus-ease),
-                opacity var(--focus-duration) var(--focus-ease);
-            transition-delay: calc(var(--focus-stagger-step) * var(--stagger-index, 0));
-            backface-visibility: hidden;
-            will-change: transform, opacity;
-        }
-
-        [data-section-id].is-section-active [data-focus-stagger-item] {
-            transform: translate3d(0, 0, 0);
-            opacity: 1;
-        }
-
-        @media (max-width: 768px) {
-            :root {
-                --focus-inactive-opacity: 0.68;
-                --focus-inactive-scale: 0.98;
-                --focus-inactive-blur: 4px;
-            }
-        }
-
-        @media (prefers-reduced-motion: reduce) {
-            body.lang-transitioning {
-                transition: none !important;
-            }
-            main.dynamic-section-focus [data-section-id],
-            [data-focus-stagger-item] {
-                transition: none !important;
-                filter: none !important;
-                transform: none !important;
-                will-change: auto !important;
-            }
-            main.dynamic-section-focus.has-focus-state [data-section-id] {
-                opacity: 1 !important;
         /* Dynamic Section Focus: active section emphasized, others softened */
         main.dynamic-section-focus [data-section-id] {
             transition: opacity 0.45s ease, filter 0.45s ease, transform 0.45s ease, box-shadow 0.45s ease;
@@ -743,20 +665,6 @@
             </div>
         </section>
 
-
-        <!-- Testimonials Section -->
-        <section id="testimonials" data-section-id="testimonials" class="py-16 sm:py-24 lg:py-28 bg-slate-50">
-            <div class="mx-auto max-w-7xl px-4 sm:px-6">
-                <div class="text-center max-w-3xl mx-auto mb-12 sm:mb-16">
-                    <div class="inline-flex items-center gap-2 glass px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-brand-blue-dark font-bold text-[10px] sm:text-xs uppercase tracking-widest mb-4 sm:mb-6">
-                        Patient Testimonials
-                    </div>
-                    <h2 class="text-3xl sm:text-4xl lg:text-6xl font-black text-slate-900 mb-4 sm:mb-6" data-content="testimonialsSection.heading">Patient Stories</h2>
-                    <p class="text-base sm:text-lg lg:text-xl text-slate-600" data-content="testimonialsSection.subheading">Real feedback from patients and families we have supported.</p>
-                </div>
-                <div id="testimonialsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8"></div>
-            </div>
-        </section>
 
         <!-- About Section -->
         <section id="about" data-section-id="about" class="py-16 sm:py-24 lg:py-32 bg-white relative overflow-hidden">
@@ -1333,12 +1241,6 @@
         `;
         document.head.appendChild(style);
 
-        // ===== Attention-Guided Navigation (Depth-of-Field) =====
-        function initDynamicSectionFocus() {
-            const main = document.querySelector('main');
-            if (!main || !('IntersectionObserver' in window)) return;
-            if (main.dataset.focusInitialized === 'true') return;
-            main.dataset.focusInitialized = 'true';
 
         // ===== Dynamic Section Focus (active section emphasis) =====
         function initDynamicSectionFocus() {
@@ -1349,25 +1251,6 @@
             if (!sections.length) return;
 
             main.classList.add('dynamic-section-focus');
-            const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-            let activeSectionId = null;
-
-            sections.forEach((section) => {
-                const staggerTargets = section.querySelectorAll('h2, h3, p, .card-3d, .tilt-card, article, .expert-row, .expert-info, img, .btn-primary, .btn-secondary, .btn-danger, a');
-                let idx = 0;
-                staggerTargets.forEach((node) => {
-                    if (node.closest('[data-section-id]') !== section) return;
-                    if (node.dataset.focusStaggerItem === 'true') return;
-                    node.dataset.focusStaggerItem = 'true';
-                    node.style.setProperty('--stagger-index', String(idx));
-                    idx += 1;
-                });
-            });
-
-            function setActiveSection(id) {
-                if (!id || id === activeSectionId) return;
-                activeSectionId = id;
-                if (!reduceMotion) main.classList.add('has-focus-state');
             let activeSectionId = null;
 
             function setActiveSection(id) {
@@ -1380,15 +1263,6 @@
             }
 
             const focusObserver = new IntersectionObserver((entries) => {
-                const candidates = entries
-                    .filter((entry) => entry.isIntersecting && entry.intersectionRatio >= 0.5)
-                    .sort((a, b) => b.intersectionRatio - a.intersectionRatio);
-                if (candidates.length) {
-                    setActiveSection(candidates[0].target.getAttribute('data-section-id'));
-                }
-            }, {
-                threshold: [0.5, 0.65, 0.8, 1],
-                rootMargin: '-20% 0px -20% 0px'
                 let best = null;
                 entries.forEach((entry) => {
                     if (!entry.isIntersecting) return;
@@ -1404,7 +1278,6 @@
 
             sections.forEach((section) => focusObserver.observe(section));
 
-            const marker = window.innerHeight * 0.5;
             const marker = window.innerHeight * 0.45;
             const initial = sections.find((section) => {
                 const rect = section.getBoundingClientRect();
@@ -1818,13 +1691,6 @@
             function switchLanguage(lang) {
                 if (!lang || lang === currentLang) return;
                 localStorage.setItem('lang', lang);
-                var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-                if (reduceMotion) {
-                    window.location.reload();
-                    return;
-                }
-                document.body.classList.add('lang-transitioning');
-                window.setTimeout(function() { window.location.reload(); }, 240);
                 window.location.reload();
             }
             var EXPERT_GRADIENTS = ['from-blue-100 to-blue-50', 'from-red-100 to-red-50', 'from-green-100 to-green-50', 'from-purple-100 to-purple-50', 'from-orange-100 to-orange-50', 'from-cyan-100 to-cyan-50'];
@@ -1928,7 +1794,6 @@
                 applyExperts(c);
                 applyServices(c);
                 applyTestimonials(c);
-                initDynamicSectionFocus();
                 setLanguage(currentLang);
                 document.querySelectorAll('.lang-toggle').forEach(function(btn) {
                     btn.addEventListener('click', function() { switchLanguage(btn.getAttribute('data-lang')); });
