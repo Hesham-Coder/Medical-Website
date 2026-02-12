@@ -325,6 +325,38 @@
         /* i18n: RTL uses Tajawal; LTR uses Manrope */
         html.lang-ar, html.lang-ar body { font-family: 'Tajawal', sans-serif; }
         html.lang-en, html.lang-en body { font-family: 'Manrope', sans-serif; }
+
+        /* Dynamic Section Focus: active section emphasized, others softened */
+        main.dynamic-section-focus [data-section-id] {
+            transition: opacity 0.45s ease, filter 0.45s ease, transform 0.45s ease, box-shadow 0.45s ease;
+            transform-origin: center top;
+        }
+        main.dynamic-section-focus.has-focus-state [data-section-id] {
+            opacity: 0.42;
+            filter: saturate(0.8) blur(1.25px);
+            transform: scale(0.992);
+        }
+        main.dynamic-section-focus.has-focus-state [data-section-id].is-section-active {
+            opacity: 1;
+            filter: saturate(1) blur(0);
+            transform: scale(1);
+            position: relative;
+            z-index: 2;
+        }
+        @media (max-width: 768px) {
+            main.dynamic-section-focus.has-focus-state [data-section-id] {
+                opacity: 0.7;
+                filter: saturate(0.9) blur(0.4px);
+                transform: none;
+            }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            main.dynamic-section-focus [data-section-id] {
+                transition: opacity 0.2s ease !important;
+                transform: none !important;
+                filter: none !important;
+            }
+        }
     </style>
 
     <!-- Tailwind Configuration -->
@@ -628,6 +660,21 @@
                 <div id="expertsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8 perspective-container">
                     <!-- Expert cards injected by JS -->
                 </div>
+            </div>
+        </section>
+
+
+        <!-- Testimonials Section -->
+        <section id="testimonials" data-section-id="testimonials" class="py-16 sm:py-24 lg:py-28 bg-slate-50">
+            <div class="mx-auto max-w-7xl px-4 sm:px-6">
+                <div class="text-center max-w-3xl mx-auto mb-12 sm:mb-16">
+                    <div class="inline-flex items-center gap-2 glass px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-brand-blue-dark font-bold text-[10px] sm:text-xs uppercase tracking-widest mb-4 sm:mb-6">
+                        Patient Testimonials
+                    </div>
+                    <h2 class="text-3xl sm:text-4xl lg:text-6xl font-black text-slate-900 mb-4 sm:mb-6" data-content="testimonialsSection.heading">Patient Stories</h2>
+                    <p class="text-base sm:text-lg lg:text-xl text-slate-600" data-content="testimonialsSection.subheading">Real feedback from patients and families we have supported.</p>
+                </div>
+                <div id="testimonialsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8"></div>
             </div>
         </section>
 
@@ -1176,6 +1223,53 @@
         `;
         document.head.appendChild(style);
 
+
+        // ===== Dynamic Section Focus (active section emphasis) =====
+        function initDynamicSectionFocus() {
+            const main = document.querySelector('main');
+            if (!main || !('IntersectionObserver' in window)) return;
+
+            const sections = Array.from(main.querySelectorAll('[data-section-id]'));
+            if (!sections.length) return;
+
+            main.classList.add('dynamic-section-focus');
+            let activeSectionId = null;
+
+            function setActiveSection(id) {
+                if (!id || id === activeSectionId) return;
+                activeSectionId = id;
+                main.classList.add('has-focus-state');
+                sections.forEach((section) => {
+                    section.classList.toggle('is-section-active', section.getAttribute('data-section-id') === id);
+                });
+            }
+
+            const focusObserver = new IntersectionObserver((entries) => {
+                let best = null;
+                entries.forEach((entry) => {
+                    if (!entry.isIntersecting) return;
+                    if (!best || entry.intersectionRatio > best.intersectionRatio) best = entry;
+                });
+                if (best && best.target) {
+                    setActiveSection(best.target.getAttribute('data-section-id'));
+                }
+            }, {
+                threshold: [0.2, 0.4, 0.6, 0.8],
+                rootMargin: '-8% 0px -40% 0px'
+            });
+
+            sections.forEach((section) => focusObserver.observe(section));
+
+            const marker = window.innerHeight * 0.45;
+            const initial = sections.find((section) => {
+                const rect = section.getBoundingClientRect();
+                const style = window.getComputedStyle(section);
+                return style.display !== 'none' && rect.top <= marker && rect.bottom >= marker;
+            }) || sections.find((section) => window.getComputedStyle(section).display !== 'none');
+
+            if (initial) setActiveSection(initial.getAttribute('data-section-id'));
+        }
+
         // ===== Mobile Menu Toggle =====
         function toggleMobileMenu() {
             const menu = document.getElementById('mobileMenu');
@@ -1575,6 +1669,12 @@
                 });
                 if (websiteContent) applyContent(websiteContent, lang);
             }
+
+            function switchLanguage(lang) {
+                if (!lang || lang === currentLang) return;
+                localStorage.setItem('lang', lang);
+                window.location.reload();
+            }
             var EXPERT_GRADIENTS = ['from-blue-100 to-blue-50', 'from-red-100 to-red-50', 'from-green-100 to-green-50', 'from-purple-100 to-purple-50', 'from-orange-100 to-orange-50', 'from-cyan-100 to-cyan-50'];
             var EXPERT_BADGES = ['bg-brand-blue-light', 'bg-brand-red-cta', 'bg-green-600', 'bg-purple-600', 'bg-orange-600', 'bg-cyan-600'];
             var EXPERT_DELAYS = ['delay-100', 'delay-200', 'delay-300', 'delay-400', 'delay-500', 'delay-600'];
@@ -1619,6 +1719,25 @@
                         '</div></div>';
                 }).join('');
             }
+
+            function applyTestimonials(c) {
+                var grid = document.getElementById('testimonialsGrid');
+                if (!grid) return;
+                var list = Array.isArray(c.testimonials) ? c.testimonials.filter(function(t) { return t && t.visible !== false; }) : [];
+                grid.innerHTML = list.map(function(t, i) {
+                    var quote = getLocalized(t.quote || '', currentLang);
+                    var author = getLocalized(t.author || '', currentLang);
+                    var role = getLocalized(t.role || '', currentLang);
+                    var delay = EXPERT_DELAYS[i % EXPERT_DELAYS.length];
+                    return '<article class="bg-white rounded-2xl sm:rounded-3xl p-6 sm:p-8 shadow-sm hover:shadow-xl transition-all duration-300 animate-scale-in ' + delay + '">' +
+                        '<p class="text-slate-700 text-sm sm:text-base leading-relaxed mb-6">“' + escapeHtml(quote || '') + '”</p>' +
+                        '<div class="border-t border-slate-100 pt-4">' +
+                        '<h4 class="font-bold text-slate-900">' + escapeHtml(author || 'Anonymous') + '</h4>' +
+                        (role ? '<p class="text-xs sm:text-sm text-slate-500">' + escapeHtml(role) + '</p>' : '') +
+                        '</div></article>';
+                }).join('');
+            }
+
             function applyServices(c) {
                 var grid = document.getElementById('servicesGrid');
                 if (!grid || !c.services || !Array.isArray(c.services)) return;
@@ -1656,14 +1775,17 @@
                 applySections(c);
                 applyExperts(c);
                 applyServices(c);
+                applyTestimonials(c);
+                initDynamicSectionFocus();
                 setLanguage(currentLang);
                 document.querySelectorAll('.lang-toggle').forEach(function(btn) {
-                    btn.addEventListener('click', function() { setLanguage(btn.getAttribute('data-lang')); });
+                    btn.addEventListener('click', function() { switchLanguage(btn.getAttribute('data-lang')); });
                 });
             }).catch(function() {
+                initDynamicSectionFocus();
                 setLanguage(currentLang);
                 document.querySelectorAll('.lang-toggle').forEach(function(btn) {
-                    btn.addEventListener('click', function() { setLanguage(btn.getAttribute('data-lang')); });
+                    btn.addEventListener('click', function() { switchLanguage(btn.getAttribute('data-lang')); });
                 });
             });
         })();
