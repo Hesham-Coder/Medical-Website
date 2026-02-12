@@ -325,38 +325,6 @@
         /* i18n: RTL uses Tajawal; LTR uses Manrope */
         html.lang-ar, html.lang-ar body { font-family: 'Tajawal', sans-serif; }
         html.lang-en, html.lang-en body { font-family: 'Manrope', sans-serif; }
-
-        /* Dynamic Section Focus: active section emphasized, others softened */
-        main.dynamic-section-focus [data-section-id] {
-            transition: opacity 0.45s ease, filter 0.45s ease, transform 0.45s ease, box-shadow 0.45s ease;
-            transform-origin: center top;
-        }
-        main.dynamic-section-focus.has-focus-state [data-section-id] {
-            opacity: 0.42;
-            filter: saturate(0.8) blur(1.25px);
-            transform: scale(0.992);
-        }
-        main.dynamic-section-focus.has-focus-state [data-section-id].is-section-active {
-            opacity: 1;
-            filter: saturate(1) blur(0);
-            transform: scale(1);
-            position: relative;
-            z-index: 2;
-        }
-        @media (max-width: 768px) {
-            main.dynamic-section-focus.has-focus-state [data-section-id] {
-                opacity: 0.7;
-                filter: saturate(0.9) blur(0.4px);
-                transform: none;
-            }
-        }
-        @media (prefers-reduced-motion: reduce) {
-            main.dynamic-section-focus [data-section-id] {
-                transition: opacity 0.2s ease !important;
-                transform: none !important;
-                filter: none !important;
-            }
-        }
     </style>
 
     <!-- Tailwind Configuration -->
@@ -1223,53 +1191,6 @@
         `;
         document.head.appendChild(style);
 
-
-        // ===== Dynamic Section Focus (active section emphasis) =====
-        function initDynamicSectionFocus() {
-            const main = document.querySelector('main');
-            if (!main || !('IntersectionObserver' in window)) return;
-
-            const sections = Array.from(main.querySelectorAll('[data-section-id]'));
-            if (!sections.length) return;
-
-            main.classList.add('dynamic-section-focus');
-            let activeSectionId = null;
-
-            function setActiveSection(id) {
-                if (!id || id === activeSectionId) return;
-                activeSectionId = id;
-                main.classList.add('has-focus-state');
-                sections.forEach((section) => {
-                    section.classList.toggle('is-section-active', section.getAttribute('data-section-id') === id);
-                });
-            }
-
-            const focusObserver = new IntersectionObserver((entries) => {
-                let best = null;
-                entries.forEach((entry) => {
-                    if (!entry.isIntersecting) return;
-                    if (!best || entry.intersectionRatio > best.intersectionRatio) best = entry;
-                });
-                if (best && best.target) {
-                    setActiveSection(best.target.getAttribute('data-section-id'));
-                }
-            }, {
-                threshold: [0.2, 0.4, 0.6, 0.8],
-                rootMargin: '-8% 0px -40% 0px'
-            });
-
-            sections.forEach((section) => focusObserver.observe(section));
-
-            const marker = window.innerHeight * 0.45;
-            const initial = sections.find((section) => {
-                const rect = section.getBoundingClientRect();
-                const style = window.getComputedStyle(section);
-                return style.display !== 'none' && rect.top <= marker && rect.bottom >= marker;
-            }) || sections.find((section) => window.getComputedStyle(section).display !== 'none');
-
-            if (initial) setActiveSection(initial.getAttribute('data-section-id'));
-        }
-
         // ===== Mobile Menu Toggle =====
         function toggleMobileMenu() {
             const menu = document.getElementById('mobileMenu');
@@ -1781,7 +1702,6 @@
                     btn.addEventListener('click', function() { switchLanguage(btn.getAttribute('data-lang')); });
                 });
             }).catch(function() {
-                initDynamicSectionFocus();
                 setLanguage(currentLang);
                 document.querySelectorAll('.lang-toggle').forEach(function(btn) {
                     btn.addEventListener('click', function() { switchLanguage(btn.getAttribute('data-lang')); });
