@@ -346,6 +346,33 @@
             </div>
         </div>
 
+
+        <div class="card">
+            <h2>Testimonials</h2>
+            <p style="font-size: 13px; color: #666; margin-bottom: 12px;">Manage patient testimonials shown on the website. Drag to reorder and toggle visibility.</p>
+            <ul class="experts-list" id="testimonialsList"></ul>
+            <button type="button" class="btn-primary" id="addTestimonialBtn" style="margin-top: 12px;">Add testimonial</button>
+            <div class="expert-form" id="testimonialForm">
+                <h3 style="font-size: 16px; margin-bottom: 12px;" id="testimonialFormTitle">Edit testimonial</h3>
+                <div class="form-group"><label>Quote (English)</label><textarea id="testimonialQuoteEn" rows="3"></textarea></div>
+                <div class="form-group"><label>Quote (Arabic)</label><textarea id="testimonialQuoteAr" rows="3"></textarea></div>
+                <div class="form-group"><label>Author (English)</label><input type="text" id="testimonialAuthorEn"></div>
+                <div class="form-group"><label>Author (Arabic)</label><input type="text" id="testimonialAuthorAr"></div>
+                <div class="form-group"><label>Role (English)</label><input type="text" id="testimonialRoleEn"></div>
+                <div class="form-group"><label>Role (Arabic)</label><input type="text" id="testimonialRoleAr"></div>
+                <div class="form-group">
+                    <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                        <div class="toggle" id="testimonialVisibleToggle" role="button" tabindex="0"></div>
+                        <span>Visible on website</span>
+                    </label>
+                </div>
+                <div style="display: flex; gap: 10px; margin-top: 16px;">
+                    <button type="button" class="btn-primary" id="testimonialFormSave">Save</button>
+                    <button type="button" class="btn-secondary" id="testimonialFormCancel">Cancel</button>
+                </div>
+            </div>
+        </div>
+
         <div class="card">
             <h2>Edit content</h2>
             <p style="font-size: 13px; color: #666; margin-bottom: 12px;">Use <strong>English</strong> / <strong>Arabic</strong> tabs in each section to edit both languages. Changes save automatically.</p>
@@ -399,6 +426,7 @@
                 hero: 'Hero',
                 services: 'Services',
                 team: 'Team',
+                testimonials: 'Testimonials',
                 about: 'About',
                 contact: 'Contact',
                 cta: 'CTA Banner'
@@ -425,13 +453,30 @@
                 { name: 'Dr. James Wilson', title: 'Surgical Oncologist', imageUrl: '', bio: 'Pioneer in minimally invasive surgical techniques.', icon: 'surgical', visible: true }
             ];
             function applyDefaults(c) {
-                if (!c.sectionsOrder) c.sectionsOrder = ['hero', 'services', 'team', 'about', 'contact', 'cta'];
+                if (!c.sectionsOrder) c.sectionsOrder = ['hero', 'services', 'team', 'testimonials', 'about', 'contact', 'cta'];
                 if (!c.sectionVisibility) {
                     c.sectionVisibility = {};
                     c.sectionsOrder.forEach(function(id) { c.sectionVisibility[id] = true; });
                 }
+                if (c.sectionVisibility.testimonials === undefined) c.sectionVisibility.testimonials = true;
+                if (!c.sectionsOrder.includes('testimonials')) {
+                    var aboutIndex = c.sectionsOrder.indexOf('about');
+                    if (aboutIndex >= 0) c.sectionsOrder.splice(aboutIndex, 0, 'testimonials');
+                    else c.sectionsOrder.push('testimonials');
+                }
+
                 if (!c.teamSection) c.teamSection = { heading: 'World-Class Specialists', subheading: 'Our team combines decades of experience with cutting-edge research and compassionate care.' };
                 if (!Array.isArray(c.experts) || c.experts.length === 0) c.experts = DEFAULT_EXPERTS.slice();
+                if (!c.testimonialsSection) c.testimonialsSection = {
+                    heading: { en: 'Patient Stories', ar: 'تجارب المرضى' },
+                    subheading: { en: 'Real feedback from patients and families we have supported.', ar: 'آراء حقيقية من مرضى وعائلات تلقوا الرعاية لدينا.' }
+                };
+                if (!Array.isArray(c.testimonials) || c.testimonials.length === 0) {
+                    c.testimonials = [
+                        { quote: { en: 'The team explained every step clearly and supported my family throughout treatment.', ar: 'قام الفريق بشرح كل خطوة بوضوح وقدم دعمًا مستمرًا لي ولعائلتي طوال رحلة العلاج.' }, author: { en: 'Mariam A.', ar: 'مريم أ.' }, role: { en: 'Breast cancer survivor', ar: 'متعافية من سرطان الثدي' }, visible: true }
+                    ];
+                }
+
                 return c;
             }
 
@@ -496,25 +541,34 @@
 
             function renderSectionList() {
                 var list = document.getElementById('sectionList');
-                var order = content.sectionsOrder || [];
+                var order = Array.isArray(content.sectionsOrder) ? content.sectionsOrder.slice() : [];
+                var seen = {};
+                order = order.filter(function(id) {
+                    if (!id || seen[id]) return false;
+                    seen[id] = true;
+                    return true;
+                });
+                content.sectionsOrder = order;
+
                 list.innerHTML = '';
                 order.forEach(function(id) {
                     var li = document.createElement('li');
                     li.className = 'section-item';
                     li.dataset.sectionId = id;
                     li.innerHTML =
-                        '<span class="drag-handle" aria-hidden="true">⋮⋮</span>' +
+                        '<span class="drag-handle" aria-hidden="true" title="Drag to reorder">⋮⋮</span>' +
                         '<span class="label">' + (sectionLabels[id] || id) + '</span>' +
                         '<div class="toggle-wrap"><div class="toggle' + (content.sectionVisibility[id] !== false ? ' on' : '') + '" data-section-id="' + id + '" role="button" tabindex="0" aria-label="Toggle visibility"></div></div>';
                     list.appendChild(li);
                 });
 
-                // Sortable
+                // Sortable (re-create safely on each render)
                 if (window.Sortable) {
-                    new Sortable(list, {
+                    if (list._sectionSortable) list._sectionSortable.destroy();
+                    list._sectionSortable = new Sortable(list, {
                         animation: 150,
                         handle: '.drag-handle',
-                        onEnd: function(evt) {
+                        onEnd: function() {
                             var ids = [];
                             list.querySelectorAll('.section-item').forEach(function(item) {
                                 ids.push(item.dataset.sectionId);
@@ -816,6 +870,114 @@
                 };
             }
 
+
+            // ----- Testimonials management -----
+            var editingTestimonialIndex = -1;
+            function ensureTestimonialsArray() {
+                if (!Array.isArray(content.testimonials)) content.testimonials = [];
+            }
+            function renderTestimonialsList() {
+                ensureTestimonialsArray();
+                var list = document.getElementById('testimonialsList');
+                if (!list) return;
+                list.innerHTML = content.testimonials.map(function(t, i) {
+                    var quote = (t.quote && (t.quote.en || t.quote.ar)) || '';
+                    var author = (t.author && (t.author.en || t.author.ar)) || 'Anonymous';
+                    return '<li class="expert-row" data-index="' + i + '">' +
+                        '<span class="drag-handle" aria-hidden="true">⋮⋮</span>' +
+                        '<div class="expert-thumb-icon">💬</div>' +
+                        '<div class="expert-info"><span class="expert-name">' + author + '</span><br><span class="expert-title">' + quote + '</span></div>' +
+                        '<div class="expert-actions">' +
+                        '<div class="toggle' + (t.visible !== false ? ' on' : '') + '" data-testimonial-index="' + i + '"></div>' +
+                        '<button type="button" class="btn-icon" data-testimonial-edit="' + i + '">✎</button>' +
+                        '<button type="button" class="btn-icon" data-testimonial-delete="' + i + '">🗑</button>' +
+                        '</div></li>';
+                }).join('');
+                if (window.Sortable) {
+                    if (list._testimonialSortable) list._testimonialSortable.destroy();
+                    list._testimonialSortable = new Sortable(list, {
+                        animation: 150,
+                        handle: '.drag-handle',
+                        onEnd: function() {
+                            var indices = [];
+                            list.querySelectorAll('.expert-row').forEach(function(row) { indices.push(parseInt(row.dataset.index, 10)); });
+                            content.testimonials = indices.map(function(i) { return content.testimonials[i]; });
+                            scheduleSave();
+                            renderTestimonialsList();
+                        }
+                    });
+                }
+                list.querySelectorAll('[data-testimonial-index]').forEach(function(tog) {
+                    tog.onclick = function() {
+                        var i = parseInt(tog.getAttribute('data-testimonial-index'), 10);
+                        content.testimonials[i].visible = !content.testimonials[i].visible;
+                        tog.classList.toggle('on', content.testimonials[i].visible);
+                        scheduleSave();
+                    };
+                });
+                list.querySelectorAll('[data-testimonial-edit]').forEach(function(btn) {
+                    btn.onclick = function() { openTestimonialForm(parseInt(btn.getAttribute('data-testimonial-edit'), 10)); };
+                });
+                list.querySelectorAll('[data-testimonial-delete]').forEach(function(btn) {
+                    btn.onclick = function() { confirmDeleteTestimonial(parseInt(btn.getAttribute('data-testimonial-delete'), 10)); };
+                });
+            }
+            function openTestimonialForm(index) {
+                editingTestimonialIndex = index;
+                var t = content.testimonials[index] || {};
+                document.getElementById('testimonialFormTitle').textContent = index >= 0 ? 'Edit testimonial' : 'Add testimonial';
+                document.getElementById('testimonialQuoteEn').value = (t.quote && t.quote.en) || '';
+                document.getElementById('testimonialQuoteAr').value = (t.quote && t.quote.ar) || '';
+                document.getElementById('testimonialAuthorEn').value = (t.author && t.author.en) || '';
+                document.getElementById('testimonialAuthorAr').value = (t.author && t.author.ar) || '';
+                document.getElementById('testimonialRoleEn').value = (t.role && t.role.en) || '';
+                document.getElementById('testimonialRoleAr').value = (t.role && t.role.ar) || '';
+                document.getElementById('testimonialVisibleToggle').classList.toggle('on', t.visible !== false);
+                document.getElementById('testimonialForm').classList.add('show');
+            }
+            function closeTestimonialForm() {
+                editingTestimonialIndex = -1;
+                document.getElementById('testimonialForm').classList.remove('show');
+            }
+            function confirmDeleteTestimonial(index) {
+                var t = content.testimonials[index] || {};
+                var name = (t.author && (t.author.en || t.author.ar)) || 'this testimonial';
+                document.getElementById('confirmDeleteMessage').textContent = 'Remove "' + name + '" from the website? This cannot be undone.';
+                var modal = document.getElementById('confirmDeleteModal');
+                document.getElementById('confirmDeleteConfirm').onclick = function() {
+                    content.testimonials.splice(index, 1);
+                    scheduleSave();
+                    renderTestimonialsList();
+                    modal.style.display = 'none';
+                    showToast('Testimonial removed', 'success');
+                };
+                document.getElementById('confirmDeleteCancel').onclick = function() { modal.style.display = 'none'; };
+                modal.style.display = 'flex';
+            }
+            function setupTestimonialsUI() {
+                ensureTestimonialsArray();
+                document.getElementById('addTestimonialBtn').onclick = function() {
+                    content.testimonials.push({ quote: { en: '', ar: '' }, author: { en: '', ar: '' }, role: { en: '', ar: '' }, visible: true });
+                    editingTestimonialIndex = content.testimonials.length - 1;
+                    openTestimonialForm(editingTestimonialIndex);
+                    document.getElementById('testimonialFormTitle').textContent = 'Add testimonial';
+                };
+                document.getElementById('testimonialFormSave').onclick = function() {
+                    if (editingTestimonialIndex < 0) return;
+                    var t = content.testimonials[editingTestimonialIndex];
+                    t.quote = { en: document.getElementById('testimonialQuoteEn').value.trim(), ar: document.getElementById('testimonialQuoteAr').value.trim() };
+                    t.author = { en: document.getElementById('testimonialAuthorEn').value.trim(), ar: document.getElementById('testimonialAuthorAr').value.trim() };
+                    t.role = { en: document.getElementById('testimonialRoleEn').value.trim(), ar: document.getElementById('testimonialRoleAr').value.trim() };
+                    t.visible = document.getElementById('testimonialVisibleToggle').classList.contains('on');
+                    scheduleSave();
+                    closeTestimonialForm();
+                    renderTestimonialsList();
+                    showToast('Testimonial saved', 'success');
+                };
+                document.getElementById('testimonialFormCancel').onclick = closeTestimonialForm;
+                document.getElementById('testimonialVisibleToggle').onclick = function() { this.classList.toggle('on'); };
+            }
+
             function bindEditorFields(panelId, getSet) {
                 var panel = document.getElementById(panelId);
                 if (!panel) return;
@@ -912,6 +1074,10 @@
                     { id: 'teamSection', label: 'Experts section heading', fields: [
                         { key: 'teamSection.heading', label: 'Section heading', bilingual: true },
                         { key: 'teamSection.subheading', label: 'Subheading', bilingual: true }
+                    ]},
+                    { id: 'testimonials', label: 'Testimonials heading', fields: [
+                        { key: 'testimonialsSection.heading', label: 'Section heading', bilingual: true },
+                        { key: 'testimonialsSection.subheading', label: 'Subheading', bilingual: true }
                     ]},
                     { id: 'about', label: 'About', fields: [
                         { key: 'aboutSection.heading', label: 'Heading', bilingual: true },
@@ -1142,6 +1308,8 @@
                 setupExpertsUI();
                 renderServicesList();
                 setupServicesUI();
+                renderTestimonialsList();
+                setupTestimonialsUI();
                 renderEditors();
                 setupImageUpload('dropLogo', 'fileLogo', 'previewLogo', 'siteInfo.logoUrl');
                 setupImageUpload('dropHero', 'fileHero', 'previewHero', 'siteInfo.heroImageUrl');
