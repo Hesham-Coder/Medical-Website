@@ -239,8 +239,8 @@
     "about",
     "testimonials",
     "team",
-    "cta",
-    "contact"
+    "contact",
+    "cta"
   ],
   "sectionVisibility": {
     "hero": true,

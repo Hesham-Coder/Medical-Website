@@ -236,11 +236,11 @@
   "sectionsOrder": [
     "hero",
     "services",
-    "about",
-    "testimonials",
     "team",
-    "cta",
-    "contact"
+    "testimonials",
+    "about",
+    "contact",
+    "cta"
   ],
   "sectionVisibility": {
     "hero": true,

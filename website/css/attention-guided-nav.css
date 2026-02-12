@@ -1,0 +1,274 @@
+/* ============================================
+   ATTENTION-GUIDED NAVIGATION SYSTEM
+   Premium Depth-of-Field Effect for Medical Website
+   ============================================ */
+
+:root {
+  /* ===== Motion & Animation Variables ===== */
+  --focus-duration: 0.8s;
+  --focus-easing: cubic-bezier(0.4, 0, 0.2, 1);
+  --stagger-delay: 80ms;
+  
+  /* ===== Depth-of-Field Intensities ===== */
+  --blur-inactive: blur(10px);
+  --grayscale-inactive: grayscale(50%);
+  --scale-inactive: 0.95;
+  
+  --blur-active: blur(0px);
+  --grayscale-active: grayscale(0%);
+  --scale-active: 1;
+  
+  /* ===== Opacity Levels ===== */
+  --opacity-inactive: 0.6;
+  --opacity-active: 1;
+  
+  /* ===== Z-Index Management ===== */
+  --z-inactive: 1;
+  --z-active: 10;
+  
+  /* ===== Viewport Margins for Focus Zone ===== */
+  --focus-zone-top: 20%;
+  --focus-zone-bottom: 20%;
+}
+
+/* ===== Respect Reduced Motion Preference ===== */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --focus-duration: 0s;
+    --blur-inactive: blur(0px);
+    --grayscale-inactive: grayscale(0%);
+    --scale-inactive: 1;
+  }
+  
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ===== Section Base Styles ===== */
+section {
+  /* GPU Acceleration */
+  will-change: transform, opacity, filter;
+  backface-visibility: hidden;
+  transform-style: preserve-3d;
+  
+  /* Default Inactive State */
+  opacity: var(--opacity-inactive);
+  filter: var(--blur-inactive) var(--grayscale-inactive);
+  transform: scale(var(--scale-inactive));
+  
+  /* Smooth Transitions */
+  transition: 
+    opacity var(--focus-duration) var(--focus-easing),
+    filter var(--focus-duration) var(--focus-easing),
+    transform var(--focus-duration) var(--focus-easing);
+  
+  /* Positioning */
+  position: relative;
+  z-index: var(--z-inactive);
+}
+
+/* ===== Active Section State ===== */
+section.focus-active {
+  opacity: var(--opacity-active);
+  filter: var(--blur-active) var(--grayscale-active);
+  transform: scale(var(--scale-active));
+  z-index: var(--z-active);
+}
+
+/* ===== Child Elements Stagger Animation ===== */
+section.focus-active .stagger-child {
+  animation: staggerReveal var(--focus-duration) var(--focus-easing) forwards;
+}
+
+.stagger-child {
+  opacity: 0;
+  transform: translateY(10px);
+  will-change: opacity, transform;
+  backface-visibility: hidden;
+}
+
+@keyframes staggerReveal {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ===== Stagger Timing for Child Elements ===== */
+.stagger-child:nth-child(1) { animation-delay: calc(var(--stagger-delay) * 0); }
+.stagger-child:nth-child(2) { animation-delay: calc(var(--stagger-delay) * 1); }
+.stagger-child:nth-child(3) { animation-delay: calc(var(--stagger-delay) * 2); }
+.stagger-child:nth-child(4) { animation-delay: calc(var(--stagger-delay) * 3); }
+.stagger-child:nth-child(5) { animation-delay: calc(var(--stagger-delay) * 4); }
+.stagger-child:nth-child(6) { animation-delay: calc(var(--stagger-delay) * 5); }
+.stagger-child:nth-child(n+7) { animation-delay: calc(var(--stagger-delay) * 6); }
+
+/* ===== Card Elements with 3D Perspective ===== */
+.card-focus-aware {
+  will-change: transform, box-shadow;
+  backface-visibility: hidden;
+  transform-style: preserve-3d;
+  transition: 
+    transform var(--focus-duration) var(--focus-easing),
+    box-shadow var(--focus-duration) var(--focus-easing);
+}
+
+section.focus-active .card-focus-aware {
+  transform: translateZ(20px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+}
+
+/* ===== Text Elements with Selective Blur ===== */
+.text-focus-aware {
+  will-change: filter, opacity;
+  backface-visibility: hidden;
+}
+
+section:not(.focus-active) .text-focus-aware {
+  filter: blur(1px);
+  opacity: 0.8;
+}
+
+section.focus-active .text-focus-aware {
+  filter: blur(0px);
+  opacity: 1;
+}
+
+/* ===== Image Elements with Selective Blur ===== */
+.image-focus-aware {
+  will-change: filter;
+  backface-visibility: hidden;
+  transition: filter var(--focus-duration) var(--focus-easing);
+}
+
+section:not(.focus-active) .image-focus-aware {
+  filter: blur(5px) brightness(0.9);
+}
+
+section.focus-active .image-focus-aware {
+  filter: blur(0px) brightness(1);
+}
+
+/* ===== Language Transition Overlay ===== */
+.language-transition-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0);
+  backdrop-filter: blur(0px);
+  z-index: 9999;
+  pointer-events: none;
+  transition: 
+    background-color 0.3s ease-out,
+    backdrop-filter 0.3s ease-out;
+}
+
+.language-transition-overlay.active {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(8px);
+  pointer-events: auto;
+}
+
+body.language-transitioning {
+  overflow: hidden;
+}
+
+/* ===== Smooth Page Fade Transitions ===== */
+body {
+  transition: opacity 0.3s ease-out;
+}
+
+body.fade-out {
+  opacity: 0;
+}
+
+body.fade-in {
+  animation: fadeIn 0.3s ease-in forwards;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* ===== Focus Zone Indicator (Debug Mode) ===== */
+.focus-zone-indicator {
+  position: fixed;
+  top: var(--focus-zone-top);
+  left: 0;
+  right: 0;
+  height: calc(100% - var(--focus-zone-top) - var(--focus-zone-bottom));
+  border: 2px dashed rgba(59, 130, 246, 0.3);
+  pointer-events: none;
+  z-index: 999;
+  display: none;
+}
+
+body.debug-focus-zone .focus-zone-indicator {
+  display: block;
+}
+
+/* ===== Accessibility: High Contrast Mode ===== */
+@media (prefers-contrast: more) {
+  section {
+    --opacity-inactive: 0.4;
+    --blur-inactive: blur(15px);
+    --grayscale-inactive: grayscale(100%);
+  }
+  
+  section.focus-active {
+    --opacity-active: 1;
+    --blur-active: blur(0px);
+    --grayscale-active: grayscale(0%);
+  }
+}
+
+/* ===== Accessibility: Dark Mode Support ===== */
+@media (prefers-color-scheme: dark) {
+  .language-transition-overlay {
+    background: rgba(15, 23, 42, 0);
+  }
+  
+  .language-transition-overlay.active {
+    background: rgba(15, 23, 42, 0.95);
+  }
+}
+
+/* ===== Smooth Scrolling ===== */
+html {
+  scroll-behavior: smooth;
+}
+
+/* ===== Performance Optimization ===== */
+@supports (contain: layout) {
+  section {
+    contain: layout style paint;
+  }
+}
+
+/* ===== Print Media Optimization ===== */
+@media print {
+  section {
+    opacity: 1 !important;
+    filter: none !important;
+    transform: scale(1) !important;
+  }
+  
+  .language-transition-overlay,
+  .focus-zone-indicator {
+    display: none !important;
+  }
+}

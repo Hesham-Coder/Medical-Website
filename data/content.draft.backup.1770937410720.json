@@ -234,13 +234,13 @@
     }
   },
   "sectionsOrder": [
-    "hero",
     "services",
-    "about",
-    "testimonials",
+    "hero",
     "team",
-    "cta",
-    "contact"
+    "testimonials",
+    "about",
+    "contact",
+    "cta"
   ],
   "sectionVisibility": {
     "hero": true,
@@ -399,16 +399,6 @@
   },
   "experts": [
     {
-      "imageUrl": "/uploads/img-1770539371195-s6tgsj.jpg",
-      "bio": "Provides counseling and testing for hereditary cancer risk, helping families understand screening and prevention pathways.",
-      "experience": "10+ years in cancer genetics",
-      "certifications": "Certified genetic counselor",
-      "profileCtaLabel": "Ask about family risk assessment",
-      "profileCtaLink": "#contact",
-      "icon": "genetics",
-      "visible": true
-    },
-    {
       "name": "Dr. Michael Torres",
       "title": "Consultant Radiation Oncologist",
       "imageUrl": "/uploads/img-1770536873931-f4kfy0.jpg",
@@ -430,6 +420,16 @@
       "profileCtaLabel": "Discuss systemic therapy options",
       "profileCtaLink": "#contact",
       "icon": "medical_services",
+      "visible": true
+    },
+    {
+      "imageUrl": "/uploads/img-1770539371195-s6tgsj.jpg",
+      "bio": "Provides counseling and testing for hereditary cancer risk, helping families understand screening and prevention pathways.",
+      "experience": "10+ years in cancer genetics",
+      "certifications": "Certified genetic counselor",
+      "profileCtaLabel": "Ask about family risk assessment",
+      "profileCtaLink": "#contact",
+      "icon": "genetics",
       "visible": true
     },
     {

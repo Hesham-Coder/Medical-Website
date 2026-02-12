@@ -236,20 +236,18 @@
   "sectionsOrder": [
     "hero",
     "services",
-    "about",
-    "testimonials",
     "team",
-    "cta",
-    "contact"
+    "about",
+    "contact",
+    "cta"
   ],
   "sectionVisibility": {
     "hero": true,
     "services": true,
     "team": true,
     "about": true,
-    "contact": true,
-    "cta": true,
-    "testimonials": true
+    "contact": false,
+    "cta": false
   },
   "contactSection": {
     "heading": {
@@ -399,13 +397,15 @@
   },
   "experts": [
     {
-      "imageUrl": "/uploads/img-1770539371195-s6tgsj.jpg",
-      "bio": "Provides counseling and testing for hereditary cancer risk, helping families understand screening and prevention pathways.",
-      "experience": "10+ years in cancer genetics",
-      "certifications": "Certified genetic counselor",
-      "profileCtaLabel": "Ask about family risk assessment",
+      "name": "Dr. Sarah Chen",
+      "title": "Consultant Medical Oncologist",
+      "imageUrl": "/uploads/img-1770536859493-ic2ibv.jpg",
+      "bio": "Over 15 years of experience in systemic therapies for breast and gastrointestinal cancers, with a focus on symptom control and quality of life.",
+      "experience": "15+ years in medical oncology",
+      "certifications": "Board certified in Medical Oncology",
+      "profileCtaLabel": "Discuss systemic therapy options",
       "profileCtaLink": "#contact",
-      "icon": "genetics",
+      "icon": "medical_services",
       "visible": true
     },
     {
@@ -421,15 +421,13 @@
       "visible": true
     },
     {
-      "name": "Dr. Sarah Chen",
-      "title": "Consultant Medical Oncologist",
-      "imageUrl": "/uploads/img-1770536859493-ic2ibv.jpg",
-      "bio": "Over 15 years of experience in systemic therapies for breast and gastrointestinal cancers, with a focus on symptom control and quality of life.",
-      "experience": "15+ years in medical oncology",
-      "certifications": "Board certified in Medical Oncology",
-      "profileCtaLabel": "Discuss systemic therapy options",
+      "imageUrl": "/uploads/img-1770539371195-s6tgsj.jpg",
+      "bio": "Provides counseling and testing for hereditary cancer risk, helping families understand screening and prevention pathways.",
+      "experience": "10+ years in cancer genetics",
+      "certifications": "Certified genetic counselor",
+      "profileCtaLabel": "Ask about family risk assessment",
       "profileCtaLink": "#contact",
-      "icon": "medical_services",
+      "icon": "genetics",
       "visible": true
     },
     {
@@ -453,47 +451,5 @@
       "ar": "يقدم مركز شامل لعلاج الأورام في الإسكندرية رعاية منسقة قائمة على الدليل تشمل التشخيص والعلاج الدوائي والإشعاعي والجراحي والدعم النفسي والاستشارات الجينية."
     },
     "ogImage": "/uploads/seo-og-image.jpg"
-  },
-  "testimonialsSection": {
-    "heading": {
-      "en": "Patient Stories",
-      "ar": "تجارب المرضى"
-    },
-    "subheading": {
-      "en": "Real feedback from patients and families we have supported.",
-      "ar": "آراء حقيقية من مرضى وعائلات تلقوا الرعاية لدينا."
-    }
-  },
-  "testimonials": [
-    {
-      "quote": {
-        "en": "The team explained every step clearly and supported my family throughout treatment.",
-        "ar": "قام الفريق بشرح كل خطوة بوضوح وقدم دعمًا مستمرًا لي ولعائلتي طوال رحلة العلاج."
-      },
-      "author": {
-        "en": "Mariam A.",
-        "ar": "مريم أ."
-      },
-      "role": {
-        "en": "Breast cancer survivor",
-        "ar": "متعافية من سرطان الثدي"
-      },
-      "visible": true
-    },
-    {
-      "quote": {
-        "en": "i was amazed by the center and hospitality",
-        "ar": "صباح الخير هذا المكان رائع و مبهر"
-      },
-      "author": {
-        "en": "hamo el so8ayer",
-        "ar": "حمو الصغير"
-      },
-      "role": {
-        "en": "ROle",
-        "ar": "رول"
-      },
-      "visible": true
-    }
-  ]
+  }
 }

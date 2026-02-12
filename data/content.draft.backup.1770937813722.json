@@ -237,10 +237,10 @@
     "hero",
     "services",
     "about",
-    "testimonials",
     "team",
-    "cta",
-    "contact"
+    "testimonials",
+    "contact",
+    "cta"
   ],
   "sectionVisibility": {
     "hero": true,

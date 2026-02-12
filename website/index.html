@@ -31,6 +31,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
     
+    <!-- Attention-Guided Navigation CSS -->
+    <link rel="stylesheet" href="/css/attention-guided-nav.css">
+    
     <!-- Custom Styles -->
     <style type="text/tailwindcss">
         /* CSS Variables */
@@ -376,97 +379,35 @@
         html.lang-ar, html.lang-ar body { font-family: 'Tajawal', sans-serif; }
         html.lang-en, html.lang-en body { font-family: 'Manrope', sans-serif; }
 
-        /* Attention-Guided Navigation (Depth-of-Field) */
-        :root {
-            --focus-ease: cubic-bezier(0.4, 0, 0.2, 1);
-            --focus-duration: 680ms;
-            --focus-inactive-opacity: 0.44;
-            --focus-inactive-scale: 0.95;
-            --focus-inactive-blur: 10px;
-            --focus-inactive-grayscale: 50%;
-            --focus-stagger-step: 90ms;
-        }
-
-        body.lang-transitioning {
-            opacity: 0;
-            transition: opacity 240ms var(--focus-ease);
-        }
-
-        main.scroll-3d-lens {
-            perspective: 1200px;
-            perspective-origin: 50% 45%;
-            transform-style: preserve-3d;
-        }
-
+        /* Dynamic Section Focus: active section emphasized, others softened */
         main.dynamic-section-focus [data-section-id] {
-            transition:
-                opacity var(--focus-duration) var(--focus-ease),
-                transform var(--focus-duration) var(--focus-ease),
-                filter var(--focus-duration) var(--focus-ease);
-            transform-origin: center center;
-            transform-style: preserve-3d;
-            backface-visibility: hidden;
-            will-change: transform, opacity, filter;
+            transition: opacity 0.45s ease, filter 0.45s ease, transform 0.45s ease, box-shadow 0.45s ease;
+            transform-origin: center top;
         }
-
         main.dynamic-section-focus.has-focus-state [data-section-id] {
-            opacity: var(--focus-inactive-opacity);
-            transform: var(--scroll-depth-transform, translateZ(0)) scale(var(--focus-inactive-scale));
-            filter: blur(var(--focus-inactive-blur)) grayscale(var(--focus-inactive-grayscale));
+            opacity: 0.42;
+            filter: saturate(0.8) blur(1.25px);
+            transform: scale(0.992);
         }
-
         main.dynamic-section-focus.has-focus-state [data-section-id].is-section-active {
             opacity: 1;
-            transform: var(--scroll-depth-transform, translateZ(0)) scale(1);
-            filter: blur(0) grayscale(0%);
+            filter: saturate(1) blur(0);
+            transform: scale(1);
             position: relative;
             z-index: 2;
         }
-
-        [data-focus-stagger-item] {
-            transform: translate3d(0, 10px, 0);
-            opacity: 0.75;
-            transition:
-                transform var(--focus-duration) var(--focus-ease),
-                opacity var(--focus-duration) var(--focus-ease);
-            transition-delay: calc(var(--focus-stagger-step) * var(--stagger-index, 0));
-            backface-visibility: hidden;
-            will-change: transform, opacity;
-        }
-
-        [data-section-id].is-section-active [data-focus-stagger-item] {
-            transform: translate3d(0, 0, 0);
-            opacity: 1;
-        }
-
         @media (max-width: 768px) {
-            :root {
-                --focus-inactive-opacity: 0.68;
-                --focus-inactive-scale: 0.98;
-                --focus-inactive-blur: 4px;
+            main.dynamic-section-focus.has-focus-state [data-section-id] {
+                opacity: 0.7;
+                filter: saturate(0.9) blur(0.4px);
+                transform: none;
             }
         }
-
         @media (prefers-reduced-motion: reduce) {
-            body.lang-transitioning {
-                transition: none !important;
-            }
-            main.dynamic-section-focus [data-section-id],
-            [data-focus-stagger-item] {
-                transition: none !important;
-                filter: none !important;
-                transform: none !important;
-                will-change: auto !important;
-            }
             main.dynamic-section-focus [data-section-id] {
-                --scroll-depth-transform: translateZ(0) rotateX(0deg) !important;
-            }
-            main.dynamic-section-focus.has-focus-state [data-section-id] {
-                opacity: 1 !important;
-            }
-            .ambient-blob {
-                animation: none !important;
-                opacity: 0.12 !important;
+                transition: opacity 0.2s ease !important;
+                transform: none !important;
+                filter: none !important;
             }
         }
     </style>
@@ -532,7 +473,6 @@
                 <a href="#home" class="text-sm font-semibold text-slate-600 hover:text-brand-blue-light transition-colors">Home</a>
                 <a href="#services" class="text-sm font-semibold text-slate-600 hover:text-brand-blue-light transition-colors">Services</a>
                 <a href="#team" class="text-sm font-semibold text-slate-600 hover:text-brand-blue-light transition-colors">The Team</a>
-                <a href="#resources" class="text-sm font-semibold text-slate-600 hover:text-brand-blue-light transition-colors">Resources</a>
                 <a href="#contact" class="text-sm font-semibold text-slate-600 hover:text-brand-blue-light transition-colors">Contact</a>
             </nav>
 
@@ -781,20 +721,6 @@
         </section>
 
 
-        <!-- Testimonials Section -->
-        <section id="testimonials" data-section-id="testimonials" class="py-16 sm:py-24 lg:py-28 bg-slate-50">
-            <div class="mx-auto max-w-7xl px-4 sm:px-6">
-                <div class="text-center max-w-3xl mx-auto mb-12 sm:mb-16">
-                    <div class="inline-flex items-center gap-2 glass px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-brand-blue-dark font-bold text-[10px] sm:text-xs uppercase tracking-widest mb-4 sm:mb-6">
-                        Patient Testimonials
-                    </div>
-                    <h2 class="text-3xl sm:text-4xl lg:text-6xl font-black text-slate-900 mb-4 sm:mb-6" data-content="testimonialsSection.heading">Patient Stories</h2>
-                    <p class="text-base sm:text-lg lg:text-xl text-slate-600" data-content="testimonialsSection.subheading">Real feedback from patients and families we have supported.</p>
-                </div>
-                <div id="testimonialsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8"></div>
-            </div>
-        </section>
-
         <!-- About Section -->
         <section id="about" data-section-id="about" class="py-16 sm:py-24 lg:py-32 bg-white relative overflow-hidden">
             
@@ -896,6 +822,34 @@
                         <div class="absolute -top-6 -right-6 w-24 h-24 bg-brand-red-cta rounded-full opacity-20 blur-2xl animate-pulse-3d"></div>
                         <div class="absolute -bottom-6 -left-6 w-32 h-32 bg-brand-blue-light rounded-full opacity-15 blur-3xl animate-pulse-3d delay-300"></div>
                     </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Testimonials Section -->
+        <section id="testimonials" data-section-id="testimonials" class="py-16 sm:py-24 lg:py-32 bg-slate-50 relative overflow-hidden">
+            
+            <!-- Animated background elements -->
+            <div class="absolute top-0 left-0 w-96 h-96 bg-gradient-to-br from-brand-blue-light to-blue-100 rounded-full blur-3xl opacity-15 -ml-48 -mt-48 animate-pulse-3d"></div>
+            <div class="absolute bottom-0 right-0 w-80 h-80 bg-gradient-to-tl from-brand-red-cta to-red-100 rounded-full blur-3xl opacity-10 -mr-40 -mb-40 animate-pulse-3d delay-300"></div>
+            
+            <div class="mx-auto max-w-7xl px-4 sm:px-6 relative z-10">
+                <!-- Section Header -->
+                <div class="text-center max-w-3xl mx-auto mb-12 sm:mb-16 lg:mb-20 animate-slide-in-up">
+                    <div class="inline-flex items-center gap-2 glass px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-brand-blue-dark font-bold text-[10px] sm:text-xs uppercase tracking-widest mb-4 sm:mb-6 animate-fade-in">
+                        <span class="relative flex h-2 w-2">
+                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+                            <span class="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span>
+                        </span>
+                        Patient Stories
+                    </div>
+                    <h2 class="text-3xl sm:text-4xl lg:text-6xl font-black text-slate-900 mb-4 sm:mb-6 px-4 sm:px-0" data-content="testimonialsSection.heading">What Our Patients Say</h2>
+                    <p class="text-base sm:text-lg lg:text-xl text-slate-600 px-4 sm:px-0" data-content="testimonialsSection.subheading">Real stories from people who have walked the journey with us.</p>
+                </div>
+
+                <!-- Testimonials Grid -->
+                <div id="testimonialsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+                    <!-- Testimonial cards will be rendered here by JavaScript -->
                 </div>
             </div>
         </section>
@@ -1319,13 +1273,15 @@
         }, observerOptions);
 
         // Observe all elements with animation classes
-        document.addEventListener('DOMContentLoaded', () => {
-            const animatedElements = document.querySelectorAll('.animate-slide-in-left, .animate-slide-in-right, .animate-slide-in-up, .animate-fade-in, .animate-scale-in');
-            animatedElements.forEach(el => {
+        function observeAnimatedElements() {
+            var animatedElements = document.querySelectorAll('.animate-slide-in-left, .animate-slide-in-right, .animate-slide-in-up, .animate-fade-in, .animate-scale-in');
+            animatedElements.forEach(function(el) {
                 el.style.opacity = '0';
-                observer.observe(el);
+                try { observer.observe(el); } catch (e) { /* ignore */ }
             });
-        });
+        }
+        window.observeAnimatedElements = observeAnimatedElements;
+        document.addEventListener('DOMContentLoaded', observeAnimatedElements);
 
         // Add visible class styles dynamically
         const style = document.createElement('style');
@@ -1340,56 +1296,44 @@
         `;
         document.head.appendChild(style);
 
-        // ===== Attention-Guided Navigation (Depth-of-Field) =====
+
+        // ===== Dynamic Section Focus (active section emphasis) =====
         function initDynamicSectionFocus() {
             const main = document.querySelector('main');
             if (!main || !('IntersectionObserver' in window)) return;
-            if (main.dataset.focusInitialized === 'true') return;
-            main.dataset.focusInitialized = 'true';
 
             const sections = Array.from(main.querySelectorAll('[data-section-id]'));
             if (!sections.length) return;
 
             main.classList.add('dynamic-section-focus');
-            const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
             let activeSectionId = null;
-
-            sections.forEach((section) => {
-                const staggerTargets = section.querySelectorAll('h2, h3, p, .card-3d, .tilt-card, article, .expert-row, .expert-info, img, .btn-primary, .btn-secondary, .btn-danger, a');
-                let idx = 0;
-                staggerTargets.forEach((node) => {
-                    if (node.closest('[data-section-id]') !== section) return;
-                    if (node.dataset.focusStaggerItem === 'true') return;
-                    node.dataset.focusStaggerItem = 'true';
-                    node.style.setProperty('--stagger-index', String(idx));
-                    idx += 1;
-                });
-            });
 
             function setActiveSection(id) {
                 if (!id || id === activeSectionId) return;
                 activeSectionId = id;
-                if (!reduceMotion) main.classList.add('has-focus-state');
+                main.classList.add('has-focus-state');
                 sections.forEach((section) => {
                     section.classList.toggle('is-section-active', section.getAttribute('data-section-id') === id);
                 });
             }
 
             const focusObserver = new IntersectionObserver((entries) => {
-                const candidates = entries
-                    .filter((entry) => entry.isIntersecting && entry.intersectionRatio >= 0.5)
-                    .sort((a, b) => b.intersectionRatio - a.intersectionRatio);
-                if (candidates.length) {
-                    setActiveSection(candidates[0].target.getAttribute('data-section-id'));
+                let best = null;
+                entries.forEach((entry) => {
+                    if (!entry.isIntersecting) return;
+                    if (!best || entry.intersectionRatio > best.intersectionRatio) best = entry;
+                });
+                if (best && best.target) {
+                    setActiveSection(best.target.getAttribute('data-section-id'));
                 }
             }, {
-                threshold: [0.5, 0.65, 0.8, 1],
-                rootMargin: '-20% 0px -20% 0px'
+                threshold: [0.2, 0.4, 0.6, 0.8],
+                rootMargin: '-8% 0px -40% 0px'
             });
 
             sections.forEach((section) => focusObserver.observe(section));
 
-            const marker = window.innerHeight * 0.5;
+            const marker = window.innerHeight * 0.45;
             const initial = sections.find((section) => {
                 const rect = section.getBoundingClientRect();
                 const style = window.getComputedStyle(section);
@@ -1837,13 +1781,7 @@
             function switchLanguage(lang) {
                 if (!lang || lang === currentLang) return;
                 localStorage.setItem('lang', lang);
-                var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-                if (reduceMotion) {
-                    window.location.reload();
-                    return;
-                }
-                document.body.classList.add('lang-transitioning');
-                window.setTimeout(function() { window.location.reload(); }, 240);
+                window.location.reload();
             }
             var EXPERT_GRADIENTS = ['from-blue-100 to-blue-50', 'from-red-100 to-red-50', 'from-green-100 to-green-50', 'from-purple-100 to-purple-50', 'from-orange-100 to-orange-50', 'from-cyan-100 to-cyan-50'];
             var EXPERT_BADGES = ['bg-brand-blue-light', 'bg-brand-red-cta', 'bg-green-600', 'bg-purple-600', 'bg-orange-600', 'bg-cyan-600'];
@@ -1946,24 +1884,66 @@
                 applyExperts(c);
                 applyServices(c);
                 applyTestimonials(c);
-                initDynamicSectionFocus();
-                initScrollDepth3D();
-                applyScrollDepth3D();
                 setLanguage(currentLang);
                 document.querySelectorAll('.lang-toggle').forEach(function(btn) {
                     btn.addEventListener('click', function() { switchLanguage(btn.getAttribute('data-lang')); });
                 });
+                if (window.observeAnimatedElements) window.observeAnimatedElements();
             }).catch(function() {
                 initDynamicSectionFocus();
-                initScrollDepth3D();
-                applyScrollDepth3D();
                 setLanguage(currentLang);
                 document.querySelectorAll('.lang-toggle').forEach(function(btn) {
                     btn.addEventListener('click', function() { switchLanguage(btn.getAttribute('data-lang')); });
                 });
+                if (window.observeAnimatedElements) window.observeAnimatedElements();
             });
         })();
     </script>
 
+    <!-- Attention-Guided Navigation System -->
+    <script src="/js/attention-guided-nav.js"></script>
+    
+    <!-- Language Manager -->
+    <script src="/js/language-manager.js"></script>
+    
+    <!-- Accessibility Manager -->
+    <script src="/js/accessibility-manager.js"></script>
+
+    <!-- Initialize Systems -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize Attention-Guided Navigation
+            window.attentionNav = new AttentionGuidedNavigation({
+                focusZoneMargin: '20% 0px 20% 0px',
+                observerThreshold: 0.5,
+                debugMode: false,
+                enableLanguageTransition: true,
+                transitionDuration: 300,
+                staggerDelay: 80
+            });
+
+            // Initialize Language Manager
+            window.languageManager = new LanguageManager({
+                defaultLanguage: 'en',
+                supportedLanguages: ['en', 'ar'],
+                contentAPI: '/api/public/content',
+                enableAutoDetect: true,
+                transitionDuration: 300
+            });
+
+            // Initialize Accessibility Manager
+            window.accessibilityManager = new AccessibilityManager({
+                respectReducedMotion: true,
+                respectHighContrast: true,
+                respectColorScheme: true,
+                enableKeyboardNavigation: true,
+                enableScreenReaderSupport: true,
+                enableFocusIndicators: true
+            });
+
+            // Log initialization
+            console.log('%c✓ All Systems Initialized Successfully', 'color: #10b981; font-weight: bold; font-size: 14px;');
+        });
+    </script>
 </body>
-</html>
+</html>>
