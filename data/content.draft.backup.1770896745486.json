@@ -50,7 +50,7 @@
     }
   },
   "stats": {
-    "patientsServed": "2001",
+    "patientsServed": 5000,
     "successRate": 95,
     "specialists": 50,
     "yearsExperience": 20
@@ -177,7 +177,7 @@
   ],
   "aboutSection": {
     "heading": {
-      "en": "Hello From About Section",
+      "en": "Leading Cancer Care Through Innovation & Compassion",
       "ar": "ريادة في علاج الأورام بالعلم والإنسانية"
     },
     "paragraphs": [
@@ -237,9 +237,7 @@
     "hero",
     "services",
     "team",
-    "testimonials",
     "about",
-    "testimonials",
     "contact",
     "cta"
   ],
@@ -248,55 +246,9 @@
     "services": true,
     "team": true,
     "about": true,
-    "testimonials": true,
     "contact": true,
-    "cta": true,
-    "testimonials": true
+    "cta": true
   },
-  "testimonialsSection": {
-    "heading": {
-      "en": "What Our Patients Say",
-      "ar": "ماذا يقول مرضانا"
-    },
-    "subheading": {
-      "en": "Real stories from people who have walked the journey with us.",
-      "ar": "قصص حقيقية من أشخاص خاضوا رحلة العلاج معنا."
-    }
-  },
-  "testimonials": [
-    {
-      "name": {
-        "en": "Ahmed Hassan",
-        "ar": "أحمد حسن"
-      },
-      "role": {
-        "en": "Patient",
-        "ar": "مريض"
-      },
-      "content": {
-        "en": "The care I received at the Comprehensive Cancer Center was exceptional. The team was supportive and professional throughout my treatment.",
-        "ar": "كانت الرعاية التي تلقيتها في المركز شاملة واستثنائية. كان الفريق داعمًا ومحترفًا طوال فترة علاجي."
-      },
-      "rating": 5,
-      "visible": true
-    },
-    {
-      "name": {
-        "en": "Sara Mahmoud",
-        "ar": "سارة محمود"
-      },
-      "role": {
-        "en": "Patient Family",
-        "ar": "أهل مريض"
-      },
-      "content": {
-        "en": "They made a difficult journey much easier for our family. We are grateful for their expertise and compassion.",
-        "ar": "لقد جعلوا الرحلة الصعبة أسهل بكثير لعائلتنا. نحن ممتنون لخبرتهم وتعاطفهم."
-      },
-      "rating": 5,
-      "visible": true
-    }
-  ],
   "contactSection": {
     "heading": {
       "en": "Start a confidential conversation with our team",
@@ -499,47 +451,5 @@
       "ar": "يقدم مركز شامل لعلاج الأورام في الإسكندرية رعاية منسقة قائمة على الدليل تشمل التشخيص والعلاج الدوائي والإشعاعي والجراحي والدعم النفسي والاستشارات الجينية."
     },
     "ogImage": "/uploads/seo-og-image.jpg"
-  },
-  "testimonialsSection": {
-    "heading": {
-      "en": "Patient Stories",
-      "ar": "تجارب المرضى"
-    },
-    "subheading": {
-      "en": "Real feedback from patients and families we have supported.",
-      "ar": "آراء حقيقية من مرضى وعائلات تلقوا الرعاية لدينا."
-    }
-  },
-  "testimonials": [
-    {
-      "quote": {
-        "en": "The team explained every step clearly and supported my family throughout treatment.",
-        "ar": "قام الفريق بشرح كل خطوة بوضوح وقدم دعمًا مستمرًا لي ولعائلتي طوال رحلة العلاج."
-      },
-      "author": {
-        "en": "Mariam A.",
-        "ar": "مريم أ."
-      },
-      "role": {
-        "en": "Breast cancer survivor",
-        "ar": "متعافية من سرطان الثدي"
-      },
-      "visible": true
-    },
-    {
-      "quote": {
-        "en": "i was amazed by the center and hospitality",
-        "ar": "صباح الخير هذا المكان رائع و مبهر"
-      },
-      "author": {
-        "en": "hamo el so8ayer",
-        "ar": "حمو الصغير"
-      },
-      "role": {
-        "en": "ROle",
-        "ar": "رول"
-      },
-      "visible": true
-    }
-  ]
+  }
 }

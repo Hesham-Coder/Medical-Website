@@ -239,7 +239,6 @@
     "team",
     "testimonials",
     "about",
-    "testimonials",
     "contact",
     "cta"
   ],
@@ -248,55 +247,10 @@
     "services": true,
     "team": true,
     "about": true,
-    "testimonials": true,
     "contact": true,
     "cta": true,
     "testimonials": true
   },
-  "testimonialsSection": {
-    "heading": {
-      "en": "What Our Patients Say",
-      "ar": "ماذا يقول مرضانا"
-    },
-    "subheading": {
-      "en": "Real stories from people who have walked the journey with us.",
-      "ar": "قصص حقيقية من أشخاص خاضوا رحلة العلاج معنا."
-    }
-  },
-  "testimonials": [
-    {
-      "name": {
-        "en": "Ahmed Hassan",
-        "ar": "أحمد حسن"
-      },
-      "role": {
-        "en": "Patient",
-        "ar": "مريض"
-      },
-      "content": {
-        "en": "The care I received at the Comprehensive Cancer Center was exceptional. The team was supportive and professional throughout my treatment.",
-        "ar": "كانت الرعاية التي تلقيتها في المركز شاملة واستثنائية. كان الفريق داعمًا ومحترفًا طوال فترة علاجي."
-      },
-      "rating": 5,
-      "visible": true
-    },
-    {
-      "name": {
-        "en": "Sara Mahmoud",
-        "ar": "سارة محمود"
-      },
-      "role": {
-        "en": "Patient Family",
-        "ar": "أهل مريض"
-      },
-      "content": {
-        "en": "They made a difficult journey much easier for our family. We are grateful for their expertise and compassion.",
-        "ar": "لقد جعلوا الرحلة الصعبة أسهل بكثير لعائلتنا. نحن ممتنون لخبرتهم وتعاطفهم."
-      },
-      "rating": 5,
-      "visible": true
-    }
-  ],
   "contactSection": {
     "heading": {
       "en": "Start a confidential conversation with our team",
