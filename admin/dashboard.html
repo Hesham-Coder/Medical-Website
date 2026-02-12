@@ -567,12 +567,7 @@
                     if (list._sectionSortable) list._sectionSortable.destroy();
                     list._sectionSortable = new Sortable(list, {
                         animation: 150,
-                        draggable: '.section-item',
-                        handle: '.section-item',
-                        filter: '.toggle, .toggle-wrap, .toggle *',
-                        preventOnFilter: false,
-                        delayOnTouchOnly: true,
-                        delay: 120,
+                        handle: '.drag-handle',
                         onEnd: function() {
                             var ids = [];
                             list.querySelectorAll('.section-item').forEach(function(item) {
