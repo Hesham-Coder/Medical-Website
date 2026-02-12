@@ -539,6 +539,39 @@
                 }, SAVE_DEBOUNCE_MS);
             }
 
+            // Native drag-and-drop fallback when Sortable.js is not available
+            function enableNativeDrag(list, options) {
+                if (!list) return;
+                var dragged = null;
+                list.querySelectorAll('li').forEach(function(item) {
+                    item.draggable = true;
+                    item.addEventListener('dragstart', function(e) {
+                        dragged = item;
+                        item.classList.add('dragging');
+                        try { e.dataTransfer.setData('text/plain', 'drag'); } catch (err) {}
+                        e.dataTransfer.effectAllowed = 'move';
+                    });
+                    item.addEventListener('dragend', function() {
+                        if (dragged) dragged.classList.remove('dragging');
+                        dragged = null;
+                    });
+                });
+                list.addEventListener('dragover', function(e) {
+                    e.preventDefault();
+                    var target = e.target.closest('li');
+                    if (!target || target === dragged) return;
+                    var rect = target.getBoundingClientRect();
+                    var after = (e.clientY - rect.top) > rect.height / 2;
+                    if (after) target.parentNode.insertBefore(dragged, target.nextSibling);
+                    else target.parentNode.insertBefore(dragged, target);
+                });
+                list.addEventListener('drop', function(e) {
+                    e.preventDefault();
+                    if (typeof options === 'function') options();
+                    else if (options && typeof options.onEnd === 'function') options.onEnd();
+                });
+            }
+
             function renderSectionList() {
                 var list = document.getElementById('sectionList');
                 var order = Array.isArray(content.sectionsOrder) ? content.sectionsOrder.slice() : [];
@@ -565,9 +598,10 @@
                 // Sortable (re-create safely on each render)
                 if (window.Sortable) {
                     if (list._sectionSortable) list._sectionSortable.destroy();
+                    // Allow dragging the entire section row for a more consistent UX
                     list._sectionSortable = new Sortable(list, {
                         animation: 150,
-                        handle: '.drag-handle',
+                        // omit the `handle` so the whole item can be dragged
                         onEnd: function() {
                             var ids = [];
                             list.querySelectorAll('.section-item').forEach(function(item) {
@@ -576,6 +610,13 @@
                             content.sectionsOrder = ids;
                             scheduleSave();
                         }
+                    });
+                } else {
+                    enableNativeDrag(list, function() {
+                        var ids = [];
+                        list.querySelectorAll('.section-item').forEach(function(item) { ids.push(item.dataset.sectionId); });
+                        content.sectionsOrder = ids;
+                        scheduleSave();
                     });
                 }
 
@@ -622,6 +663,15 @@
                             scheduleSave();
                             renderExpertsList();
                         }
+                    });
+                } else {
+                    enableNativeDrag(list, function() {
+                        var indices = [];
+                        list.querySelectorAll('.expert-row').forEach(function(row) { indices.push(parseInt(row.dataset.index, 10)); });
+                        var newExperts = indices.map(function(i) { return content.experts[i]; });
+                        content.experts = newExperts;
+                        scheduleSave();
+                        renderExpertsList();
                     });
                 }
                 list.querySelectorAll('.toggle[data-expert-index]').forEach(function(tog) {
@@ -784,6 +834,15 @@
                             renderServicesList();
                         }
                     });
+                } else {
+                    enableNativeDrag(list, function() {
+                        var indices = [];
+                        list.querySelectorAll('.expert-row').forEach(function(row) { indices.push(parseInt(row.dataset.index, 10)); });
+                        var newServices = indices.map(function(i) { return content.services[i]; });
+                        content.services = newServices;
+                        scheduleSave();
+                        renderServicesList();
+                    });
                 }
                 list.querySelectorAll('.toggle[data-service-index]').forEach(function(tog) {
                     tog.onclick = function() {
@@ -905,6 +964,14 @@
                             scheduleSave();
                             renderTestimonialsList();
                         }
+                    });
+                } else {
+                    enableNativeDrag(list, function() {
+                        var indices = [];
+                        list.querySelectorAll('.expert-row').forEach(function(row) { indices.push(parseInt(row.dataset.index, 10)); });
+                        content.testimonials = indices.map(function(i) { return content.testimonials[i]; });
+                        scheduleSave();
+                        renderTestimonialsList();
                     });
                 }
                 list.querySelectorAll('[data-testimonial-index]').forEach(function(tog) {

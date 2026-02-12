@@ -1,0 +1,499 @@
+{
+  "siteInfo": {
+    "title": {
+      "en": "Comprehensive Cancer Center",
+      "ar": "مركز شامل لعلاج الأورام"
+    },
+    "tagline": {
+      "en": "Science That Heals. Care That Connects.",
+      "ar": "طب متقدم ورعاية إنسانية متكاملة."
+    },
+    "heroHeading": {
+      "en": "Science That Heals. Care That Connects.",
+      "ar": "علم يشفي ورعاية تحيط بك."
+    },
+    "heroSubheading": {
+      "en": "Evidence-based cancer care tailored to you.",
+      "ar": "رعاية أورام قائمة على الدليل العلمي ومصممة لحالتك."
+    },
+    "heroDescription": {
+      "en": "Our multidisciplinary oncology team designs individualized care plans using current clinical guidelines, advanced diagnostics, and whole-person support. We focus on safety, quality, and helping you make informed decisions at every step.",
+      "ar": "فريقنا المتعدد التخصصات في علاج الأورام يضع خطط علاج فردية وفق أحدث الإرشادات العلمية والفحوصات المتقدمة، مع دعم شامل لك ولعائلتك مع التركيز على السلامة وجودة الرعاية ومشاركتك في اتخاذ القرار."
+    },
+    "heroCtaPrimary": {
+      "en": "Request a Consultation",
+      "ar": "طلب موعد استشارة"
+    },
+    "heroCtaSecondary": {
+      "en": "Explore Treatment Services",
+      "ar": "استعراض خدمات العلاج"
+    },
+    "heroImageUrl": "/uploads/img-1770764937645-dg1cvg.jpg",
+    "logoUrl": "/uploads/img-1770765094009-eigrur.jpg"
+  },
+  "contact": {
+    "phone": {
+      "en": "+20 11 2080 0011",
+      "ar": "+20 11 2080 0011"
+    },
+    "address": {
+      "en": "644 El Horreya Road, Gianaclis, Alexandria",
+      "ar": "٦٤٤ طريق الحرية، جناكليس، الإسكندرية"
+    },
+    "email": {
+      "en": "info@comprehensivecancercenter.com",
+      "ar": "info@comprehensivecancercenter.com"
+    },
+    "emergencyPhone": {
+      "en": "03-5865843",
+      "ar": "03-5865843"
+    }
+  },
+  "stats": {
+    "patientsServed": "2001",
+    "successRate": 95,
+    "specialists": 50,
+    "yearsExperience": 20
+  },
+  "servicesSection": {
+    "heading": {
+      "en": "Comprehensive Cancer Care Services",
+      "ar": "حزمة متكاملة من خدمات علاج الأورام"
+    },
+    "subheading": {
+      "en": "From diagnosis and treatment planning to survivorship and supportive care, our team coordinates every step of your journey.",
+      "ar": "من التشخيص ووضع خطة العلاج حتى المتابعة والدعم بعد العلاج، ينسق فريقنا جميع مراحل رحلتك العلاجية."
+    },
+    "badge": {
+      "en": "Clinical & supportive services",
+      "ar": "خدمات علاجية وداعمة متكاملة"
+    }
+  },
+  "services": [
+    {
+      "icon": "psychology",
+      "title": {
+        "en": "Multidisciplinary Assessment",
+        "ar": "تقييم متعدد التخصصات"
+      },
+      "description": {
+        "en": "Collaborative review by medical, radiation, and surgical oncologists to recommend evidence-based options for your specific diagnosis.",
+        "ar": "مراجعة تشاركية من أطباء الأورام الطبيين والإشعاعيين والجراحيين لوضع خيارات علاجية قائمة على الدليل لحالتك المحددة."
+      }
+    },
+    {
+      "icon": "vaccines",
+      "title": {
+        "en": "Systemic Therapies",
+        "ar": "العلاجات الدوائية"
+      },
+      "description": {
+        "en": "Chemotherapy, immunotherapy, and targeted therapies delivered according to international protocols with close monitoring for safety.",
+        "ar": "العلاج الكيميائي والمناعي والموجه وفق بروتوكولات دولية مع متابعة دقيقة لسلامة المريض."
+      }
+    },
+    {
+      "icon": "healing",
+      "title": {
+        "en": "Radiation & Procedural Oncology",
+        "ar": "العلاج الإشعاعي والإجراءات التداخلية"
+      },
+      "description": {
+        "en": "Modern radiation techniques and minimally invasive procedures designed to treat tumors while protecting healthy tissue as much as possible.",
+        "ar": "تقنيات إشعاعية حديثة وإجراءات تداخلية تهدف لعلاج الورم مع حماية الأنسجة السليمة قدر الإمكان."
+      }
+    },
+    {
+      "icon": "genetics",
+      "title": {
+        "en": "Genetic Risk Evaluation",
+        "ar": "تقييم المخاطر الجينية"
+      },
+      "description": {
+        "en": "Counseling and testing for hereditary cancer risk, with clear guidance on screening and prevention options.",
+        "ar": "استشارات وفحوصات لتقييم مخاطر الأورام الوراثية مع توضيح خيارات الفحص المبكر والوقاية."
+      }
+    },
+    {
+      "icon": "family_restroom",
+      "title": {
+        "en": "Support for Patients & Families",
+        "ar": "دعم المرضى وأسرهم"
+      },
+      "description": {
+        "en": "Psychosocial support, nutrition counseling, and education to help you and your family navigate treatment decisions.",
+        "ar": "دعم نفسي واجتماعي واستشارات تغذية وتثقيف صحي لمساندة المريض وأسرته في قرارات العلاج."
+      }
+    },
+    {
+      "icon": "science",
+      "title": {
+        "en": "Clinical Research Access",
+        "ar": "الوصول إلى الأبحاث السريرية"
+      },
+      "description": {
+        "en": "Evaluation for eligibility in appropriate clinical trials in line with current standards of care.",
+        "ar": "تقييم مدى ملاءمة المريض للمشاركة في التجارب السريرية المناسبة بما يتماشى مع المعايير العلاجية المعتمدة."
+      }
+    },
+    {
+      "icon": "psychology",
+      "title": {
+        "en": "MultiVitamin",
+        "ar": "مالتيفيتامن"
+      },
+      "description": {
+        "en": "How are you are you fine make the following full editable from dashboard services content seo title meta description",
+        "ar": "اهلا وسهلا عامل حضرتك تفضل و اجلس اشرب شاي بلبن و كل بسكوت وكسك اخبارك ايه"
+      },
+      "visible": true
+    },
+    {
+      "icon": "genetics",
+      "title": {
+        "en": "",
+        "ar": "مالتيفيتامن"
+      },
+      "description": {
+        "en": "",
+        "ar": "تتتتتتتتتتتتتتتتتتتتتتتتتتتتتتتتتتتتتتتتتتتتتت"
+      },
+      "visible": true
+    }
+  ],
+  "features": [
+    {
+      "title": "Multidisciplinary Team",
+      "description": "Oncologists, surgeons, radiologists, and support staff working together for your care."
+    },
+    {
+      "title": "Latest Technology",
+      "description": "Access to cutting-edge treatments and clinical trials."
+    },
+    {
+      "title": "Patient-Centered Care",
+      "description": "Personalized treatment plans focused on your quality of life."
+    }
+  ],
+  "aboutSection": {
+    "heading": {
+      "en": "Hello From About Section",
+      "ar": "ريادة في علاج الأورام بالعلم والإنسانية"
+    },
+    "paragraphs": [
+      {
+        "en": "At Comprehensive Cancer Center, we recognize that every person and every cancer diagnosis is unique. Our goal is to provide clear information, coordinated care, and a calm, supportive environment for you and your family.",
+        "ar": "في مركز شامل لعلاج الأورام ندرك أن كل مريض وكل تشخيص حالة سرطان هو حالة خاصة. هدفنا هو تقديم معلومات واضحة ورعاية منسقة وبيئة هادئة داعمة لك ولعائلتك."
+      },
+      {
+        "en": "Our board-certified specialists follow up-to-date clinical guidelines and work as a multidisciplinary team to design treatment plans that are medically appropriate, safe, and aligned with what matters most to you.",
+        "ar": "يطبق أطباؤنا الحاصلون على شهادات تخصص معترف بها أحدث الإرشادات العلاجية ويعملون كفريق متعدد التخصصات لوضع خطط علاجية ملائمة وآمنة ومتوافقة مع أولوياتك الشخصية."
+      }
+    ],
+    "highlights": [
+      {
+        "en": "Board-certified oncology and surgery consultants",
+        "ar": "استشاريون معتمدون في طب وجراحة الأورام"
+      },
+      {
+        "en": "Coordinated care pathway from first visit to follow‑up",
+        "ar": "مسار رعاية منسق من الزيارة الأولى حتى المتابعة"
+      },
+      {
+        "en": "Integrated supportive and palliative care services",
+        "ar": "خدمات دعم شاملة ورعاية تلطيفية متكاملة"
+      },
+      {
+        "en": "Access to appropriate clinical research when available",
+        "ar": "إتاحة المشاركة في الأبحاث السريرية الملائمة عند توافرها"
+      }
+    ],
+    "footerBlurb": {
+      "en": "Providing coordinated, guideline-based cancer care with an emphasis on clear communication, safety, and support for patients and families.",
+      "ar": "نقدم رعاية منسقة قائمة على الإرشادات العلمية مع التركيز على وضوح المعلومات وسلامة المريض ودعم الأسرة."
+    }
+  },
+  "footer": {
+    "copyright": {
+      "en": "© 2025 Comprehensive Cancer Center. All rights reserved.",
+      "ar": "© ٢٠٢٥ مركز شامل لعلاج الأورام. جميع الحقوق محفوظة."
+    },
+    "hours": {
+      "en": "Clinic hours: Mon–Fri 8:00–18:00 | Sat 9:00–14:00",
+      "ar": "ساعات العمل: السبت–الخميس ٨:٠٠ ص – ٦:٠٠ م | الجمعة ٩:٠٠ ص – ٢:٠٠ م"
+    },
+    "emergencyText": {
+      "en": "If you are experiencing a medical emergency, please contact your local emergency number immediately.",
+      "ar": "في حالة الطوارئ الطبية، برجاء الاتصال فورًا برقم الطوارئ المحلي وعدم الاعتماد على هذا الموقع."
+    }
+  },
+  "insurance": {
+    "blurb": {
+      "en": "We work with a broad range of payers and will help you understand available coverage and payment options before treatment begins.",
+      "ar": "نتعاون مع عدد كبير من الجهات الممولة للرعاية الصحية ونساعدك على فهم خيارات التغطية والتكاليف قبل بدء العلاج."
+    }
+  },
+  "sectionsOrder": [
+    "services",
+    "hero",
+    "team",
+    "testimonials",
+    "about",
+    "contact",
+    "cta"
+  ],
+  "sectionVisibility": {
+    "hero": true,
+    "services": true,
+    "team": true,
+    "about": true,
+    "contact": true,
+    "cta": true,
+    "testimonials": true
+  },
+  "contactSection": {
+    "heading": {
+      "en": "Start a confidential conversation with our team",
+      "ar": "ابدأ تواصلًا سريًا مع فريق الرعاية لدينا"
+    },
+    "subheading": {
+      "en": "Share a few details and our patient coordination team will call you back to discuss appointment options. This form is not for emergencies.",
+      "ar": "أخبرنا ببعض التفاصيل وسيتواصل معك فريق تنسيق المرضى لمناقشة مواعيد الزيارة. هذا النموذج غير مخصص للحالات الطارئة."
+    },
+    "privacyNotice": {
+      "en": "Information sent through this form is reviewed by our clinical coordination team and kept confidential in line with applicable privacy standards. Please do not include full medical records or highly sensitive identifiers.",
+      "ar": "تتم مراجعة المعلومات الواردة في هذا النموذج من قبل فريق تنسيق الرعاية مع الحفاظ على سريتها وفق المعايير المعتمدة لحماية الخصوصية. برجاء عدم إرسال تقارير طبية كاملة أو بيانات تعريفية عالية الحساسية."
+    }
+  },
+  "ctaSection": {
+    "heading": {
+      "en": "You do not have to navigate cancer alone.",
+      "ar": "لست مضطرًا لمواجهة رحلة علاج السرطان بمفردك."
+    },
+    "subheading": {
+      "en": "A dedicated coordinator will help you understand the next appropriate steps and connect you with the right specialist.",
+      "ar": "منسق مخصص سيساعدك على فهم الخطوات الأنسب التالية وربطك بالطبيب المتخصص المناسب."
+    },
+    "buttonLabel": {
+      "en": "Request a confidential consultation",
+      "ar": "حجز استشارة سرية"
+    }
+  },
+  "pages": [
+    {
+      "id": "home",
+      "slug": "",
+      "title": "Home",
+      "enabled": true,
+      "sectionsOrder": [
+        "hero",
+        "services",
+        "team",
+        "about",
+        "contact",
+        "cta"
+      ],
+      "sectionVisibility": {
+        "hero": true,
+        "services": true,
+        "team": true,
+        "about": true,
+        "contact": true,
+        "cta": true
+      }
+    },
+    {
+      "id": "about",
+      "slug": "about",
+      "title": "About",
+      "enabled": true,
+      "sectionsOrder": [
+        "about",
+        "hero",
+        "contact",
+        "cta"
+      ],
+      "sectionVisibility": {
+        "hero": true,
+        "about": true,
+        "contact": true,
+        "cta": true
+      }
+    },
+    {
+      "id": "services",
+      "slug": "services",
+      "title": "Services",
+      "enabled": true,
+      "sectionsOrder": [
+        "hero",
+        "services",
+        "contact",
+        "cta"
+      ],
+      "sectionVisibility": {
+        "hero": true,
+        "services": true,
+        "contact": true,
+        "cta": true
+      }
+    },
+    {
+      "id": "blogs",
+      "slug": "blogs",
+      "title": "Blogs",
+      "enabled": true,
+      "sectionsOrder": [
+        "hero",
+        "cta"
+      ],
+      "sectionVisibility": {
+        "hero": true,
+        "cta": true
+      }
+    },
+    {
+      "id": "experts",
+      "slug": "experts",
+      "title": "Experts",
+      "enabled": true,
+      "sectionsOrder": [
+        "hero",
+        "team",
+        "contact",
+        "cta"
+      ],
+      "sectionVisibility": {
+        "hero": true,
+        "team": true,
+        "contact": true,
+        "cta": true
+      }
+    },
+    {
+      "id": "contact",
+      "slug": "contact",
+      "title": "Contact",
+      "enabled": true,
+      "sectionsOrder": [
+        "hero",
+        "contact",
+        "cta"
+      ],
+      "sectionVisibility": {
+        "hero": true,
+        "contact": true,
+        "cta": true
+      }
+    }
+  ],
+  "teamSection": {
+    "heading": {
+      "en": "Specialists focused on your type of cancer",
+      "ar": "فريق متخصص في أنواع السرطان المختلفة"
+    },
+    "subheading": {
+      "en": "Our consultants hold recognized board certifications and many years of experience in their subspecialties.",
+      "ar": "يتمتع استشاريو المركز بشهادات تخصص معترف بها وخبرة طويلة في مجالاتهم الدقيقة."
+    }
+  },
+  "experts": [
+    {
+      "name": "Dr. Michael Torres",
+      "title": "Consultant Radiation Oncologist",
+      "imageUrl": "/uploads/img-1770536873931-f4kfy0.jpg",
+      "bio": "Experienced in modern radiation techniques designed to accurately treat tumors while protecting healthy tissue as much as possible.",
+      "experience": "12+ years in radiation oncology",
+      "certifications": "Board certified in Radiation Oncology",
+      "profileCtaLabel": "Review radiation options",
+      "profileCtaLink": "#contact",
+      "icon": "radiology",
+      "visible": true
+    },
+    {
+      "name": "Dr. Sarah Chen",
+      "title": "Consultant Medical Oncologist",
+      "imageUrl": "/uploads/img-1770536859493-ic2ibv.jpg",
+      "bio": "Over 15 years of experience in systemic therapies for breast and gastrointestinal cancers, with a focus on symptom control and quality of life.",
+      "experience": "15+ years in medical oncology",
+      "certifications": "Board certified in Medical Oncology",
+      "profileCtaLabel": "Discuss systemic therapy options",
+      "profileCtaLink": "#contact",
+      "icon": "medical_services",
+      "visible": true
+    },
+    {
+      "imageUrl": "/uploads/img-1770539371195-s6tgsj.jpg",
+      "bio": "Provides counseling and testing for hereditary cancer risk, helping families understand screening and prevention pathways.",
+      "experience": "10+ years in cancer genetics",
+      "certifications": "Certified genetic counselor",
+      "profileCtaLabel": "Ask about family risk assessment",
+      "profileCtaLink": "#contact",
+      "icon": "genetics",
+      "visible": true
+    },
+    {
+      "imageUrl": "/uploads/img-1770539383802-xeebta.jpg",
+      "bio": "Special interest in organ-preserving and minimally invasive surgical techniques aligned with international best practices.",
+      "experience": "18+ years in surgical oncology",
+      "certifications": "Board certified in General Surgery and Surgical Oncology",
+      "profileCtaLabel": "Talk about surgical options",
+      "profileCtaLink": "#contact",
+      "icon": "surgical",
+      "visible": true
+    }
+  ],
+  "seo": {
+    "metaTitle": {
+      "en": "Comprehensive Cancer Center | Evidence‑Based Cancer Care in Alexandria",
+      "ar": "مركز شامل لعلاج الأورام | رعاية معتمدة على الدليل في الإسكندرية"
+    },
+    "metaDescription": {
+      "en": "Comprehensive Cancer Center provides coordinated, evidence‑based cancer care in Alexandria, including diagnostics, systemic therapy, radiation, surgery, supportive care, and genetic counseling.",
+      "ar": "يقدم مركز شامل لعلاج الأورام في الإسكندرية رعاية منسقة قائمة على الدليل تشمل التشخيص والعلاج الدوائي والإشعاعي والجراحي والدعم النفسي والاستشارات الجينية."
+    },
+    "ogImage": "/uploads/seo-og-image.jpg"
+  },
+  "testimonialsSection": {
+    "heading": {
+      "en": "Patient Stories",
+      "ar": "تجارب المرضى"
+    },
+    "subheading": {
+      "en": "Real feedback from patients and families we have supported.",
+      "ar": "آراء حقيقية من مرضى وعائلات تلقوا الرعاية لدينا."
+    }
+  },
+  "testimonials": [
+    {
+      "quote": {
+        "en": "The team explained every step clearly and supported my family throughout treatment.",
+        "ar": "قام الفريق بشرح كل خطوة بوضوح وقدم دعمًا مستمرًا لي ولعائلتي طوال رحلة العلاج."
+      },
+      "author": {
+        "en": "Mariam A.",
+        "ar": "مريم أ."
+      },
+      "role": {
+        "en": "Breast cancer survivor",
+        "ar": "متعافية من سرطان الثدي"
+      },
+      "visible": true
+    },
+    {
+      "quote": {
+        "en": "i was amazed by the center and hospitality",
+        "ar": "صباح الخير هذا المكان رائع و مبهر"
+      },
+      "author": {
+        "en": "hamo el so8ayer",
+        "ar": "حمو الصغير"
+      },
+      "role": {
+        "en": "ROle",
+        "ar": "رول"
+      },
+      "visible": true
+    }
+  ]
+}
