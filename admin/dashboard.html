@@ -860,9 +860,17 @@
                     return;
                 }
                 var current = obj[last];
-                if (typeof current !== 'object' || current === null || Array.isArray(current))
+                // Handle array elements (like highlights.0, highlights.1, etc.)
+                if (/^\d+$/.test(last)) {
+                    // This is an array index
+                    obj[last] = { en: '', ar: '' };
+                    obj[last][lang] = val;
+                } else if (typeof current !== 'object' || current === null || Array.isArray(current)) {
                     obj[last] = { en: typeof current === 'string' ? current : '', ar: '' };
-                obj[last][lang] = val;
+                    obj[last][lang] = val;
+                } else {
+                    obj[last][lang] = val;
+                }
             }
             function isBilingualKey(key) {
                 return key.indexOf('stats.') !== 0 && !/\.(patientsServed|successRate|specialists)$/.test(key);
@@ -909,6 +917,10 @@
                         { key: 'aboutSection.heading', label: 'Heading', bilingual: true },
                         { key: 'aboutSection.paragraphs.0', label: 'Paragraph 1', bilingual: true },
                         { key: 'aboutSection.paragraphs.1', label: 'Paragraph 2', bilingual: true },
+                        { key: 'aboutSection.highlights.0', label: 'Highlight 1', bilingual: true },
+                        { key: 'aboutSection.highlights.1', label: 'Highlight 2', bilingual: true },
+                        { key: 'aboutSection.highlights.2', label: 'Highlight 3', bilingual: true },
+                        { key: 'aboutSection.highlights.3', label: 'Highlight 4', bilingual: true },
                         { key: 'aboutSection.footerBlurb', label: 'Short footer blurb', bilingual: true }
                     ]},
                     { id: 'contactSection', label: 'Contact section', fields: [
