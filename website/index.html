@@ -1590,6 +1590,12 @@
                 });
                 if (websiteContent) applyContent(websiteContent, lang);
             }
+
+            function switchLanguage(lang) {
+                if (!lang || lang === currentLang) return;
+                localStorage.setItem('lang', lang);
+                window.location.reload();
+            }
             var EXPERT_GRADIENTS = ['from-blue-100 to-blue-50', 'from-red-100 to-red-50', 'from-green-100 to-green-50', 'from-purple-100 to-purple-50', 'from-orange-100 to-orange-50', 'from-cyan-100 to-cyan-50'];
             var EXPERT_BADGES = ['bg-brand-blue-light', 'bg-brand-red-cta', 'bg-green-600', 'bg-purple-600', 'bg-orange-600', 'bg-cyan-600'];
             var EXPERT_DELAYS = ['delay-100', 'delay-200', 'delay-300', 'delay-400', 'delay-500', 'delay-600'];
@@ -1693,12 +1699,12 @@
                 applyTestimonials(c);
                 setLanguage(currentLang);
                 document.querySelectorAll('.lang-toggle').forEach(function(btn) {
-                    btn.addEventListener('click', function() { setLanguage(btn.getAttribute('data-lang')); });
+                    btn.addEventListener('click', function() { switchLanguage(btn.getAttribute('data-lang')); });
                 });
             }).catch(function() {
                 setLanguage(currentLang);
                 document.querySelectorAll('.lang-toggle').forEach(function(btn) {
-                    btn.addEventListener('click', function() { setLanguage(btn.getAttribute('data-lang')); });
+                    btn.addEventListener('click', function() { switchLanguage(btn.getAttribute('data-lang')); });
                 });
             });
         })();
