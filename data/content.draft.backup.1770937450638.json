@@ -234,13 +234,13 @@
     }
   },
   "sectionsOrder": [
-    "hero",
     "services",
-    "about",
+    "hero",
     "testimonials",
     "team",
-    "cta",
-    "contact"
+    "about",
+    "contact",
+    "cta"
   ],
   "sectionVisibility": {
     "hero": true,

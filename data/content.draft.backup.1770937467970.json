@@ -71,28 +71,6 @@
   },
   "services": [
     {
-      "icon": "psychology",
-      "title": {
-        "en": "Multidisciplinary Assessment",
-        "ar": "تقييم متعدد التخصصات"
-      },
-      "description": {
-        "en": "Collaborative review by medical, radiation, and surgical oncologists to recommend evidence-based options for your specific diagnosis.",
-        "ar": "مراجعة تشاركية من أطباء الأورام الطبيين والإشعاعيين والجراحيين لوضع خيارات علاجية قائمة على الدليل لحالتك المحددة."
-      }
-    },
-    {
-      "icon": "vaccines",
-      "title": {
-        "en": "Systemic Therapies",
-        "ar": "العلاجات الدوائية"
-      },
-      "description": {
-        "en": "Chemotherapy, immunotherapy, and targeted therapies delivered according to international protocols with close monitoring for safety.",
-        "ar": "العلاج الكيميائي والمناعي والموجه وفق بروتوكولات دولية مع متابعة دقيقة لسلامة المريض."
-      }
-    },
-    {
       "icon": "healing",
       "title": {
         "en": "Radiation & Procedural Oncology",
@@ -104,6 +82,17 @@
       }
     },
     {
+      "icon": "psychology",
+      "title": {
+        "en": "Multidisciplinary Assessment",
+        "ar": "تقييم متعدد التخصصات"
+      },
+      "description": {
+        "en": "Collaborative review by medical, radiation, and surgical oncologists to recommend evidence-based options for your specific diagnosis.",
+        "ar": "مراجعة تشاركية من أطباء الأورام الطبيين والإشعاعيين والجراحيين لوضع خيارات علاجية قائمة على الدليل لحالتك المحددة."
+      }
+    },
+    {
       "icon": "genetics",
       "title": {
         "en": "Genetic Risk Evaluation",
@@ -112,6 +101,17 @@
       "description": {
         "en": "Counseling and testing for hereditary cancer risk, with clear guidance on screening and prevention options.",
         "ar": "استشارات وفحوصات لتقييم مخاطر الأورام الوراثية مع توضيح خيارات الفحص المبكر والوقاية."
+      }
+    },
+    {
+      "icon": "vaccines",
+      "title": {
+        "en": "Systemic Therapies",
+        "ar": "العلاجات الدوائية"
+      },
+      "description": {
+        "en": "Chemotherapy, immunotherapy, and targeted therapies delivered according to international protocols with close monitoring for safety.",
+        "ar": "العلاج الكيميائي والمناعي والموجه وفق بروتوكولات دولية مع متابعة دقيقة لسلامة المريض."
       }
     },
     {
@@ -234,13 +234,13 @@
     }
   },
   "sectionsOrder": [
-    "hero",
     "services",
-    "about",
+    "hero",
     "testimonials",
     "team",
-    "cta",
-    "contact"
+    "about",
+    "contact",
+    "cta"
   ],
   "sectionVisibility": {
     "hero": true,
@@ -399,16 +399,6 @@
   },
   "experts": [
     {
-      "imageUrl": "/uploads/img-1770539371195-s6tgsj.jpg",
-      "bio": "Provides counseling and testing for hereditary cancer risk, helping families understand screening and prevention pathways.",
-      "experience": "10+ years in cancer genetics",
-      "certifications": "Certified genetic counselor",
-      "profileCtaLabel": "Ask about family risk assessment",
-      "profileCtaLink": "#contact",
-      "icon": "genetics",
-      "visible": true
-    },
-    {
       "name": "Dr. Michael Torres",
       "title": "Consultant Radiation Oncologist",
       "imageUrl": "/uploads/img-1770536873931-f4kfy0.jpg",
@@ -418,6 +408,16 @@
       "profileCtaLabel": "Review radiation options",
       "profileCtaLink": "#contact",
       "icon": "radiology",
+      "visible": true
+    },
+    {
+      "imageUrl": "/uploads/img-1770539371195-s6tgsj.jpg",
+      "bio": "Provides counseling and testing for hereditary cancer risk, helping families understand screening and prevention pathways.",
+      "experience": "10+ years in cancer genetics",
+      "certifications": "Certified genetic counselor",
+      "profileCtaLabel": "Ask about family risk assessment",
+      "profileCtaLink": "#contact",
+      "icon": "genetics",
       "visible": true
     },
     {
