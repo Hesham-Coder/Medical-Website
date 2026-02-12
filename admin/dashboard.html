@@ -1058,12 +1058,78 @@
                             if (!obj[keys[i]]) obj[keys[i]] = {};
                             obj = obj[keys[i]];
                         }
-                        obj[keys[keys.length - 1]] = input.value;
-                        scheduleSave();
                     });
+                }
+                list.querySelectorAll('[data-testimonial-index]').forEach(function(tog) {
+                    tog.onclick = function() {
+                        var i = parseInt(tog.getAttribute('data-testimonial-index'), 10);
+                        content.testimonials[i].visible = !content.testimonials[i].visible;
+                        tog.classList.toggle('on', content.testimonials[i].visible);
+                        scheduleSave();
+                    };
+                });
+                list.querySelectorAll('[data-testimonial-edit]').forEach(function(btn) {
+                    btn.onclick = function() { openTestimonialForm(parseInt(btn.getAttribute('data-testimonial-edit'), 10)); };
+                });
+                list.querySelectorAll('[data-testimonial-delete]').forEach(function(btn) {
+                    btn.onclick = function() { confirmDeleteTestimonial(parseInt(btn.getAttribute('data-testimonial-delete'), 10)); };
                 });
             }
-
+            function openTestimonialForm(index) {
+                editingTestimonialIndex = index;
+                var t = content.testimonials[index] || {};
+                document.getElementById('testimonialFormTitle').textContent = index >= 0 ? 'Edit testimonial' : 'Add testimonial';
+                document.getElementById('testimonialQuoteEn').value = (t.quote && t.quote.en) || '';
+                document.getElementById('testimonialQuoteAr').value = (t.quote && t.quote.ar) || '';
+                document.getElementById('testimonialAuthorEn').value = (t.author && t.author.en) || '';
+                document.getElementById('testimonialAuthorAr').value = (t.author && t.author.ar) || '';
+                document.getElementById('testimonialRoleEn').value = (t.role && t.role.en) || '';
+                document.getElementById('testimonialRoleAr').value = (t.role && t.role.ar) || '';
+                document.getElementById('testimonialVisibleToggle').classList.toggle('on', t.visible !== false);
+                document.getElementById('testimonialForm').classList.add('show');
+            }
+            function closeTestimonialForm() {
+                editingTestimonialIndex = -1;
+                document.getElementById('testimonialForm').classList.remove('show');
+            }
+            function confirmDeleteTestimonial(index) {
+                var t = content.testimonials[index] || {};
+                var name = (t.author && (t.author.en || t.author.ar)) || 'this testimonial';
+                document.getElementById('confirmDeleteMessage').textContent = 'Remove "' + name + '" from the website? This cannot be undone.';
+                var modal = document.getElementById('confirmDeleteModal');
+                document.getElementById('confirmDeleteConfirm').onclick = function() {
+                    content.testimonials.splice(index, 1);
+                    scheduleSave();
+                    renderTestimonialsList();
+                    modal.style.display = 'none';
+                    showToast('Testimonial removed', 'success');
+                };
+                document.getElementById('confirmDeleteCancel').onclick = function() { modal.style.display = 'none'; };
+                modal.style.display = 'flex';
+            }
+            function setupTestimonialsUI() {
+                ensureTestimonialsArray();
+                document.getElementById('addTestimonialBtn').onclick = function() {
+                    content.testimonials.push({ quote: { en: '', ar: '' }, author: { en: '', ar: '' }, role: { en: '', ar: '' }, visible: true });
+                    editingTestimonialIndex = content.testimonials.length - 1;
+                    openTestimonialForm(editingTestimonialIndex);
+                    document.getElementById('testimonialFormTitle').textContent = 'Add testimonial';
+                };
+                document.getElementById('testimonialFormSave').onclick = function() {
+                    if (editingTestimonialIndex < 0) return;
+                    var t = content.testimonials[editingTestimonialIndex];
+                    t.quote = { en: document.getElementById('testimonialQuoteEn').value.trim(), ar: document.getElementById('testimonialQuoteAr').value.trim() };
+                    t.author = { en: document.getElementById('testimonialAuthorEn').value.trim(), ar: document.getElementById('testimonialAuthorAr').value.trim() };
+                    t.role = { en: document.getElementById('testimonialRoleEn').value.trim(), ar: document.getElementById('testimonialRoleAr').value.trim() };
+                    t.visible = document.getElementById('testimonialVisibleToggle').classList.contains('on');
+                    scheduleSave();
+                    closeTestimonialForm();
+                    renderTestimonialsList();
+                    showToast('Testimonial saved', 'success');
+                };
+                document.getElementById('testimonialFormCancel').onclick = closeTestimonialForm;
+                document.getElementById('testimonialVisibleToggle').onclick = function() { this.classList.toggle('on'); };
+            }
             function getVal(key, lang) {
                 var obj = content;
                 var parts = key.split('.');
@@ -1101,10 +1167,6 @@
                     obj[last][lang] = val;
                 }
             }
-            function isBilingualKey(key) {
-                return key.indexOf('stats.') !== 0 && !/\.(patientsServed|successRate|specialists)$/.test(key);
-            }
-
             function renderEditors() {
                 var tabsDiv = document.getElementById('editorTabs');
                 var panelsDiv = document.getElementById('editorPanels');
