@@ -541,25 +541,34 @@
 
             function renderSectionList() {
                 var list = document.getElementById('sectionList');
-                var order = content.sectionsOrder || [];
+                var order = Array.isArray(content.sectionsOrder) ? content.sectionsOrder.slice() : [];
+                var seen = {};
+                order = order.filter(function(id) {
+                    if (!id || seen[id]) return false;
+                    seen[id] = true;
+                    return true;
+                });
+                content.sectionsOrder = order;
+
                 list.innerHTML = '';
                 order.forEach(function(id) {
                     var li = document.createElement('li');
                     li.className = 'section-item';
                     li.dataset.sectionId = id;
                     li.innerHTML =
-                        '<span class="drag-handle" aria-hidden="true">⋮⋮</span>' +
+                        '<span class="drag-handle" aria-hidden="true" title="Drag to reorder">⋮⋮</span>' +
                         '<span class="label">' + (sectionLabels[id] || id) + '</span>' +
                         '<div class="toggle-wrap"><div class="toggle' + (content.sectionVisibility[id] !== false ? ' on' : '') + '" data-section-id="' + id + '" role="button" tabindex="0" aria-label="Toggle visibility"></div></div>';
                     list.appendChild(li);
                 });
 
-                // Sortable
+                // Sortable (re-create safely on each render)
                 if (window.Sortable) {
-                    new Sortable(list, {
+                    if (list._sectionSortable) list._sectionSortable.destroy();
+                    list._sectionSortable = new Sortable(list, {
                         animation: 150,
                         handle: '.drag-handle',
-                        onEnd: function(evt) {
+                        onEnd: function() {
                             var ids = [];
                             list.querySelectorAll('.section-item').forEach(function(item) {
                                 ids.push(item.dataset.sectionId);
