@@ -322,9 +322,144 @@
         .delay-500 { animation-delay: 0.5s; }
         .delay-600 { animation-delay: 0.6s; }
 
+
+        /* Global ambient background animation */
+        .ambient-bg {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: -1;
+            overflow: hidden;
+        }
+        .ambient-blob {
+            position: absolute;
+            border-radius: 9999px;
+            filter: blur(70px);
+            opacity: 0.22;
+            mix-blend-mode: multiply;
+            will-change: transform, opacity;
+            transform: translate3d(0, 0, 0);
+            animation: ambientDrift 22s cubic-bezier(0.4, 0, 0.2, 1) infinite alternate;
+        }
+        .ambient-blob.b1 {
+            width: 360px;
+            height: 360px;
+            background: radial-gradient(circle at 30% 30%, #38bdf8, #0ea5e9 70%);
+            top: -80px;
+            left: -70px;
+        }
+        .ambient-blob.b2 {
+            width: 420px;
+            height: 420px;
+            background: radial-gradient(circle at 30% 30%, #93c5fd, #60a5fa 70%);
+            bottom: -140px;
+            right: -120px;
+            animation-duration: 28s;
+            animation-delay: 1.2s;
+        }
+        .ambient-blob.b3 {
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle at 30% 30%, #fda4af, #fb7185 70%);
+            top: 40%;
+            right: 22%;
+            animation-duration: 24s;
+            animation-delay: 2.1s;
+        }
+        @keyframes ambientDrift {
+            0% { transform: translate3d(0, 0, 0) scale(1); opacity: 0.18; }
+            50% { transform: translate3d(18px, -24px, 0) scale(1.08); opacity: 0.28; }
+            100% { transform: translate3d(-22px, 16px, 0) scale(0.98); opacity: 0.2; }
+        }
+
         /* i18n: RTL uses Tajawal; LTR uses Manrope */
         html.lang-ar, html.lang-ar body { font-family: 'Tajawal', sans-serif; }
         html.lang-en, html.lang-en body { font-family: 'Manrope', sans-serif; }
+
+        /* Attention-Guided Navigation (Depth-of-Field) */
+        :root {
+            --focus-ease: cubic-bezier(0.4, 0, 0.2, 1);
+            --focus-duration: 680ms;
+            --focus-inactive-opacity: 0.44;
+            --focus-inactive-scale: 0.95;
+            --focus-inactive-blur: 10px;
+            --focus-inactive-grayscale: 50%;
+            --focus-stagger-step: 90ms;
+        }
+
+        body.lang-transitioning {
+            opacity: 0;
+            transition: opacity 240ms var(--focus-ease);
+        }
+
+        main.dynamic-section-focus [data-section-id] {
+            transition:
+                opacity var(--focus-duration) var(--focus-ease),
+                transform var(--focus-duration) var(--focus-ease),
+                filter var(--focus-duration) var(--focus-ease);
+            transform-origin: center center;
+            transform-style: preserve-3d;
+            backface-visibility: hidden;
+            will-change: transform, opacity, filter;
+        }
+
+        main.dynamic-section-focus.has-focus-state [data-section-id] {
+            opacity: var(--focus-inactive-opacity);
+            transform: translateZ(0) scale(var(--focus-inactive-scale));
+            filter: blur(var(--focus-inactive-blur)) grayscale(var(--focus-inactive-grayscale));
+        }
+
+        main.dynamic-section-focus.has-focus-state [data-section-id].is-section-active {
+            opacity: 1;
+            transform: translateZ(0) scale(1);
+            filter: blur(0) grayscale(0%);
+            position: relative;
+            z-index: 2;
+        }
+
+        [data-focus-stagger-item] {
+            transform: translate3d(0, 10px, 0);
+            opacity: 0.75;
+            transition:
+                transform var(--focus-duration) var(--focus-ease),
+                opacity var(--focus-duration) var(--focus-ease);
+            transition-delay: calc(var(--focus-stagger-step) * var(--stagger-index, 0));
+            backface-visibility: hidden;
+            will-change: transform, opacity;
+        }
+
+        [data-section-id].is-section-active [data-focus-stagger-item] {
+            transform: translate3d(0, 0, 0);
+            opacity: 1;
+        }
+
+        @media (max-width: 768px) {
+            :root {
+                --focus-inactive-opacity: 0.68;
+                --focus-inactive-scale: 0.98;
+                --focus-inactive-blur: 4px;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            body.lang-transitioning {
+                transition: none !important;
+            }
+            main.dynamic-section-focus [data-section-id],
+            [data-focus-stagger-item] {
+                transition: none !important;
+                filter: none !important;
+                transform: none !important;
+                will-change: auto !important;
+            }
+            main.dynamic-section-focus.has-focus-state [data-section-id] {
+                opacity: 1 !important;
+            }
+            .ambient-blob {
+                animation: none !important;
+                opacity: 0.12 !important;
+            }
+        }
     </style>
 
     <!-- Tailwind Configuration -->
@@ -354,6 +489,11 @@
 </head>
 
 <body class="font-display bg-slate-50 text-slate-900 overflow-x-hidden">
+    <div class="ambient-bg" aria-hidden="true">
+        <div class="ambient-blob b1"></div>
+        <div class="ambient-blob b2"></div>
+        <div class="ambient-blob b3"></div>
+    </div>
 
     <!-- ========================================
          HEADER / NAVIGATION
@@ -628,6 +768,21 @@
                 <div id="expertsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8 perspective-container">
                     <!-- Expert cards injected by JS -->
                 </div>
+            </div>
+        </section>
+
+
+        <!-- Testimonials Section -->
+        <section id="testimonials" data-section-id="testimonials" class="py-16 sm:py-24 lg:py-28 bg-slate-50">
+            <div class="mx-auto max-w-7xl px-4 sm:px-6">
+                <div class="text-center max-w-3xl mx-auto mb-12 sm:mb-16">
+                    <div class="inline-flex items-center gap-2 glass px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-brand-blue-dark font-bold text-[10px] sm:text-xs uppercase tracking-widest mb-4 sm:mb-6">
+                        Patient Testimonials
+                    </div>
+                    <h2 class="text-3xl sm:text-4xl lg:text-6xl font-black text-slate-900 mb-4 sm:mb-6" data-content="testimonialsSection.heading">Patient Stories</h2>
+                    <p class="text-base sm:text-lg lg:text-xl text-slate-600" data-content="testimonialsSection.subheading">Real feedback from patients and families we have supported.</p>
+                </div>
+                <div id="testimonialsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8"></div>
             </div>
         </section>
 
@@ -1176,6 +1331,65 @@
         `;
         document.head.appendChild(style);
 
+        // ===== Attention-Guided Navigation (Depth-of-Field) =====
+        function initDynamicSectionFocus() {
+            const main = document.querySelector('main');
+            if (!main || !('IntersectionObserver' in window)) return;
+            if (main.dataset.focusInitialized === 'true') return;
+            main.dataset.focusInitialized = 'true';
+
+            const sections = Array.from(main.querySelectorAll('[data-section-id]'));
+            if (!sections.length) return;
+
+            main.classList.add('dynamic-section-focus');
+            const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+            let activeSectionId = null;
+
+            sections.forEach((section) => {
+                const staggerTargets = section.querySelectorAll('h2, h3, p, .card-3d, .tilt-card, article, .expert-row, .expert-info, img, .btn-primary, .btn-secondary, .btn-danger, a');
+                let idx = 0;
+                staggerTargets.forEach((node) => {
+                    if (node.closest('[data-section-id]') !== section) return;
+                    if (node.dataset.focusStaggerItem === 'true') return;
+                    node.dataset.focusStaggerItem = 'true';
+                    node.style.setProperty('--stagger-index', String(idx));
+                    idx += 1;
+                });
+            });
+
+            function setActiveSection(id) {
+                if (!id || id === activeSectionId) return;
+                activeSectionId = id;
+                if (!reduceMotion) main.classList.add('has-focus-state');
+                sections.forEach((section) => {
+                    section.classList.toggle('is-section-active', section.getAttribute('data-section-id') === id);
+                });
+            }
+
+            const focusObserver = new IntersectionObserver((entries) => {
+                const candidates = entries
+                    .filter((entry) => entry.isIntersecting && entry.intersectionRatio >= 0.5)
+                    .sort((a, b) => b.intersectionRatio - a.intersectionRatio);
+                if (candidates.length) {
+                    setActiveSection(candidates[0].target.getAttribute('data-section-id'));
+                }
+            }, {
+                threshold: [0.5, 0.65, 0.8, 1],
+                rootMargin: '-20% 0px -20% 0px'
+            });
+
+            sections.forEach((section) => focusObserver.observe(section));
+
+            const marker = window.innerHeight * 0.5;
+            const initial = sections.find((section) => {
+                const rect = section.getBoundingClientRect();
+                const style = window.getComputedStyle(section);
+                return style.display !== 'none' && rect.top <= marker && rect.bottom >= marker;
+            }) || sections.find((section) => window.getComputedStyle(section).display !== 'none');
+
+            if (initial) setActiveSection(initial.getAttribute('data-section-id'));
+        }
+
         // ===== Mobile Menu Toggle =====
         function toggleMobileMenu() {
             const menu = document.getElementById('mobileMenu');
@@ -1575,6 +1789,18 @@
                 });
                 if (websiteContent) applyContent(websiteContent, lang);
             }
+
+            function switchLanguage(lang) {
+                if (!lang || lang === currentLang) return;
+                localStorage.setItem('lang', lang);
+                var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+                if (reduceMotion) {
+                    window.location.reload();
+                    return;
+                }
+                document.body.classList.add('lang-transitioning');
+                window.setTimeout(function() { window.location.reload(); }, 240);
+            }
             var EXPERT_GRADIENTS = ['from-blue-100 to-blue-50', 'from-red-100 to-red-50', 'from-green-100 to-green-50', 'from-purple-100 to-purple-50', 'from-orange-100 to-orange-50', 'from-cyan-100 to-cyan-50'];
             var EXPERT_BADGES = ['bg-brand-blue-light', 'bg-brand-red-cta', 'bg-green-600', 'bg-purple-600', 'bg-orange-600', 'bg-cyan-600'];
             var EXPERT_DELAYS = ['delay-100', 'delay-200', 'delay-300', 'delay-400', 'delay-500', 'delay-600'];
@@ -1619,6 +1845,25 @@
                         '</div></div>';
                 }).join('');
             }
+
+            function applyTestimonials(c) {
+                var grid = document.getElementById('testimonialsGrid');
+                if (!grid) return;
+                var list = Array.isArray(c.testimonials) ? c.testimonials.filter(function(t) { return t && t.visible !== false; }) : [];
+                grid.innerHTML = list.map(function(t, i) {
+                    var quote = getLocalized(t.quote || '', currentLang);
+                    var author = getLocalized(t.author || '', currentLang);
+                    var role = getLocalized(t.role || '', currentLang);
+                    var delay = EXPERT_DELAYS[i % EXPERT_DELAYS.length];
+                    return '<article class="bg-white rounded-2xl sm:rounded-3xl p-6 sm:p-8 shadow-sm hover:shadow-xl transition-all duration-300 animate-scale-in ' + delay + '">' +
+                        '<p class="text-slate-700 text-sm sm:text-base leading-relaxed mb-6">“' + escapeHtml(quote || '') + '”</p>' +
+                        '<div class="border-t border-slate-100 pt-4">' +
+                        '<h4 class="font-bold text-slate-900">' + escapeHtml(author || 'Anonymous') + '</h4>' +
+                        (role ? '<p class="text-xs sm:text-sm text-slate-500">' + escapeHtml(role) + '</p>' : '') +
+                        '</div></article>';
+                }).join('');
+            }
+
             function applyServices(c) {
                 var grid = document.getElementById('servicesGrid');
                 if (!grid || !c.services || !Array.isArray(c.services)) return;
@@ -1656,14 +1901,17 @@
                 applySections(c);
                 applyExperts(c);
                 applyServices(c);
+                applyTestimonials(c);
+                initDynamicSectionFocus();
                 setLanguage(currentLang);
                 document.querySelectorAll('.lang-toggle').forEach(function(btn) {
-                    btn.addEventListener('click', function() { setLanguage(btn.getAttribute('data-lang')); });
+                    btn.addEventListener('click', function() { switchLanguage(btn.getAttribute('data-lang')); });
                 });
             }).catch(function() {
+                initDynamicSectionFocus();
                 setLanguage(currentLang);
                 document.querySelectorAll('.lang-toggle').forEach(function(btn) {
-                    btn.addEventListener('click', function() { setLanguage(btn.getAttribute('data-lang')); });
+                    btn.addEventListener('click', function() { switchLanguage(btn.getAttribute('data-lang')); });
                 });
             });
         })();
