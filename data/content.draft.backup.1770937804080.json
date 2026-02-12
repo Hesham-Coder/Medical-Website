@@ -235,12 +235,12 @@
   },
   "sectionsOrder": [
     "hero",
-    "services",
     "about",
-    "testimonials",
+    "services",
     "team",
-    "cta",
-    "contact"
+    "testimonials",
+    "contact",
+    "cta"
   ],
   "sectionVisibility": {
     "hero": true,
