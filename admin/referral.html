@@ -363,6 +363,7 @@
 
             document.getElementById('referralForm').addEventListener('submit', function(e) {
                 e.preventDefault();
+                console.log('Referral submit', { patientName: document.getElementById('patientName').value, attachments: uploadedFiles.length });
                 alert(lang === 'ar' ? 'تم إرسال الطلب (تجريبي)' : 'Request submitted (demo)');
             });
             document.getElementById('btnCancel').addEventListener('click', function() {
