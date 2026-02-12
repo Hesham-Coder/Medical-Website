@@ -1218,13 +1218,15 @@
         }, observerOptions);
 
         // Observe all elements with animation classes
-        document.addEventListener('DOMContentLoaded', () => {
-            const animatedElements = document.querySelectorAll('.animate-slide-in-left, .animate-slide-in-right, .animate-slide-in-up, .animate-fade-in, .animate-scale-in');
-            animatedElements.forEach(el => {
+        function observeAnimatedElements() {
+            var animatedElements = document.querySelectorAll('.animate-slide-in-left, .animate-slide-in-right, .animate-slide-in-up, .animate-fade-in, .animate-scale-in');
+            animatedElements.forEach(function(el) {
                 el.style.opacity = '0';
-                observer.observe(el);
+                try { observer.observe(el); } catch (e) { /* ignore */ }
             });
-        });
+        }
+        window.observeAnimatedElements = observeAnimatedElements;
+        document.addEventListener('DOMContentLoaded', observeAnimatedElements);
 
         // Add visible class styles dynamically
         const style = document.createElement('style');
@@ -1796,12 +1798,14 @@
                 document.querySelectorAll('.lang-toggle').forEach(function(btn) {
                     btn.addEventListener('click', function() { switchLanguage(btn.getAttribute('data-lang')); });
                 });
+                if (window.observeAnimatedElements) window.observeAnimatedElements();
             }).catch(function() {
                 initDynamicSectionFocus();
                 setLanguage(currentLang);
                 document.querySelectorAll('.lang-toggle').forEach(function(btn) {
                     btn.addEventListener('click', function() { switchLanguage(btn.getAttribute('data-lang')); });
                 });
+                if (window.observeAnimatedElements) window.observeAnimatedElements();
             });
         })();
     </script>
