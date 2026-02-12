@@ -249,7 +249,7 @@
     "about": true,
     "contact": true,
     "cta": true,
-    "testimonials": true
+    "testimonials": false
   },
   "contactSection": {
     "heading": {
