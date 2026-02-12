@@ -31,6 +31,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
     
+    <!-- Attention-Guided Navigation CSS -->
+    <link rel="stylesheet" href="/css/attention-guided-nav.css">
+    
     <!-- Custom Styles -->
     <style type="text/tailwindcss">
         /* CSS Variables */
@@ -779,6 +782,34 @@
                         <div class="absolute -top-6 -right-6 w-24 h-24 bg-brand-red-cta rounded-full opacity-20 blur-2xl animate-pulse-3d"></div>
                         <div class="absolute -bottom-6 -left-6 w-32 h-32 bg-brand-blue-light rounded-full opacity-15 blur-3xl animate-pulse-3d delay-300"></div>
                     </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Testimonials Section -->
+        <section id="testimonials" data-section-id="testimonials" class="py-16 sm:py-24 lg:py-32 bg-slate-50 relative overflow-hidden">
+            
+            <!-- Animated background elements -->
+            <div class="absolute top-0 left-0 w-96 h-96 bg-gradient-to-br from-brand-blue-light to-blue-100 rounded-full blur-3xl opacity-15 -ml-48 -mt-48 animate-pulse-3d"></div>
+            <div class="absolute bottom-0 right-0 w-80 h-80 bg-gradient-to-tl from-brand-red-cta to-red-100 rounded-full blur-3xl opacity-10 -mr-40 -mb-40 animate-pulse-3d delay-300"></div>
+            
+            <div class="mx-auto max-w-7xl px-4 sm:px-6 relative z-10">
+                <!-- Section Header -->
+                <div class="text-center max-w-3xl mx-auto mb-12 sm:mb-16 lg:mb-20 animate-slide-in-up">
+                    <div class="inline-flex items-center gap-2 glass px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-brand-blue-dark font-bold text-[10px] sm:text-xs uppercase tracking-widest mb-4 sm:mb-6 animate-fade-in">
+                        <span class="relative flex h-2 w-2">
+                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+                            <span class="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span>
+                        </span>
+                        Patient Stories
+                    </div>
+                    <h2 class="text-3xl sm:text-4xl lg:text-6xl font-black text-slate-900 mb-4 sm:mb-6 px-4 sm:px-0" data-content="testimonialsSection.heading">What Our Patients Say</h2>
+                    <p class="text-base sm:text-lg lg:text-xl text-slate-600 px-4 sm:px-0" data-content="testimonialsSection.subheading">Real stories from people who have walked the journey with us.</p>
+                </div>
+
+                <!-- Testimonials Grid -->
+                <div id="testimonialsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+                    <!-- Testimonial cards will be rendered here by JavaScript -->
                 </div>
             </div>
         </section>
@@ -1790,5 +1821,50 @@
         })();
     </script>
 
+    <!-- Attention-Guided Navigation System -->
+    <script src="/js/attention-guided-nav.js"></script>
+    
+    <!-- Language Manager -->
+    <script src="/js/language-manager.js"></script>
+    
+    <!-- Accessibility Manager -->
+    <script src="/js/accessibility-manager.js"></script>
+
+    <!-- Initialize Systems -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize Attention-Guided Navigation
+            window.attentionNav = new AttentionGuidedNavigation({
+                focusZoneMargin: '20% 0px 20% 0px',
+                observerThreshold: 0.5,
+                debugMode: false,
+                enableLanguageTransition: true,
+                transitionDuration: 300,
+                staggerDelay: 80
+            });
+
+            // Initialize Language Manager
+            window.languageManager = new LanguageManager({
+                defaultLanguage: 'en',
+                supportedLanguages: ['en', 'ar'],
+                contentAPI: '/api/public/content',
+                enableAutoDetect: true,
+                transitionDuration: 300
+            });
+
+            // Initialize Accessibility Manager
+            window.accessibilityManager = new AccessibilityManager({
+                respectReducedMotion: true,
+                respectHighContrast: true,
+                respectColorScheme: true,
+                enableKeyboardNavigation: true,
+                enableScreenReaderSupport: true,
+                enableFocusIndicators: true
+            });
+
+            // Log initialization
+            console.log('%c✓ All Systems Initialized Successfully', 'color: #10b981; font-weight: bold; font-size: 14px;');
+        });
+    </script>
 </body>
-</html>
+</html>>
