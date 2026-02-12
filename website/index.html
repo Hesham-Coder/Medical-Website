@@ -392,6 +392,12 @@
             transition: opacity 240ms var(--focus-ease);
         }
 
+        main.scroll-3d-lens {
+            perspective: 1200px;
+            perspective-origin: 50% 45%;
+            transform-style: preserve-3d;
+        }
+
         main.dynamic-section-focus [data-section-id] {
             transition:
                 opacity var(--focus-duration) var(--focus-ease),
@@ -405,13 +411,13 @@
 
         main.dynamic-section-focus.has-focus-state [data-section-id] {
             opacity: var(--focus-inactive-opacity);
-            transform: translateZ(0) scale(var(--focus-inactive-scale));
+            transform: var(--scroll-depth-transform, translateZ(0)) scale(var(--focus-inactive-scale));
             filter: blur(var(--focus-inactive-blur)) grayscale(var(--focus-inactive-grayscale));
         }
 
         main.dynamic-section-focus.has-focus-state [data-section-id].is-section-active {
             opacity: 1;
-            transform: translateZ(0) scale(1);
+            transform: var(--scroll-depth-transform, translateZ(0)) scale(1);
             filter: blur(0) grayscale(0%);
             position: relative;
             z-index: 2;
@@ -451,6 +457,9 @@
                 filter: none !important;
                 transform: none !important;
                 will-change: auto !important;
+            }
+            main.dynamic-section-focus [data-section-id] {
+                --scroll-depth-transform: translateZ(0) rotateX(0deg) !important;
             }
             main.dynamic-section-focus.has-focus-state [data-section-id] {
                 opacity: 1 !important;
@@ -1422,12 +1431,43 @@
             }
         }
 
+
+        // ===== Scroll Depth 3D Lens =====
+        function initScrollDepth3D() {
+            const main = document.querySelector('main');
+            if (!main) return;
+            main.classList.add('scroll-3d-lens');
+        }
+
+        function applyScrollDepth3D() {
+            const main = document.querySelector('main');
+            if (!main) return;
+            const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+            const sections = main.querySelectorAll('[data-section-id]');
+            const vh = window.innerHeight || 1;
+            const center = vh * 0.5;
+            sections.forEach((section) => {
+                if (reduceMotion) {
+                    section.style.setProperty('--scroll-depth-transform', 'translateZ(0) rotateX(0deg)');
+                    return;
+                }
+                const rect = section.getBoundingClientRect();
+                const secCenter = rect.top + rect.height / 2;
+                const delta = (secCenter - center) / vh;
+                const clamped = Math.max(-1, Math.min(1, delta));
+                const z = Math.round((1 - Math.abs(clamped)) * 42);
+                const rot = (-clamped * 3.2).toFixed(2);
+                section.style.setProperty('--scroll-depth-transform', `translateZ(${z}px) rotateX(${rot}deg)`);
+            });
+        }
+
         // ===== Parallax Scrolling Effect =====
         let ticking = false;
         
         function updateParallax() {
             const scrolled = window.pageYOffset;
             const parallaxElements = document.querySelectorAll('.parallax');
+            applyScrollDepth3D();
             
             parallaxElements.forEach(element => {
                 const speed = element.dataset.speed || 0.5;
@@ -1437,6 +1477,10 @@
             
             ticking = false;
         }
+
+        window.addEventListener('resize', () => {
+            window.requestAnimationFrame(applyScrollDepth3D);
+        });
 
         window.addEventListener('scroll', () => {
             if (!ticking) {
@@ -1903,12 +1947,16 @@
                 applyServices(c);
                 applyTestimonials(c);
                 initDynamicSectionFocus();
+                initScrollDepth3D();
+                applyScrollDepth3D();
                 setLanguage(currentLang);
                 document.querySelectorAll('.lang-toggle').forEach(function(btn) {
                     btn.addEventListener('click', function() { switchLanguage(btn.getAttribute('data-lang')); });
                 });
             }).catch(function() {
                 initDynamicSectionFocus();
+                initScrollDepth3D();
+                applyScrollDepth3D();
                 setLanguage(currentLang);
                 document.querySelectorAll('.lang-toggle').forEach(function(btn) {
                     btn.addEventListener('click', function() { switchLanguage(btn.getAttribute('data-lang')); });
