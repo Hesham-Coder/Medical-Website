@@ -631,6 +631,21 @@
             </div>
         </section>
 
+
+        <!-- Testimonials Section -->
+        <section id="testimonials" data-section-id="testimonials" class="py-16 sm:py-24 lg:py-28 bg-slate-50">
+            <div class="mx-auto max-w-7xl px-4 sm:px-6">
+                <div class="text-center max-w-3xl mx-auto mb-12 sm:mb-16">
+                    <div class="inline-flex items-center gap-2 glass px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-brand-blue-dark font-bold text-[10px] sm:text-xs uppercase tracking-widest mb-4 sm:mb-6">
+                        Patient Testimonials
+                    </div>
+                    <h2 class="text-3xl sm:text-4xl lg:text-6xl font-black text-slate-900 mb-4 sm:mb-6" data-content="testimonialsSection.heading">Patient Stories</h2>
+                    <p class="text-base sm:text-lg lg:text-xl text-slate-600" data-content="testimonialsSection.subheading">Real feedback from patients and families we have supported.</p>
+                </div>
+                <div id="testimonialsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8"></div>
+            </div>
+        </section>
+
         <!-- About Section -->
         <section id="about" data-section-id="about" class="py-16 sm:py-24 lg:py-32 bg-white relative overflow-hidden">
             
@@ -1619,6 +1634,25 @@
                         '</div></div>';
                 }).join('');
             }
+
+            function applyTestimonials(c) {
+                var grid = document.getElementById('testimonialsGrid');
+                if (!grid) return;
+                var list = Array.isArray(c.testimonials) ? c.testimonials.filter(function(t) { return t && t.visible !== false; }) : [];
+                grid.innerHTML = list.map(function(t, i) {
+                    var quote = getLocalized(t.quote || '', currentLang);
+                    var author = getLocalized(t.author || '', currentLang);
+                    var role = getLocalized(t.role || '', currentLang);
+                    var delay = EXPERT_DELAYS[i % EXPERT_DELAYS.length];
+                    return '<article class="bg-white rounded-2xl sm:rounded-3xl p-6 sm:p-8 shadow-sm hover:shadow-xl transition-all duration-300 animate-scale-in ' + delay + '">' +
+                        '<p class="text-slate-700 text-sm sm:text-base leading-relaxed mb-6">“' + escapeHtml(quote || '') + '”</p>' +
+                        '<div class="border-t border-slate-100 pt-4">' +
+                        '<h4 class="font-bold text-slate-900">' + escapeHtml(author || 'Anonymous') + '</h4>' +
+                        (role ? '<p class="text-xs sm:text-sm text-slate-500">' + escapeHtml(role) + '</p>' : '') +
+                        '</div></article>';
+                }).join('');
+            }
+
             function applyServices(c) {
                 var grid = document.getElementById('servicesGrid');
                 if (!grid || !c.services || !Array.isArray(c.services)) return;
@@ -1656,6 +1690,7 @@
                 applySections(c);
                 applyExperts(c);
                 applyServices(c);
+                applyTestimonials(c);
                 setLanguage(currentLang);
                 document.querySelectorAll('.lang-toggle').forEach(function(btn) {
                     btn.addEventListener('click', function() { setLanguage(btn.getAttribute('data-lang')); });
