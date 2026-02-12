@@ -325,56 +325,6 @@
         .delay-500 { animation-delay: 0.5s; }
         .delay-600 { animation-delay: 0.6s; }
 
-
-        /* Global ambient background animation */
-        .ambient-bg {
-            position: fixed;
-            inset: 0;
-            pointer-events: none;
-            z-index: -1;
-            overflow: hidden;
-        }
-        .ambient-blob {
-            position: absolute;
-            border-radius: 9999px;
-            filter: blur(70px);
-            opacity: 0.22;
-            mix-blend-mode: multiply;
-            will-change: transform, opacity;
-            transform: translate3d(0, 0, 0);
-            animation: ambientDrift 22s cubic-bezier(0.4, 0, 0.2, 1) infinite alternate;
-        }
-        .ambient-blob.b1 {
-            width: 360px;
-            height: 360px;
-            background: radial-gradient(circle at 30% 30%, #38bdf8, #0ea5e9 70%);
-            top: -80px;
-            left: -70px;
-        }
-        .ambient-blob.b2 {
-            width: 420px;
-            height: 420px;
-            background: radial-gradient(circle at 30% 30%, #93c5fd, #60a5fa 70%);
-            bottom: -140px;
-            right: -120px;
-            animation-duration: 28s;
-            animation-delay: 1.2s;
-        }
-        .ambient-blob.b3 {
-            width: 300px;
-            height: 300px;
-            background: radial-gradient(circle at 30% 30%, #fda4af, #fb7185 70%);
-            top: 40%;
-            right: 22%;
-            animation-duration: 24s;
-            animation-delay: 2.1s;
-        }
-        @keyframes ambientDrift {
-            0% { transform: translate3d(0, 0, 0) scale(1); opacity: 0.18; }
-            50% { transform: translate3d(18px, -24px, 0) scale(1.08); opacity: 0.28; }
-            100% { transform: translate3d(-22px, 16px, 0) scale(0.98); opacity: 0.2; }
-        }
-
         /* i18n: RTL uses Tajawal; LTR uses Manrope */
         html.lang-ar, html.lang-ar body { font-family: 'Tajawal', sans-serif; }
         html.lang-en, html.lang-en body { font-family: 'Manrope', sans-serif; }
@@ -439,11 +389,6 @@
 </head>
 
 <body class="font-display bg-slate-50 text-slate-900 overflow-x-hidden">
-    <div class="ambient-bg" aria-hidden="true">
-        <div class="ambient-blob b1"></div>
-        <div class="ambient-blob b2"></div>
-        <div class="ambient-blob b3"></div>
-    </div>
 
     <!-- ========================================
          HEADER / NAVIGATION
@@ -1375,43 +1320,12 @@
             }
         }
 
-
-        // ===== Scroll Depth 3D Lens =====
-        function initScrollDepth3D() {
-            const main = document.querySelector('main');
-            if (!main) return;
-            main.classList.add('scroll-3d-lens');
-        }
-
-        function applyScrollDepth3D() {
-            const main = document.querySelector('main');
-            if (!main) return;
-            const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-            const sections = main.querySelectorAll('[data-section-id]');
-            const vh = window.innerHeight || 1;
-            const center = vh * 0.5;
-            sections.forEach((section) => {
-                if (reduceMotion) {
-                    section.style.setProperty('--scroll-depth-transform', 'translateZ(0) rotateX(0deg)');
-                    return;
-                }
-                const rect = section.getBoundingClientRect();
-                const secCenter = rect.top + rect.height / 2;
-                const delta = (secCenter - center) / vh;
-                const clamped = Math.max(-1, Math.min(1, delta));
-                const z = Math.round((1 - Math.abs(clamped)) * 42);
-                const rot = (-clamped * 3.2).toFixed(2);
-                section.style.setProperty('--scroll-depth-transform', `translateZ(${z}px) rotateX(${rot}deg)`);
-            });
-        }
-
         // ===== Parallax Scrolling Effect =====
         let ticking = false;
         
         function updateParallax() {
             const scrolled = window.pageYOffset;
             const parallaxElements = document.querySelectorAll('.parallax');
-            applyScrollDepth3D();
             
             parallaxElements.forEach(element => {
                 const speed = element.dataset.speed || 0.5;
@@ -1421,10 +1335,6 @@
             
             ticking = false;
         }
-
-        window.addEventListener('resize', () => {
-            window.requestAnimationFrame(applyScrollDepth3D);
-        });
 
         window.addEventListener('scroll', () => {
             if (!ticking) {
