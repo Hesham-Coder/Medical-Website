@@ -411,16 +411,14 @@
       "visible": true
     },
     {
-      "imageUrl": "/uploads/img-1770996997511-0v9vgq.jpg",
+      "imageUrl": "/uploads/img-1770996494260-ighpew.jpg",
       "bio": "Special interest in organ-preserving and minimally invasive surgical techniques aligned with international best practices.",
-      "experience": "30+",
-      "certifications": "Oncology",
-      "profileCtaLabel": "",
+      "experience": "18+ years in surgical oncology",
+      "certifications": "Board certified in General Surgery and Surgical Oncology",
+      "profileCtaLabel": "Talk about surgical options",
       "profileCtaLink": "#contact",
       "icon": "surgical",
-      "visible": true,
-      "name": "أ.د/ أحمد الجويلي",
-      "title": "أستاذ علاج الأورام كلية الطب جامعة الاسكندرية وعضو الجمعية الأمريكية لعلاج الأورام."
+      "visible": true
     }
   ],
   "seo": {
