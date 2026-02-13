@@ -339,8 +339,8 @@
             animation-play-state: paused;
         }
 
-        .reveal-on-scroll.visible {
-            opacity: 1 !important;
+.reveal-on-scroll.is-visible{
+opacity: 1 !important;
             animation-play-state: running;
         }
 
@@ -383,12 +383,13 @@
 
         /* Scroll depth effect for existing sections */
         .scroll-depth-item {
-            transform: perspective(1200px) translate3d(0, 32px, -60px) rotateX(5deg);
+            transform: perspective(1200px) translate3d(0, 48px, -80px) rotateX(15deg) scale(0.9);
             opacity: 0;
-            transition: transform 700ms cubic-bezier(0.22, 1, 0.36, 1), opacity 500ms ease;
+            transition: transform 800ms cubic-bezier(0.22, 1, 0.36, 1), opacity 500ms ease;
             will-change: transform, opacity;
         }
         .scroll-depth-item.is-in-view {
+            transform: perspective(1200px) translate3d(0, 0, 0) rotateX(0deg) scale(1);
             opacity: 1;
         }
         @media (prefers-reduced-motion: reduce) {
@@ -560,7 +561,7 @@
 
     <!-- Mobile Menu Backdrop -->
     <div 
-        id="mobileMenuBackdrop" 
+        id="mobileBackdrop" 
         class="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 opacity-0 pointer-events-none transition-opacity duration-300 lg:hidden"
         onclick="toggleMobileMenu()"
     ></div>
@@ -1254,46 +1255,51 @@
         </div>
     </footer>
 
-    <!-- ========================================
-         JAVASCRIPT
-    ======================================== -->
-    <script>
-        // ===== Scroll Reveal Animation =====
-        const observer = ('IntersectionObserver' in window)
-            ? new IntersectionObserver((entries, io) => {
-                entries.forEach(entry => {
-                    if (!entry.isIntersecting) return;
-                    entry.target.classList.add('visible');
-                    io.unobserve(entry.target);
-                });
-            }, {
-                threshold: 0.1,
-                rootMargin: '0px 0px -50px 0px'
-            })
-            : null;
+<!-- ========================================
+     JAVASCRIPT
+======================================== -->
+<script>
+    // ===== Scroll Reveal Animation =====
 
-        // Observe all elements with animation classes
-        function observeAnimatedElements() {
-            var animatedElements = document.querySelectorAll('.animate-slide-in-left, .animate-slide-in-right, .animate-slide-in-up, .animate-fade-in, .animate-scale-in');
+    const observer = ('IntersectionObserver' in window)
+        ? new IntersectionObserver((entries, io) => {
+            entries.forEach(entry => {
+                if (!entry.isIntersecting) return;
 
-            if (!observer) {
-                animatedElements.forEach(function(el) {
-                    el.classList.remove('reveal-on-scroll');
-                    el.classList.add('visible');
-                });
-                return;
-            }
-
-            animatedElements.forEach(function(el) {
-                if (el.classList.contains('visible')) return;
-                el.classList.add('reveal-on-scroll');
-                observer.observe(el);
+                entry.target.classList.add('is-visible');
+                io.unobserve(entry.target);
             });
+        }, {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        })
+        : null;
+
+    function observeAnimatedElements() {
+        const animatedElements = document.querySelectorAll(
+            '.animate-slide-in-left, .animate-slide-in-right, .animate-slide-in-up, .animate-fade-in, .animate-scale-in'
+        );
+
+        if (!observer) {
+            animatedElements.forEach(el => {
+                el.classList.remove('reveal-on-scroll');
+                el.classList.add('is-visible');
+            });
+            return;
         }
-        window.observeAnimatedElements = observeAnimatedElements;
-        document.addEventListener('DOMContentLoaded', observeAnimatedElements);
 
+        animatedElements.forEach(el => {
+            if (el.classList.contains('is-visible')) return;
 
+            el.classList.add('reveal-on-scroll');
+            observer.observe(el);
+        });
+    }
+
+    window.observeAnimatedElements = observeAnimatedElements;
+
+    document.addEventListener('DOMContentLoaded', observeAnimatedElements);
+</script>
         // ===== Dynamic Section Focus (active section emphasis) =====
         function initDynamicSectionFocus() {
             const main = document.querySelector('main');
@@ -1341,34 +1347,53 @@
         }
 
         // ===== Mobile Menu Toggle =====
+        let lenisInstance = null;
+
+        function initLenis() {
+            if (typeof Lenis !== 'function' || lenisInstance) return;
+
+            lenisInstance = new Lenis({
+                duration: 1.2,
+                easing: function(t) {
+                    // cubic-bezier style easing
+                    return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+                },
+                smoothWheel: true,
+                smoothTouch: true,
+                gestureOrientation: 'vertical'
+            });
+
+            function raf(time) {
+                lenisInstance.raf(time);
+                requestAnimationFrame(raf);
+            }
+            requestAnimationFrame(raf);
+            window.lenis = lenisInstance;
+        }
+
+        // ===== Mobile Menu Toggle =====
         function toggleMobileMenu() {
             const menu = document.getElementById('mobileMenu');
-            const backdrop = document.getElementById('mobileMenuBackdrop');
-            const isActive = menu.classList.contains('active');
-            
-            if (isActive) {
-                // Close menu
-                menu.classList.remove('active');
-                backdrop.classList.remove('opacity-100');
-                backdrop.classList.add('opacity-0', 'pointer-events-none');
-                document.body.style.overflow = '';
-            } else {
-                // Open menu
-                menu.classList.add('active');
-                backdrop.classList.remove('opacity-0', 'pointer-events-none');
-                backdrop.classList.add('opacity-100');
-                document.body.style.overflow = 'hidden';
-            }
+            const backdrop = document.getElementById('mobileBackdrop');
+            if (!menu || !backdrop) return;
+
+            const shouldOpen = !menu.classList.contains('active');
+            menu.classList.toggle('active', shouldOpen);
+            backdrop.classList.toggle('opacity-100', shouldOpen);
+            backdrop.classList.toggle('opacity-0', !shouldOpen);
+            backdrop.classList.toggle('pointer-events-none', !shouldOpen);
+            document.body.style.overflow = shouldOpen ? 'hidden' : '';
         }
 
         // ===== Smooth Scroll to Section =====
         function scrollToSection(sectionId) {
             const element = document.getElementById(sectionId);
-            if (element) {
-                element.scrollIntoView({ 
-                    behavior: 'smooth',
-                    block: 'start'
-                });
+            if (!element) return;
+
+            if (window.lenis) {
+                window.lenis.scrollTo(element, { duration: 1.2 });
+            } else {
+                element.scrollIntoView({ behavior: 'smooth', block: 'start' });
             }
         }
 
@@ -1537,7 +1562,7 @@
         window.addEventListener('resize', function() {
             if (window.innerWidth >= 1024) {
                 const menu = document.getElementById('mobileMenu');
-                const backdrop = document.getElementById('mobileMenuBackdrop');
+                const backdrop = document.getElementById('mobileBackdrop');
                 if (menu.classList.contains('active')) {
                     menu.classList.remove('active');
                     backdrop.classList.remove('opacity-100');
@@ -1861,6 +1886,8 @@
             });
         })();
     </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/lenis@1.0.42/bundled/lenis.min.js"></script>
 
     <!-- Attention-Guided Navigation System -->
     <script src="/js/attention-guided-nav.js"></script>
