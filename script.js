@@ -5,6 +5,14 @@
 
 const sections3D = [...document.querySelectorAll('.section-3d')];
 const orbs = [...document.querySelectorAll('.gradient-orb')];
+const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+if (prefersReducedMotion || !('IntersectionObserver' in window)) {
+  sections3D.forEach((section) => {
+    section.classList.add('is-visible');
+    section.style.transform = 'none';
+  });
+} else {
 
 /**
  * Reveal cards and sections as they enter viewport.
@@ -64,6 +72,7 @@ const applyDepthOnScroll = () => {
   });
 };
 
+
 // Use requestAnimationFrame for smoothness and to avoid extra layout thrashing.
 let ticking = false;
 const onScroll = () => {
@@ -76,9 +85,13 @@ const onScroll = () => {
   }
 };
 
-window.addEventListener('scroll', onScroll, { passive: true });
-window.addEventListener('resize', applyDepthOnScroll);
-window.addEventListener('load', applyDepthOnScroll);
+if (!prefersReducedMotion && 'IntersectionObserver' in window) {
+  window.addEventListener('scroll', onScroll, { passive: true });
+  window.addEventListener('resize', applyDepthOnScroll);
+  window.addEventListener('load', applyDepthOnScroll);
 
-// Trigger once immediately for fast first paint alignment.
-applyDepthOnScroll();
+  // Trigger once immediately for fast first paint alignment.
+  applyDepthOnScroll();
+}
+
+}
