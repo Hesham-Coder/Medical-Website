@@ -1131,7 +1131,9 @@
                         { key: 'contact.emergencyPhone', label: 'Emergency phone', bilingual: true },
                         { key: 'contact.email', label: 'Email', bilingual: true },
                         { key: 'contact.address', label: 'Address', bilingual: true },
-                        { key: 'insurance.blurb', label: 'Insurance & finance blurb', bilingual: true }
+                        { key: 'insurance.blurb', label: 'Insurance & finance blurb', bilingual: true },
+                        { key: 'insurance.coverageLinkLabel', label: 'Coverage link label', bilingual: true },
+                        { key: 'insurance.coverageList', label: 'Coverage list (one item per line)', bilingual: true, multiline: true }
                     ]},
                     { id: 'services', label: 'Services heading', fields: [
                         { key: 'servicesSection.heading', label: 'Section heading', bilingual: true },
@@ -1203,8 +1205,9 @@
                             wrap.className = 'form-group';
                             var label = document.createElement('label');
                             label.textContent = f.label + (f.bilingual ? ' (' + (lang === 'en' ? 'English' : 'Arabic') + ')' : '');
-                            var input = document.createElement(f.key.indexOf('paragraphs') !== -1 ? 'textarea' : 'input');
-                            input.type = !f.bilingual ? 'number' : (f.key.indexOf('paragraphs') !== -1 ? 'text' : 'text');
+                            var isMultiline = f.multiline || f.key.indexOf('paragraphs') !== -1;
+                            var input = document.createElement(isMultiline ? 'textarea' : 'input');
+                            if (!isMultiline) input.type = !f.bilingual ? 'number' : 'text';
                             input.dataset.key = f.key;
                             input.dataset.lang = lang;
                             input.value = getVal(f.key, f.bilingual ? lang : 'en');

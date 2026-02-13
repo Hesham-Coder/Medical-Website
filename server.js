@@ -138,6 +138,11 @@ try {
     services: [{ icon: 'science', title: 'Advanced Diagnostics', description: 'State-of-the-art imaging and molecular testing.' }, { icon: 'medication', title: 'Precision Medicine', description: 'Targeted therapies tailored to your profile.' }, { icon: 'support', title: 'Holistic Support', description: 'Nutrition, mental health, survivorship programs.' }],
     aboutSection: { heading: 'Leading Cancer Care', paragraphs: ['At Comprehensive Cancer Center we address not just the disease, but the whole person.'], highlights: ['Nationally recognized specialists', 'Clinical trials', 'Supportive care'] },
     footer: { copyright: '© 2024 Comprehensive Cancer Center.', hours: 'Mon - Fri: 8:00 AM - 6:00 PM', emergencyText: '24/7 Emergency Support' },
+    insurance: {
+      blurb: { en: 'We work with a broad range of payers and will help you understand available coverage and payment options before treatment begins.', ar: 'نتعاون مع عدد كبير من الجهات الممولة للرعاية الصحية ونساعدك على فهم خيارات التغطية والتكاليف قبل بدء العلاج.' },
+      coverageLinkLabel: { en: 'Check Your Coverage', ar: 'تحقق من التغطية' },
+      coverageList: { en: '', ar: '' }
+    },
     teamSection: { heading: 'World-Class Specialists', subheading: 'Our team combines decades of experience with cutting-edge research and compassionate care.' },
     testimonialsSection: {
       heading: { en: 'Patient Stories', ar: 'تجارب المرضى' },
@@ -214,6 +219,15 @@ function ensureExperts(content) {
   }
   if (!content.sectionVisibility || typeof content.sectionVisibility !== 'object') content.sectionVisibility = {};
   if (content.sectionVisibility.testimonials === undefined) content.sectionVisibility.testimonials = true;
+  if (!content.insurance || typeof content.insurance !== 'object') content.insurance = {};
+  if (!content.insurance.blurb) {
+    content.insurance.blurb = {
+      en: 'We work with a broad range of payers and will help you understand available coverage and payment options before treatment begins.',
+      ar: 'نتعاون مع عدد كبير من الجهات الممولة للرعاية الصحية ونساعدك على فهم خيارات التغطية والتكاليف قبل بدء العلاج.'
+    };
+  }
+  if (!content.insurance.coverageLinkLabel) content.insurance.coverageLinkLabel = { en: 'Check Your Coverage', ar: 'تحقق من التغطية' };
+  if (!content.insurance.coverageList) content.insurance.coverageList = { en: '', ar: '' };
   return content;
 }
 

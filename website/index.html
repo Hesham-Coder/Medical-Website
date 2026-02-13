@@ -1033,11 +1033,31 @@
                             </p>
                             <a 
                                 href="#" 
+                                id="coverageTrigger"
                                 class="inline-flex items-center gap-2 text-brand-blue-dark font-bold text-xs sm:text-sm hover:underline"
+                                aria-haspopup="dialog"
+                                aria-controls="coverageModal"
                             >
-                                Check Your Coverage 
+                                <span id="coverageTriggerLabel">Check Your Coverage</span>
                                 <span class="material-symbols-outlined text-sm">open_in_new</span>
                             </a>
+                        </div>
+
+                        <div id="coverageModal" class="hidden fixed inset-0 z-[80]" aria-hidden="true">
+                            <div id="coverageBackdrop" class="absolute inset-0 bg-slate-900/50"></div>
+                            <div class="absolute inset-0 flex items-center justify-center p-4">
+                                <div class="w-full max-w-2xl max-h-[82vh] overflow-hidden rounded-2xl bg-white shadow-2xl border border-slate-200">
+                                    <div class="flex items-center justify-between px-5 py-4 border-b border-slate-100">
+                                        <h4 class="font-bold text-slate-900 text-base sm:text-lg">Accepted Coverage Partners</h4>
+                                        <button id="coverageCloseBtn" type="button" class="inline-flex items-center justify-center w-9 h-9 rounded-lg text-slate-500 hover:bg-slate-100" aria-label="Close list">
+                                            <span class="material-symbols-outlined">close</span>
+                                        </button>
+                                    </div>
+                                    <div class="p-5 overflow-y-auto max-h-[65vh]">
+                                        <ul id="coverageList" class="space-y-2 text-sm sm:text-base text-slate-700"></ul>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
 
                         <!-- Map -->
@@ -1597,6 +1617,7 @@
         (function() {
             var currentLang = localStorage.getItem('lang') || 'en';
             var websiteContent = null;
+            var coverageModalTimeout = null;
 
             function get(obj, path) {
                 var parts = path.split('.');
@@ -1665,6 +1686,8 @@
                     }
                 }
 
+                renderCoverageList(c, lang);
+
                 // Schema.org structured data (MedicalOrganization + first physician, derived from content)
                 try {
                     var existingSchema = document.getElementById('schema-medical-org');
@@ -1702,6 +1725,74 @@
                 } catch (e) {
                     // Failing schema generation should never break the page
                 }
+            }
+
+            function toCoverageItems(rawText) {
+                if (!rawText) return [];
+                return String(rawText)
+                    .replace(/\\n/g, '\n')
+                    .split(/\n+/)
+                    .map(function(line) { return line.trim(); })
+                    .filter(Boolean);
+            }
+
+            function renderCoverageList(c, lang) {
+                var listEl = document.getElementById('coverageList');
+                var trigger = document.getElementById('coverageTrigger');
+                var triggerLabel = document.getElementById('coverageTriggerLabel');
+                if (!listEl || !trigger) return;
+                var rawList = c && c.insurance ? getLocalized(c.insurance.coverageList || '', lang) : '';
+                var label = c && c.insurance ? getLocalized(c.insurance.coverageLinkLabel || '', lang) : '';
+                var items = toCoverageItems(rawList);
+                listEl.innerHTML = items.map(function(item) {
+                    return '<li class="rounded-xl bg-slate-50 border border-slate-100 px-3 py-2">' + escapeHtml(item) + '</li>';
+                }).join('');
+                if (!items.length) {
+                    listEl.innerHTML = '<li class="text-slate-500">No coverage partners listed yet.</li>';
+                }
+                if (label && triggerLabel) {
+                    triggerLabel.textContent = label;
+                }
+            }
+
+            function setupCoverageModal() {
+                var modal = document.getElementById('coverageModal');
+                var trigger = document.getElementById('coverageTrigger');
+                var closeBtn = document.getElementById('coverageCloseBtn');
+                var backdrop = document.getElementById('coverageBackdrop');
+                if (!modal || !trigger || !closeBtn || !backdrop) return;
+
+                function openModal() {
+                    modal.classList.remove('hidden');
+                    modal.setAttribute('aria-hidden', 'false');
+                }
+                function closeModal() {
+                    modal.classList.add('hidden');
+                    modal.setAttribute('aria-hidden', 'true');
+                }
+
+                trigger.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    openModal();
+                });
+
+                trigger.addEventListener('mouseenter', function() {
+                    clearTimeout(coverageModalTimeout);
+                    openModal();
+                });
+
+                modal.addEventListener('mouseleave', function() {
+                    coverageModalTimeout = setTimeout(closeModal, 220);
+                });
+                modal.addEventListener('mouseenter', function() {
+                    clearTimeout(coverageModalTimeout);
+                });
+
+                closeBtn.addEventListener('click', closeModal);
+                backdrop.addEventListener('click', closeModal);
+                document.addEventListener('keydown', function(e) {
+                    if (e.key === 'Escape') closeModal();
+                });
             }
             function applySections(c) {
                 var main = document.querySelector('main');
@@ -1846,6 +1937,7 @@
                 applyExperts(c);
                 applyServices(c);
                 applyTestimonials(c);
+                setupCoverageModal();
                 setLanguage(currentLang);
                 document.querySelectorAll('.lang-toggle').forEach(function(btn) {
                     btn.addEventListener('click', function() { switchLanguage(btn.getAttribute('data-lang')); });
@@ -1853,6 +1945,7 @@
                 if (window.observeAnimatedElements) window.observeAnimatedElements();
             }).catch(function() {
                 initDynamicSectionFocus();
+                setupCoverageModal();
                 setLanguage(currentLang);
                 document.querySelectorAll('.lang-toggle').forEach(function(btn) {
                     btn.addEventListener('click', function() { switchLanguage(btn.getAttribute('data-lang')); });
