@@ -135,6 +135,30 @@
         "en": "Evaluation for eligibility in appropriate clinical trials in line with current standards of care.",
         "ar": "تقييم مدى ملاءمة المريض للمشاركة في التجارب السريرية المناسبة بما يتماشى مع المعايير العلاجية المعتمدة."
       }
+    },
+    {
+      "icon": "psychology",
+      "title": {
+        "en": "MultiVitamin",
+        "ar": "مالتيفيتامن"
+      },
+      "description": {
+        "en": "How are you are you fine make the following full editable from dashboard services content seo title meta description",
+        "ar": "اهلا وسهلا عامل حضرتك تفضل و اجلس اشرب شاي بلبن و كل بسكوت وكسك اخبارك ايه"
+      },
+      "visible": true
+    },
+    {
+      "icon": "genetics",
+      "title": {
+        "en": "",
+        "ar": "مالتيفيتامن"
+      },
+      "description": {
+        "en": "",
+        "ar": "تتتتتتتتتتتتتتتتتتتتتتتتتتتتتتتتتتتتتتتتتتتتتت"
+      },
+      "visible": true
     }
   ],
   "features": [
@@ -207,14 +231,6 @@
     "blurb": {
       "en": "We work with a broad range of payers and will help you understand available coverage and payment options before treatment begins.",
       "ar": "نتعاون مع عدد كبير من الجهات الممولة للرعاية الصحية ونساعدك على فهم خيارات التغطية والتكاليف قبل بدء العلاج."
-    },
-    "coverageLinkLabel": {
-      "en": "Check Your Coverage",
-      "ar": "تحقق من التغطية"
-    },
-    "coverageList": {
-      "en": "Medi Consult\nUnimed Egypt\nUnicare\nPetroLog International Inc\nDiamond\nCustoms and Sales Tax Authority\nMisr Fertilizers Production Company (MOPCO)\nEthydco\nPetroleum Marine Services (PMS)\nLife Makers Alexandria\nLord Company\nEgyptian Railways (Alexandria Port Authority - Holding Company for Maritime and Land Transport)\nSeha One\nContracting Foreigners\nAMOC\nCash Company\nHayah\nAbu Qir Fertilizers and Chemicals Industries\nMisr Healthcare\nPetrogas Company\nEngineers Syndicate\nAbu Qir Petroleum\nEzzsteel\nAlexandria Port Authority Employees Health Care Fund\nAlexandria Tax Authority\nHealth Insurance of Medical Union\nMisr Insurance Company\nAl Ahly Medical Company (AMC)\nAlexandria Petroleum Company\nANRPC\nAmreya Petroleum Refining Company (APRC)\nEPROM Company\nEGYCARE\nPetrotrade Company\nWEPCO Company\nAlexandria Water Company\nMedexa Company\nTelecom Egypt Company\nNextCare\nInaya Egypt\nAl Hamra Oil Company\nPetrojet Company",
-      "ar": "ميدي كونسلت\nيوني ميد\nيوني كير\nشركو بترولوج\nدايموند\nشركه مصلحه الجمارك والضرائب علي المبيعات\nموبكو. المصرية لإنتاج الأسمدة\nإثيدكو\nشركة خدمات البترول البحرية\nجمعية صناع الحياة - الاسكندرية\nشركة لورد\nسكك حديد مصر (هيئة ميناء الاسكندرية-القابضة للنقل البحري)\nصحة وان\nتعاقد اجانب\nأموك\nشركة تعاقدات نقدي\nكارت حياة\nأبوقير للأسمدة والصناعات الكيماوية\nمصر هيلث كير\nشركة بتروجاس\nنقابة المهندسين\nبترول ابو قير\nعز الدخيلة للحديد والصلب\nصندوق الرعايه الصحيه للعاملين بهيئه ميناء الإسكندرية\nمصلحه ضرائب الاسكندرية\nاتحاد نقابات المهن الطبية\nشركة مصر للتأمين\nالأهلي للخدمات الطبية\nشركة الإسكندرية للبترول\nأنربك\nشركة العامرية للبترول\nشركة ايبروم\nإيجي كير\nشركة بتروتريد\nشركة ويبكو\nشركة مياه الشرب بالإسكندرية\nشركة ميديكسا\nشركة المصرية للاتصالات\nنكست كير\nشركة عناية مصر\nشركة الحمرا أويل\nشركة بتروجيت"
     }
   },
   "sectionsOrder": [
@@ -383,16 +399,14 @@
   },
   "experts": [
     {
-      "imageUrl": "/uploads/img-1770992789584-cfs3qa.jpg",
-      "bio": "ستاذ علاج الاورام والطب النووي - كلية الطب جامعة الإسكندرية \nاستشاري علاج الاورام بمستشفى القباري \nاستشاري علاج الاورام بالتامين الصحي - كفر الشيخ \nزميل مركز ام دي اندرسون لعلاج الاورام بالولايات المتحدة الامريكية \nزميل جامعة برمنجهام بالولايات المتحدة الامريكية",
-      "experience": "35+ years in cancer genetics",
+      "imageUrl": "/uploads/img-1770539371195-s6tgsj.jpg",
+      "bio": "Provides counseling and testing for hereditary cancer risk, helping families understand screening and prevention pathways.",
+      "experience": "10+ years in cancer genetics",
       "certifications": "Certified genetic counselor",
       "profileCtaLabel": "Ask about family risk assessment",
-      "profileCtaLink": "https://www.facebook.com/waleed.arafat.73",
+      "profileCtaLink": "#contact",
       "icon": "genetics",
-      "visible": true,
-      "name": "أ.د/ وليد عرفات",
-      "title": "أستاذ علاج الأورام كلية الطب جامعة الأسكندرية وزميل جامعة برمنجهام الأمريكية"
+      "visible": true
     },
     {
       "name": "Dr. Michael Torres",
