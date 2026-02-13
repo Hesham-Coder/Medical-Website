@@ -1,39 +1,44 @@
 <!DOCTYPE html>
 <html lang="en" dir="ltr" class="light">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Comprehensive Cancer Center - Evidence-Based Cancer Care</title>
-    <meta name="description" content="Comprehensive Cancer Center provides coordinated, evidence-based cancer care in Alexandria, including diagnostics, systemic therapy, radiation, surgery, supportive care, and genetic counseling.">
+    <meta name="description"
+        content="Comprehensive Cancer Center provides coordinated, evidence-based cancer care in Alexandria, including diagnostics, systemic therapy, radiation, surgery, supportive care, and genetic counseling.">
     <meta name="robots" content="index,follow">
     <link rel="canonical" href="https://www.comprehensivecancercenter.com/">
 
     <!-- Open Graph / Social -->
     <meta property="og:type" content="website">
     <meta property="og:title" content="Comprehensive Cancer Center | Evidence‑Based Cancer Care in Alexandria">
-    <meta property="og:description" content="Coordinated, evidence‑based cancer care including diagnostics, systemic therapies, radiation, surgery, supportive care, and genetic counseling.">
+    <meta property="og:description"
+        content="Coordinated, evidence‑based cancer care including diagnostics, systemic therapies, radiation, surgery, supportive care, and genetic counseling.">
     <meta property="og:url" content="https://www.comprehensivecancercenter.com/">
     <meta property="og:image" content="https://www.comprehensivecancercenter.com/uploads/seo-og-image.jpg">
 
     <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="Comprehensive Cancer Center | Evidence‑Based Cancer Care in Alexandria">
-    <meta name="twitter:description" content="Coordinated, evidence‑based cancer care in Alexandria with multidisciplinary specialists and supportive services.">
+    <meta name="twitter:description"
+        content="Coordinated, evidence‑based cancer care in Alexandria with multidisciplinary specialists and supportive services.">
     <script>
-        (function(){ var lang = localStorage.getItem('lang') || 'en'; var d = document.documentElement; d.setAttribute('dir', lang === 'ar' ? 'rtl' : 'ltr'); d.setAttribute('lang', lang === 'ar' ? 'ar' : 'en'); d.classList.add('lang-' + lang); })();
+        (function () { var lang = localStorage.getItem('lang') || 'en'; var d = document.documentElement; d.setAttribute('dir', lang === 'ar' ? 'rtl' : 'ltr'); d.setAttribute('lang', lang === 'ar' ? 'ar' : 'en'); d.classList.add('lang-' + lang); })();
     </script>
-    
+
     <!-- External Resources -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
-    
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+        rel="stylesheet">
+
     <!-- Attention-Guided Navigation CSS -->
     <link rel="stylesheet" href="/css/attention-guided-nav.css">
-    <link href="/dist/output.css" rel="stylesheet">
+    <!-- <link href="/dist/output.css" rel="stylesheet"> -->
 
     <!-- Custom Styles -->
     <style type="text/tailwindcss">
@@ -381,6 +386,113 @@
             }
         }
 
+        /* Timeline Navigation */
+        .timeline-nav {
+            position: fixed;
+            top: 50%;
+            right: 18px;
+            transform: translateY(-50%);
+            z-index: 60;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 10px;
+            padding: 6px 4px;
+            border-radius: 14px;
+            background: transparent;
+            border: none;
+            box-shadow: none;
+            cursor: grab;
+        }
+        .timeline-nav.is-dragging { cursor: grabbing; }
+        .timeline-nav::after {
+            content: "";
+            position: absolute;
+            top: 8px;
+            bottom: 8px;
+            right: 2px;
+            width: 3px;
+            border-radius: 999px;
+            background: linear-gradient(180deg, rgba(0, 150, 214, 0.1), rgba(0, 74, 141, 0.45));
+            box-shadow: 0 0 0 1px rgba(0, 74, 141, 0.15);
+            pointer-events: none;
+        }
+        .timeline-item {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 6px 10px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 0.02em;
+            color: #0f172a;
+            white-space: nowrap;
+            transition: all 0.25s ease;
+            position: relative;
+            justify-content: flex-start;
+            width: 180px;
+        }
+        .timeline-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 999px;
+            background: rgba(0, 74, 141, 0.25);
+            box-shadow: inset 0 0 0 2px rgba(0, 74, 141, 0.15);
+        }
+        .timeline-label {
+            max-width: 0;
+            opacity: 0;
+            overflow: hidden;
+            transition: all 0.25s ease;
+            margin-left: 8px;
+        }
+        .timeline-item.is-active {
+            background: linear-gradient(90deg, rgba(0, 150, 214, 0.16), rgba(0, 150, 214, 0.04));
+            color: #004A8D;
+        }
+        .timeline-item.is-active .timeline-dot {
+            background: rgba(0, 74, 141, 0.2);
+            box-shadow: inset 0 0 0 2px rgba(0, 74, 141, 0.15);
+        }
+        .timeline-item.is-active::after {
+            content: "";
+            position: absolute;
+            right: 6px;
+            width: 10px;
+            height: 10px;
+            border-radius: 999px;
+            background: #0096D6;
+            box-shadow: 0 0 0 6px rgba(0, 150, 214, 0.14), 0 0 18px rgba(0, 150, 214, 0.4);
+        }
+        .timeline-item.is-active .timeline-label {
+            max-width: 200px;
+            opacity: 1;
+        }
+        .timeline-item:hover {
+            transform: translateX(-2px);
+        }
+        html[dir="rtl"] .timeline-item {
+            width: 180px;
+        }
+        html[dir="rtl"] .timeline-nav {
+            right: auto;
+            left: 18px;
+            align-items: flex-start;
+        }
+        html[dir="rtl"] .timeline-nav::after {
+            right: auto;
+            left: 2px;
+        }
+        @media (max-width: 768px) {
+            .timeline-nav {
+                right: 10px;
+                padding: 8px 6px;
+            }
+            .timeline-item { font-size: 11px; padding: 6px 8px; }
+            .timeline-dot { width: 9px; height: 9px; }
+        }
+
 
         /* Scroll depth effect for existing sections */
         .scroll-depth-item {
@@ -447,23 +559,21 @@
 </head>
 
 <body class="font-display bg-slate-50 text-slate-900 overflow-x-hidden">
+    <nav id="timelineNav" class="timeline-nav" aria-label="Section timeline navigation"></nav>
 
     <!-- ========================================
          HEADER / NAVIGATION
     ======================================== -->
     <header class="sticky top-0 z-50 w-full px-3 sm:px-6 py-3 sm:py-4">
-        <div class="mx-auto max-w-7xl flex items-center justify-between glass rounded-xl sm:rounded-2xl px-4 sm:px-8 py-3 shadow-lg border border-white/40">
-            
+        <div
+            class="mx-auto max-w-7xl flex items-center justify-between glass rounded-xl sm:rounded-2xl px-4 sm:px-8 py-3 shadow-lg border border-white/40">
+
             <!-- Logo & Brand -->
             <div class="flex items-center gap-2 sm:gap-3">
                 <div class="size-6 sm:size-8">
-                    <img 
-                        src="./414697800_774275074717234_35332350398295507_n.jpg" 
-                        data-content-src="siteInfo.logoUrl"
-                        alt="Comprehensive Cancer Center Logo"
-                        class="w-full h-full object-contain"
-                        style="border-radius: 15px; transform: scale(1.6);"
-                    >
+                    <img src="./414697800_774275074717234_35332350398295507_n.jpg" data-content-src="siteInfo.logoUrl"
+                        alt="Comprehensive Cancer Center Logo" class="w-full h-full object-contain"
+                        style="border-radius: 15px; transform: scale(1.6);">
                 </div>
                 <h2 class="text-sm sm:text-lg lg:text-xl font-extrabold tracking-tight text-brand-blue-dark">
                     <span class="hidden sm:inline">Comprehensive Cancer Center</span>
@@ -473,42 +583,43 @@
 
             <!-- Desktop Navigation -->
             <nav class="hidden items-center gap-6 lg:gap-10 lg:flex">
-                <a href="#home" class="text-sm font-semibold text-slate-600 hover:text-brand-blue-light transition-colors">Home</a>
-                <a href="#services" class="text-sm font-semibold text-slate-600 hover:text-brand-blue-light transition-colors">Services</a>
-                <a href="#team" class="text-sm font-semibold text-slate-600 hover:text-brand-blue-light transition-colors">The Team</a>
-                <a href="#contact" class="text-sm font-semibold text-slate-600 hover:text-brand-blue-light transition-colors">Contact</a>
+                <a href="#home"
+                    class="text-sm font-semibold text-slate-600 hover:text-brand-blue-light transition-colors">Home</a>
+                <a href="#services"
+                    class="text-sm font-semibold text-slate-600 hover:text-brand-blue-light transition-colors">Services</a>
+                <a href="#team"
+                    class="text-sm font-semibold text-slate-600 hover:text-brand-blue-light transition-colors">The
+                    Team</a>
+                <a href="#contact"
+                    class="text-sm font-semibold text-slate-600 hover:text-brand-blue-light transition-colors">Contact</a>
             </nav>
 
             <!-- Contact & CTA -->
             <div class="flex items-center gap-2 sm:gap-4 lg:gap-6">
                 <!-- Language Toggle -->
-                <div class="flex items-center rounded-lg border border-slate-200 bg-white/80 overflow-hidden" role="group" aria-label="Language">
-                    <button type="button" id="langEn" class="lang-toggle px-3 py-1.5 text-sm font-semibold text-slate-600 hover:bg-slate-100 transition-colors" data-lang="en">EN</button>
-                    <button type="button" id="langAr" class="lang-toggle px-3 py-1.5 text-sm font-semibold text-slate-600 hover:bg-slate-100 transition-colors" data-lang="ar">العربية</button>
+                <div class="flex items-center rounded-lg border border-slate-200 bg-white/80 overflow-hidden"
+                    role="group" aria-label="Language">
+                    <button type="button" id="langEn"
+                        class="lang-toggle px-3 py-1.5 text-sm font-semibold text-slate-600 hover:bg-slate-100 transition-colors"
+                        data-lang="en">EN</button>
+                    <button type="button" id="langAr"
+                        class="lang-toggle px-3 py-1.5 text-sm font-semibold text-slate-600 hover:bg-slate-100 transition-colors"
+                        data-lang="ar">العربية</button>
                 </div>
-                <a 
-                    href="#"
-                    data-content="contact.phone"
-                    data-content-attr="href:tel"
-                    class="hidden xl:flex items-center gap-2 text-sm font-bold text-brand-blue-dark hover:text-brand-blue-light transition-colors"
-                >
+                <a href="#" data-content="contact.phone" data-content-attr="href:tel"
+                    class="hidden xl:flex items-center gap-2 text-sm font-bold text-brand-blue-dark hover:text-brand-blue-light transition-colors">
                     <span class="material-symbols-outlined text-lg">call</span>
                     <span data-content="contact.phone">+20 11 2080 0011</span>
                 </a>
-                <button 
-                    onclick="scrollToSection('contact')"
-                    class="hidden sm:block bg-brand-red-cta hover:bg-red-700 text-white px-4 lg:px-6 py-2 lg:py-2.5 rounded-lg lg:rounded-xl text-xs lg:text-sm font-bold shadow-md shadow-red-200 transition-all hover:scale-105 active:scale-95"
-                >
+                <a href="#contact" onclick="scrollToSection('contact')"
+                    class="hidden sm:block bg-brand-red-cta hover:bg-red-700 text-white px-4 lg:px-6 py-2 lg:py-2.5 rounded-lg lg:rounded-xl text-xs lg:text-sm font-bold shadow-md shadow-red-200 transition-all hover:scale-105 active:scale-95">
                     <span class="hidden md:inline">Book Consultation</span>
                     <span class="md:hidden">Book</span>
-                </button>
-                
+                </a>
+
                 <!-- Mobile Menu Button -->
-                <button 
-                    onclick="toggleMobileMenu()"
-                    class="lg:hidden text-brand-blue-dark p-1"
-                    aria-label="Toggle menu"
-                >
+                <button onclick="toggleMobileMenu()" class="lg:hidden text-brand-blue-dark p-1"
+                    aria-label="Toggle menu">
                     <span class="material-symbols-outlined text-2xl">menu</span>
                 </button>
             </div>
@@ -516,42 +627,44 @@
     </header>
 
     <!-- Mobile Menu -->
-    <div id="mobileMenu" class="mobile-menu fixed top-0 right-0 h-full w-72 sm:w-80 bg-white shadow-2xl z-50 p-6 sm:p-8 lg:hidden">
-        <button 
-            onclick="toggleMobileMenu()"
-            class="absolute top-4 sm:top-6 right-4 sm:right-6 text-slate-600 p-2"
-            aria-label="Close menu"
-        >
+    <div id="mobileMenu"
+        class="mobile-menu fixed top-0 right-0 h-full w-72 sm:w-80 bg-white shadow-2xl z-50 p-6 sm:p-8 lg:hidden">
+        <button onclick="toggleMobileMenu()" class="absolute top-4 sm:top-6 right-4 sm:right-6 text-slate-600 p-2"
+            aria-label="Close menu">
             <span class="material-symbols-outlined text-2xl">close</span>
         </button>
         <nav class="flex flex-col gap-5 sm:gap-6 mt-12 sm:mt-16">
-            <a href="#home" onclick="toggleMobileMenu()" class="text-base sm:text-lg font-semibold text-slate-700 hover:text-brand-blue-light transition-colors py-2">Home</a>
-            <a href="#services" onclick="toggleMobileMenu()" class="text-base sm:text-lg font-semibold text-slate-700 hover:text-brand-blue-light transition-colors py-2">Services</a>
-            <a href="#team" onclick="toggleMobileMenu()" class="text-base sm:text-lg font-semibold text-slate-700 hover:text-brand-blue-light transition-colors py-2">The Team</a>
-            <a href="#resources" onclick="toggleMobileMenu()" class="text-base sm:text-lg font-semibold text-slate-700 hover:text-brand-blue-light transition-colors py-2">Resources</a>
-            <a href="#contact" onclick="toggleMobileMenu()" class="text-base sm:text-lg font-semibold text-slate-700 hover:text-brand-blue-light transition-colors py-2">Contact</a>
-            
+            <a href="#home" onclick="toggleMobileMenu()"
+                class="text-base sm:text-lg font-semibold text-slate-700 hover:text-brand-blue-light transition-colors py-2">Home</a>
+            <a href="#services" onclick="toggleMobileMenu()"
+                class="text-base sm:text-lg font-semibold text-slate-700 hover:text-brand-blue-light transition-colors py-2">Services</a>
+            <a href="#team" onclick="toggleMobileMenu()"
+                class="text-base sm:text-lg font-semibold text-slate-700 hover:text-brand-blue-light transition-colors py-2">The
+                Team</a>
+            <a href="#resources" onclick="toggleMobileMenu()"
+                class="text-base sm:text-lg font-semibold text-slate-700 hover:text-brand-blue-light transition-colors py-2">Resources</a>
+            <a href="#contact" onclick="toggleMobileMenu()"
+                class="text-base sm:text-lg font-semibold text-slate-700 hover:text-brand-blue-light transition-colors py-2">Contact</a>
+
             <!-- Mobile Language Toggle -->
             <div class="flex gap-2 mt-2">
-                <button type="button" class="lang-toggle flex-1 py-2 rounded-lg border text-sm font-semibold text-slate-600" data-lang="en">English</button>
-                <button type="button" class="lang-toggle flex-1 py-2 rounded-lg border text-sm font-semibold text-slate-600" data-lang="ar">العربية</button>
+                <button type="button"
+                    class="lang-toggle flex-1 py-2 rounded-lg border text-sm font-semibold text-slate-600"
+                    data-lang="en">English</button>
+                <button type="button"
+                    class="lang-toggle flex-1 py-2 rounded-lg border text-sm font-semibold text-slate-600"
+                    data-lang="ar">العربية</button>
             </div>
             <!-- Mobile CTA Button -->
-            <button 
-                onclick="scrollToSection('contact'); toggleMobileMenu();"
-                class="mt-4 w-full bg-brand-red-cta hover:bg-red-700 text-white px-6 py-3 rounded-xl text-sm font-bold shadow-md shadow-red-200 transition-all"
-            >
+            <a href="#contact" onclick="scrollToSection('contact'); toggleMobileMenu();"
+                class="mt-4 w-full bg-brand-red-cta hover:bg-red-700 text-white px-6 py-3 rounded-xl text-sm font-bold shadow-md shadow-red-200 transition-all inline-flex justify-center">
                 Book Consultation
-            </button>
-            
+            </a>
+
             <!-- Mobile Contact Info -->
             <div class="mt-6 pt-6 border-t border-slate-200">
-                <a 
-                    href="#"
-                    data-content="contact.phone"
-                    data-content-attr="href:tel"
-                    class="flex items-center gap-3 text-sm font-bold text-brand-blue-dark hover:text-brand-blue-light transition-colors"
-                >
+                <a href="#" data-content="contact.phone" data-content-attr="href:tel"
+                    class="flex items-center gap-3 text-sm font-bold text-brand-blue-dark hover:text-brand-blue-light transition-colors">
                     <span class="material-symbols-outlined">call</span>
                     <span data-content="contact.phone">+20 11 2080 0011</span>
                 </a>
@@ -560,49 +673,57 @@
     </div>
 
     <!-- Mobile Menu Backdrop -->
-    <div 
-        id="mobileMenuBackdrop" 
+    <div id="mobileMenuBackdrop"
         class="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 opacity-0 pointer-events-none transition-opacity duration-300 lg:hidden"
-        onclick="toggleMobileMenu()"
-    ></div>
+        onclick="toggleMobileMenu()"></div>
 
     <!-- ========================================
          MAIN CONTENT
     ======================================== -->
     <main>
-        
+
         <!-- Hero Section -->
-        <section id="home" data-section-id="hero" class="scroll-depth-item relative min-h-[70vh] sm:min-h-[85vh] flex items-center pt-6 sm:pt-10 pb-12 sm:pb-20 overflow-hidden hero-gradient">
-            
+        <section id="home" data-section-id="hero"
+            class="scroll-depth-item relative min-h-[70vh] sm:min-h-[85vh] flex items-center pt-6 sm:pt-10 pb-12 sm:pb-20 overflow-hidden hero-gradient">
+
             <!-- Animated Background Particles -->
             <div class="absolute inset-0 overflow-hidden pointer-events-none">
                 <div class="particle absolute top-20 left-10 w-3 h-3 bg-brand-blue-light rounded-full opacity-30"></div>
-                <div class="particle absolute top-40 right-20 w-4 h-4 bg-brand-red-cta rounded-full opacity-20" style="animation-delay: 2s;"></div>
-                <div class="particle absolute bottom-32 left-1/4 w-2 h-2 bg-brand-blue-dark rounded-full opacity-40" style="animation-delay: 4s;"></div>
-                <div class="particle absolute top-1/2 right-1/3 w-5 h-5 bg-blue-300 rounded-full opacity-25" style="animation-delay: 6s;"></div>
-                <div class="particle absolute bottom-20 right-10 w-3 h-3 bg-brand-blue-light rounded-full opacity-30" style="animation-delay: 8s;"></div>
+                <div class="particle absolute top-40 right-20 w-4 h-4 bg-brand-red-cta rounded-full opacity-20"
+                    style="animation-delay: 2s;"></div>
+                <div class="particle absolute bottom-32 left-1/4 w-2 h-2 bg-brand-blue-dark rounded-full opacity-40"
+                    style="animation-delay: 4s;"></div>
+                <div class="particle absolute top-1/2 right-1/3 w-5 h-5 bg-blue-300 rounded-full opacity-25"
+                    style="animation-delay: 6s;"></div>
+                <div class="particle absolute bottom-20 right-10 w-3 h-3 bg-brand-blue-light rounded-full opacity-30"
+                    style="animation-delay: 8s;"></div>
             </div>
 
             <!-- 3D DNA Helix SVG -->
             <div class="absolute top-10 right-10 opacity-10 animate-spin-3d hidden lg:block">
                 <svg width="200" height="300" viewBox="0 0 200 300" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M100 20 Q60 50 100 80 Q140 110 100 140 Q60 170 100 200 Q140 230 100 260" stroke="#0096D6" stroke-width="8" fill="none"/>
-                    <path d="M100 20 Q140 50 100 80 Q60 110 100 140 Q140 170 100 200 Q60 230 100 260" stroke="#004A8D" stroke-width="8" fill="none"/>
-                    <circle cx="100" cy="20" r="8" fill="#B61927"/>
-                    <circle cx="100" cy="80" r="8" fill="#0096D6"/>
-                    <circle cx="100" cy="140" r="8" fill="#B61927"/>
-                    <circle cx="100" cy="200" r="8" fill="#0096D6"/>
-                    <circle cx="100" cy="260" r="8" fill="#B61927"/>
+                    <path d="M100 20 Q60 50 100 80 Q140 110 100 140 Q60 170 100 200 Q140 230 100 260" stroke="#0096D6"
+                        stroke-width="8" fill="none" />
+                    <path d="M100 20 Q140 50 100 80 Q60 110 100 140 Q140 170 100 200 Q60 230 100 260" stroke="#004A8D"
+                        stroke-width="8" fill="none" />
+                    <circle cx="100" cy="20" r="8" fill="#B61927" />
+                    <circle cx="100" cy="80" r="8" fill="#0096D6" />
+                    <circle cx="100" cy="140" r="8" fill="#B61927" />
+                    <circle cx="100" cy="200" r="8" fill="#0096D6" />
+                    <circle cx="100" cy="260" r="8" fill="#B61927" />
                 </svg>
             </div>
 
-            <div class="mx-auto max-w-7xl px-4 sm:px-6 grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center relative z-10">
-                
+            <div
+                class="mx-auto max-w-7xl px-4 sm:px-6 grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center relative z-10">
+
                 <!-- Hero Content -->
                 <div class="flex flex-col gap-6 sm:gap-8 text-center lg:text-left">
-                    <div class="inline-flex items-center gap-2 self-center lg:self-start glass px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-brand-blue-dark font-bold text-[10px] sm:text-xs uppercase tracking-widest border border-blue-100 animate-slide-in-left" data-content="siteInfo.tagline">
+                    <div class="inline-flex items-center gap-2 self-center lg:self-start glass px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-brand-blue-dark font-bold text-[10px] sm:text-xs uppercase tracking-widest border border-blue-100 animate-slide-in-left"
+                        data-content="siteInfo.tagline">
                         <span class="relative flex h-2 w-2">
-                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+                            <span
+                                class="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
                             <span class="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span>
                         </span>
                         <span class="hidden sm:inline">Evidence-based multidisciplinary cancer care</span>
@@ -610,41 +731,50 @@
                     </div>
 
                     <div class="space-y-4 sm:space-y-6 animate-slide-in-left delay-200">
-                        <h1 class="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-black text-slate-900 leading-[1.1] tracking-tight">
+                        <h1
+                            class="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-black text-slate-900 leading-[1.1] tracking-tight">
                             <span data-content="siteInfo.heroHeading">Science That Heals.</span> <br>
-                            <span class="text-brand-blue-light bg-clip-text animate-gradient" style="background-image: linear-gradient(90deg, #0096D6, #004A8D, #0096D6);" data-content="siteInfo.heroSubheading">Care That Connects.</span>
+                            <span class="text-brand-blue-light bg-clip-text animate-gradient"
+                                style="background-image: linear-gradient(90deg, #0096D6, #004A8D, #0096D6);"
+                                data-content="siteInfo.heroSubheading">Care That Connects.</span>
                         </h1>
-                        <p class="text-base sm:text-lg lg:text-xl text-slate-600 max-w-xl mx-auto lg:mx-0 font-medium px-4 sm:px-0" data-content="siteInfo.heroDescription">
-                            Our multidisciplinary oncology team designs individualized care plans using current clinical guidelines, advanced diagnostics, and whole-person support.
+                        <p class="text-base sm:text-lg lg:text-xl text-slate-600 max-w-xl mx-auto lg:mx-0 font-medium px-4 sm:px-0"
+                            data-content="siteInfo.heroDescription">
+                            Our multidisciplinary oncology team designs individualized care plans using current clinical
+                            guidelines, advanced diagnostics, and whole-person support.
                         </p>
                     </div>
 
-                    <div class="flex flex-col sm:flex-row flex-wrap justify-center lg:justify-start gap-3 sm:gap-4 px-4 sm:px-0 animate-slide-in-left delay-400">
-                        <button 
-                            onclick="scrollToSection('contact')"
-                            class="w-full sm:w-auto bg-gradient-to-r from-brand-red-cta to-red-500 text-white px-6 sm:px-8 py-3 sm:py-4 rounded-xl sm:rounded-2xl text-base sm:text-lg font-bold shadow-xl shadow-red-100 hover:shadow-red-200 transition-all hover:-translate-y-1 hover:scale-105"
-                            data-content="siteInfo.heroCtaPrimary"
-                        >Start Your Journey</button>
-                        <button 
-                            onclick="scrollToSection('services')"
+                    <div
+                        class="flex flex-col sm:flex-row flex-wrap justify-center lg:justify-start gap-3 sm:gap-4 px-4 sm:px-0 animate-slide-in-left delay-400">
+                        <a href="#contact" onclick="scrollToSection('contact')"
+                            class="w-full sm:w-auto bg-gradient-to-r from-brand-red-cta to-red-500 text-white px-6 sm:px-8 py-3 sm:py-4 rounded-xl sm:rounded-2xl text-base sm:text-lg font-bold shadow-xl shadow-red-100 hover:shadow-red-200 transition-all hover:-translate-y-1 hover:scale-105 inline-flex justify-center"
+                            data-content="siteInfo.heroCtaPrimary">Start Your Journey</a>
+                        <button onclick="scrollToSection('services')"
                             class="w-full sm:w-auto border-2 border-slate-200 text-slate-700 hover:bg-slate-50 px-6 sm:px-8 py-3 sm:py-4 rounded-xl sm:rounded-2xl text-base sm:text-lg font-bold transition-all hover:scale-105"
-                            data-content="siteInfo.heroCtaSecondary"
-                        >Explore Services</button>
+                            data-content="siteInfo.heroCtaSecondary">Explore Services</button>
                     </div>
 
                     <!-- Stats -->
-                    <div class="grid grid-cols-3 gap-4 sm:gap-6 pt-6 sm:pt-8 border-t border-slate-200 animate-slide-in-up delay-600">
+                    <div
+                        class="grid grid-cols-3 gap-4 sm:gap-6 pt-6 sm:pt-8 border-t border-slate-200 animate-slide-in-up delay-600">
                         <div class="text-center lg:text-left perspective-container">
-                            <p class="text-2xl sm:text-3xl font-black text-brand-blue-dark animate-pulse-3d" data-content="stats.successRate" data-suffix="%">98%</p>
-                            <p class="text-[10px] sm:text-xs text-slate-500 font-bold uppercase tracking-wider">Success Rate</p>
+                            <p class="text-2xl sm:text-3xl font-black text-brand-blue-dark animate-pulse-3d"
+                                data-content="stats.successRate" data-suffix="%">98%</p>
+                            <p class="text-[10px] sm:text-xs text-slate-500 font-bold uppercase tracking-wider">Success
+                                Rate</p>
                         </div>
                         <div class="text-center lg:text-left perspective-container">
-                            <p class="text-2xl sm:text-3xl font-black text-brand-blue-dark animate-pulse-3d delay-200" data-content="stats.patientsServed" data-suffix="+">25k+</p>
-                            <p class="text-[10px] sm:text-xs text-slate-500 font-bold uppercase tracking-wider">Patients Helped</p>
+                            <p class="text-2xl sm:text-3xl font-black text-brand-blue-dark animate-pulse-3d delay-200"
+                                data-content="stats.patientsServed" data-suffix="+">25k+</p>
+                            <p class="text-[10px] sm:text-xs text-slate-500 font-bold uppercase tracking-wider">Patients
+                                Helped</p>
                         </div>
                         <div class="text-center lg:text-left perspective-container">
-                            <p class="text-2xl sm:text-3xl font-black text-brand-blue-dark animate-pulse-3d delay-400" data-content="stats.specialists" data-suffix="+">50+</p>
-                            <p class="text-[10px] sm:text-xs text-slate-500 font-bold uppercase tracking-wider">Expert Doctors</p>
+                            <p class="text-2xl sm:text-3xl font-black text-brand-blue-dark animate-pulse-3d delay-400"
+                                data-content="stats.specialists" data-suffix="+">50+</p>
+                            <p class="text-[10px] sm:text-xs text-slate-500 font-bold uppercase tracking-wider">Expert
+                                Doctors</p>
                         </div>
                     </div>
                 </div>
@@ -652,41 +782,55 @@
                 <!-- Hero Image with 3D Effect -->
                 <div class="relative hidden lg:block perspective-container animate-slide-in-right">
                     <div class="relative z-10 animate-float">
-                        <img 
-                            src="./485279495_1084203800391025_2931703889426917655_n.jpg" 
-                            data-content-src="siteInfo.heroImageUrl"
-                            alt="Medical Team"
-                            class="rounded-3xl shadow-2xl border-8 border-white card-3d"
-                        >
+                        <img src="./485279495_1084203800391025_2931703889426917655_n.jpg"
+                            data-content-src="siteInfo.heroImageUrl" alt="Medical Team"
+                            class="rounded-3xl shadow-2xl border-8 border-white card-3d">
                     </div>
-                    
+
                     <!-- 3D Orbs -->
-                    <div class="absolute -top-10 -right-10 w-32 h-32 bg-gradient-to-br from-brand-blue-light to-blue-400 rounded-full blur-2xl opacity-60 animate-pulse-3d"></div>
-                    <div class="absolute -bottom-10 -left-10 w-40 h-40 bg-gradient-to-br from-brand-red-cta to-red-400 rounded-full blur-2xl opacity-40 animate-pulse-3d delay-300"></div>
-                    
+                    <div
+                        class="absolute -top-10 -right-10 w-32 h-32 bg-gradient-to-br from-brand-blue-light to-blue-400 rounded-full blur-2xl opacity-60 animate-pulse-3d">
+                    </div>
+                    <div
+                        class="absolute -bottom-10 -left-10 w-40 h-40 bg-gradient-to-br from-brand-red-cta to-red-400 rounded-full blur-2xl opacity-40 animate-pulse-3d delay-300">
+                    </div>
+
                     <!-- Rotating rings -->
-                    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 pointer-events-none">
-                        <div class="absolute inset-0 border-2 border-brand-blue-light rounded-full opacity-20 animate-spin-3d"></div>
-                        <div class="absolute inset-8 border-2 border-brand-red-cta rounded-full opacity-15 animate-spin-3d" style="animation-direction: reverse; animation-duration: 15s;"></div>
+                    <div
+                        class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 pointer-events-none">
+                        <div
+                            class="absolute inset-0 border-2 border-brand-blue-light rounded-full opacity-20 animate-spin-3d">
+                        </div>
+                        <div class="absolute inset-8 border-2 border-brand-red-cta rounded-full opacity-15 animate-spin-3d"
+                            style="animation-direction: reverse; animation-duration: 15s;"></div>
                     </div>
                 </div>
             </div>
         </section>
 
         <!-- Services Section -->
-        <section id="services" data-section-id="services" class="scroll-depth-item py-16 sm:py-24 lg:py-32 bg-white relative overflow-hidden">
-            
+        <section id="services" data-section-id="services"
+            class="scroll-depth-item py-16 sm:py-24 lg:py-32 bg-white relative overflow-hidden">
+
             <!-- Animated background gradient orbs -->
-            <div class="absolute top-20 left-10 w-64 h-64 bg-blue-100 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-bounce-3d"></div>
-            <div class="absolute bottom-20 right-10 w-80 h-80 bg-red-100 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-bounce-3d delay-300"></div>
-            
+            <div
+                class="absolute top-20 left-10 w-64 h-64 bg-blue-100 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-bounce-3d">
+            </div>
+            <div
+                class="absolute bottom-20 right-10 w-80 h-80 bg-red-100 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-bounce-3d delay-300">
+            </div>
+
             <div class="mx-auto max-w-7xl px-4 sm:px-6 relative z-10">
                 <div class="text-center max-w-3xl mx-auto mb-12 sm:mb-16 lg:mb-20">
-                    <div class="inline-flex items-center gap-2 glass px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-brand-blue-dark font-bold text-[10px] sm:text-xs uppercase tracking-widest mb-4 sm:mb-6 animate-fade-in">
+                    <div
+                        class="inline-flex items-center gap-2 glass px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-brand-blue-dark font-bold text-[10px] sm:text-xs uppercase tracking-widest mb-4 sm:mb-6 animate-fade-in">
                         <span data-content="servicesSection.badge">Clinical & supportive services</span>
                     </div>
-                    <h2 class="text-3xl sm:text-4xl lg:text-6xl font-black text-slate-900 mb-4 sm:mb-6 px-4 sm:px-0 animate-slide-in-up" data-content="servicesSection.heading">Comprehensive Cancer Care Services</h2>
-                    <p class="text-base sm:text-lg lg:text-xl text-slate-600 px-4 sm:px-0 animate-slide-in-up delay-200" data-content="servicesSection.subheading">From diagnosis and treatment planning to survivorship and supportive care, our team coordinates every step of your journey.</p>
+                    <h2 class="text-3xl sm:text-4xl lg:text-6xl font-black text-slate-900 mb-4 sm:mb-6 px-4 sm:px-0 animate-slide-in-up"
+                        data-content="servicesSection.heading">Comprehensive Cancer Care Services</h2>
+                    <p class="text-base sm:text-lg lg:text-xl text-slate-600 px-4 sm:px-0 animate-slide-in-up delay-200"
+                        data-content="servicesSection.subheading">From diagnosis and treatment planning to survivorship
+                        and supportive care, our team coordinates every step of your journey.</p>
                 </div>
 
                 <!-- Service Cards Grid (dynamic from content.services) -->
@@ -697,27 +841,33 @@
         </section>
 
         <!-- Team Section -->
-        <section id="team" data-section-id="team" class="scroll-depth-item py-16 sm:py-24 lg:py-32 bg-slate-50 relative overflow-hidden">
-            
+        <section id="team" data-section-id="team"
+            class="scroll-depth-item py-16 sm:py-24 lg:py-32 bg-slate-50 relative overflow-hidden">
+
             <!-- 3D Medical Cross -->
             <div class="absolute bottom-10 left-10 opacity-5 animate-spin-3d hidden lg:block">
                 <svg width="150" height="150" viewBox="0 0 150 150" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <rect x="55" y="10" width="40" height="130" fill="#004A8D" rx="5"/>
-                    <rect x="10" y="55" width="130" height="40" fill="#0096D6" rx="5"/>
+                    <rect x="55" y="10" width="40" height="130" fill="#004A8D" rx="5" />
+                    <rect x="10" y="55" width="130" height="40" fill="#0096D6" rx="5" />
                 </svg>
             </div>
-            
+
             <div class="mx-auto max-w-7xl px-4 sm:px-6 relative z-10">
                 <div class="text-center max-w-3xl mx-auto mb-12 sm:mb-16 lg:mb-20">
-                    <div class="inline-flex items-center gap-2 glass px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-brand-blue-dark font-bold text-[10px] sm:text-xs uppercase tracking-widest mb-4 sm:mb-6 animate-fade-in">
+                    <div
+                        class="inline-flex items-center gap-2 glass px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-brand-blue-dark font-bold text-[10px] sm:text-xs uppercase tracking-widest mb-4 sm:mb-6 animate-fade-in">
                         Our Experts
                     </div>
-                    <h2 class="text-3xl sm:text-4xl lg:text-6xl font-black text-slate-900 mb-4 sm:mb-6 px-4 sm:px-0 animate-slide-in-up" data-content="teamSection.heading">World-Class Specialists</h2>
-                    <p class="text-base sm:text-lg lg:text-xl text-slate-600 px-4 sm:px-0 animate-slide-in-up delay-200" data-content="teamSection.subheading">Our team combines decades of experience with cutting-edge research and compassionate care.</p>
+                    <h2 class="text-3xl sm:text-4xl lg:text-6xl font-black text-slate-900 mb-4 sm:mb-6 px-4 sm:px-0 animate-slide-in-up"
+                        data-content="teamSection.heading">World-Class Specialists</h2>
+                    <p class="text-base sm:text-lg lg:text-xl text-slate-600 px-4 sm:px-0 animate-slide-in-up delay-200"
+                        data-content="teamSection.subheading">Our team combines decades of experience with cutting-edge
+                        research and compassionate care.</p>
                 </div>
 
                 <!-- Team Grid (filled dynamically from content.experts) -->
-                <div id="expertsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8 perspective-container">
+                <div id="expertsGrid"
+                    class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8 perspective-container">
                     <!-- Expert cards injected by JS -->
                 </div>
             </div>
@@ -725,129 +875,174 @@
 
 
         <!-- About Section -->
-        <section id="about" data-section-id="about" class="scroll-depth-item py-16 sm:py-24 lg:py-32 bg-white relative overflow-hidden">
-            
+        <section id="about" data-section-id="about"
+            class="scroll-depth-item py-16 sm:py-24 lg:py-32 bg-white relative overflow-hidden">
+
             <!-- Animated background elements -->
-            <div class="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-brand-blue-light to-blue-100 rounded-full blur-3xl opacity-20 -mr-48 -mt-48 animate-pulse-3d"></div>
-            <div class="absolute bottom-0 left-0 w-80 h-80 bg-gradient-to-tr from-brand-red-cta to-red-100 rounded-full blur-3xl opacity-15 -ml-40 -mb-40 animate-pulse-3d delay-300"></div>
-            
+            <div
+                class="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-brand-blue-light to-blue-100 rounded-full blur-3xl opacity-20 -mr-48 -mt-48 animate-pulse-3d">
+            </div>
+            <div
+                class="absolute bottom-0 left-0 w-80 h-80 bg-gradient-to-tr from-brand-red-cta to-red-100 rounded-full blur-3xl opacity-15 -ml-40 -mb-40 animate-pulse-3d delay-300">
+            </div>
+
             <div class="mx-auto max-w-7xl px-4 sm:px-6 relative z-10">
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
-                    
+
                     <!-- Left Column: Content -->
                     <div class="space-y-6 sm:space-y-8 animate-slide-in-left">
-                        <div class="inline-flex items-center gap-2 glass px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-brand-blue-dark font-bold text-[10px] sm:text-xs uppercase tracking-widest">
+                        <div
+                            class="inline-flex items-center gap-2 glass px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-brand-blue-dark font-bold text-[10px] sm:text-xs uppercase tracking-widest">
                             <span class="relative flex h-2 w-2">
-                                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+                                <span
+                                    class="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
                                 <span class="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span>
                             </span>
                             About Us
                         </div>
-                        
-                        <h2 class="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 leading-tight" data-content="aboutSection.heading">
+
+                        <h2 class="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 leading-tight"
+                            data-content="aboutSection.heading">
                             Leading Cancer Care Through Innovation & Compassion
                         </h2>
-                        
+
                         <div class="space-y-4 sm:space-y-5">
-                            <p class="text-base sm:text-lg text-slate-600 leading-relaxed" data-content="aboutSection.paragraphs.0">
-                                At Comprehensive Cancer Center, we recognize that every person and every cancer diagnosis is unique. Our goal is to provide clear information, coordinated care, and a calm, supportive environment for you and your family.
+                            <p class="text-base sm:text-lg text-slate-600 leading-relaxed"
+                                data-content="aboutSection.paragraphs.0">
+                                At Comprehensive Cancer Center, we recognize that every person and every cancer
+                                diagnosis is unique. Our goal is to provide clear information, coordinated care, and a
+                                calm, supportive environment for you and your family.
                             </p>
-                            <p class="text-base sm:text-lg text-slate-600 leading-relaxed" data-content="aboutSection.paragraphs.1">
-                                Our board-certified specialists follow up-to-date clinical guidelines and work as a multidisciplinary team to design treatment plans that are medically appropriate, safe, and aligned with what matters most to you.
+                            <p class="text-base sm:text-lg text-slate-600 leading-relaxed"
+                                data-content="aboutSection.paragraphs.1">
+                                Our board-certified specialists follow up-to-date clinical guidelines and work as a
+                                multidisciplinary team to design treatment plans that are medically appropriate, safe,
+                                and aligned with what matters most to you.
                             </p>
                         </div>
-                        
+
                         <!-- Highlights -->
                         <div class="pt-4 sm:pt-6 border-t border-slate-200">
-                            <h3 class="text-sm font-bold text-slate-400 uppercase tracking-wider mb-4 sm:mb-6">Why Choose Us</h3>
+                            <h3 class="text-sm font-bold text-slate-400 uppercase tracking-wider mb-4 sm:mb-6">Why
+                                Choose Us</h3>
                             <ul class="space-y-3 sm:space-y-4" id="aboutHighlights">
                                 <li class="flex items-start gap-3 sm:gap-4 group">
-                                    <span class="material-symbols-outlined text-brand-blue-light text-xl sm:text-2xl flex-shrink-0 mt-1 group-hover:scale-110 transition-transform">check_circle</span>
-                                    <span class="text-sm sm:text-base text-slate-700 font-medium" data-highlight="0">Board-certified oncology and surgery consultants</span>
+                                    <span
+                                        class="material-symbols-outlined text-brand-blue-light text-xl sm:text-2xl flex-shrink-0 mt-1 group-hover:scale-110 transition-transform">check_circle</span>
+                                    <span class="text-sm sm:text-base text-slate-700 font-medium"
+                                        data-highlight="0">Board-certified oncology and surgery consultants</span>
                                 </li>
                                 <li class="flex items-start gap-3 sm:gap-4 group">
-                                    <span class="material-symbols-outlined text-brand-blue-light text-xl sm:text-2xl flex-shrink-0 mt-1 group-hover:scale-110 transition-transform">check_circle</span>
-                                    <span class="text-sm sm:text-base text-slate-700 font-medium" data-highlight="1">Coordinated care pathway from first visit to follow‑up</span>
+                                    <span
+                                        class="material-symbols-outlined text-brand-blue-light text-xl sm:text-2xl flex-shrink-0 mt-1 group-hover:scale-110 transition-transform">check_circle</span>
+                                    <span class="text-sm sm:text-base text-slate-700 font-medium"
+                                        data-highlight="1">Coordinated care pathway from first visit to follow‑up</span>
                                 </li>
                                 <li class="flex items-start gap-3 sm:gap-4 group">
-                                    <span class="material-symbols-outlined text-brand-blue-light text-xl sm:text-2xl flex-shrink-0 mt-1 group-hover:scale-110 transition-transform">check_circle</span>
-                                    <span class="text-sm sm:text-base text-slate-700 font-medium" data-highlight="2">Integrated supportive and palliative care services</span>
+                                    <span
+                                        class="material-symbols-outlined text-brand-blue-light text-xl sm:text-2xl flex-shrink-0 mt-1 group-hover:scale-110 transition-transform">check_circle</span>
+                                    <span class="text-sm sm:text-base text-slate-700 font-medium"
+                                        data-highlight="2">Integrated supportive and palliative care services</span>
                                 </li>
                                 <li class="flex items-start gap-3 sm:gap-4 group">
-                                    <span class="material-symbols-outlined text-brand-blue-light text-xl sm:text-2xl flex-shrink-0 mt-1 group-hover:scale-110 transition-transform">check_circle</span>
-                                    <span class="text-sm sm:text-base text-slate-700 font-medium" data-highlight="3">Access to appropriate clinical research when available</span>
+                                    <span
+                                        class="material-symbols-outlined text-brand-blue-light text-xl sm:text-2xl flex-shrink-0 mt-1 group-hover:scale-110 transition-transform">check_circle</span>
+                                    <span class="text-sm sm:text-base text-slate-700 font-medium"
+                                        data-highlight="3">Access to appropriate clinical research when available</span>
                                 </li>
                             </ul>
                         </div>
                     </div>
-                    
-                    <!-- Right Column: Image with 3D Effect -->
+
+                    <!-- Right Column: Video (inside blue card) -->
                     <div class="relative hidden lg:block animate-slide-in-right perspective-container">
                         <div class="relative z-10 animate-float">
-                            <div class="bg-gradient-to-br from-brand-blue-light to-blue-200 rounded-3xl p-8 sm:p-12 shadow-2xl card-3d">
-                                <div class="space-y-6 text-white">
-                                    <div class="flex items-center gap-4">
-                                        <div class="w-16 h-16 bg-white bg-opacity-20 rounded-2xl flex items-center justify-center backdrop-blur">
-                                            <span class="material-symbols-outlined text-3xl">medical_services</span>
-                                        </div>
-                                        <div>
-                                            <h3 class="font-bold text-lg">Expert Team</h3>
-                                            <p class="text-sm text-blue-100">50+ Specialists</p>
+                            <div
+                                class="bg-gradient-to-br from-brand-blue-light to-blue-200 rounded-3xl p-6 sm:p-8 shadow-2xl card-3d">
+                                <div class="space-y-4 text-white relative z-30 pointer-events-auto">
+                                    <div class="relative w-full overflow-hidden rounded-2xl bg-white/10 z-30 pointer-events-auto" style="padding-top: 56.25%;">
+                                        <iframe
+                                            id="aboutVideo"
+                                            class="absolute inset-0 w-full h-full z-10"
+                                            src=""
+                                         scrolling="no"
+                                            frameborder="0" allowfullscreen="true"
+                                            allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
+                                            title="Comprehensive Cancer Center video"></iframe>
+                                        <video id="aboutVideoFile" class="absolute inset-0 w-full h-full hidden z-30 pointer-events-auto" playsinline preload="metadata" controls></video>
+                                        <button id="aboutVideoPlayBtn" type="button" class="absolute top-3 left-3 hidden z-40 size-12 rounded-full bg-white/20 backdrop-blur border border-white/30 inline-flex items-center justify-center hover:bg-white/30 transition" aria-label="Play/Pause">
+                                            <span class="material-symbols-outlined text-white text-2xl">play_arrow</span>
+                                        </button>
+                                        <div id="aboutVideoControls" class="absolute left-3 right-3 bottom-3 hidden z-20 pointer-events-auto">
+                                            <div class="flex items-center gap-2 rounded-2xl bg-white/15 backdrop-blur border border-white/25 px-3 py-2">
+                                                <button type="button" data-action="play" aria-label="Play/Pause" title="Play/Pause" class="inline-flex items-center justify-center size-9 rounded-full bg-white/15 hover:bg-white/25 transition">
+                                                    <span class="material-symbols-outlined text-white text-lg">play_arrow</span>
+                                                </button>
+                                                <button type="button" data-action="mute" aria-label="Mute/Unmute" title="Mute/Unmute" class="inline-flex items-center justify-center size-9 rounded-full bg-white/15 hover:bg-white/25 transition">
+                                                    <span class="material-symbols-outlined text-white text-lg">volume_up</span>
+                                                </button>
+                                                <button type="button" data-action="restart" aria-label="Restart" title="Restart" class="inline-flex items-center justify-center size-9 rounded-full bg-white/15 hover:bg-white/25 transition">
+                                                    <span class="material-symbols-outlined text-white text-lg">restart_alt</span>
+                                                </button>
+                                                <div class="flex-1 h-1.5 rounded-full bg-white/20 overflow-hidden">
+                                                    <div id="aboutVideoProgress" class="h-full w-0 bg-white/80"></div>
+                                                </div>
+                                                <button type="button" data-action="fullscreen" aria-label="Fullscreen" title="Fullscreen" class="inline-flex items-center justify-center size-9 rounded-full bg-white/15 hover:bg-white/25 transition">
+                                                    <span class="material-symbols-outlined text-white text-lg">fullscreen</span>
+                                                </button>
+                                            </div>
                                         </div>
                                     </div>
-                                    <div class="border-t border-white border-opacity-20 pt-6">
-                                        <div class="flex items-center gap-4">
-                                            <div class="w-16 h-16 bg-white bg-opacity-20 rounded-2xl flex items-center justify-center backdrop-blur">
-                                                <span class="material-symbols-outlined text-3xl">verified_user</span>
-                                            </div>
-                                            <div>
-                                                <h3 class="font-bold text-lg">20+ Years</h3>
-                                                <p class="text-sm text-blue-100">Of Experience</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="border-t border-white border-opacity-20 pt-6">
-                                        <div class="flex items-center gap-4">
-                                            <div class="w-16 h-16 bg-white bg-opacity-20 rounded-2xl flex items-center justify-center backdrop-blur">
-                                                <span class="material-symbols-outlined text-3xl">favorite</span>
-                                            </div>
-                                            <div>
-                                                <h3 class="font-bold text-lg">5,000+</h3>
-                                                <p class="text-sm text-blue-100">Patients Served</p>
-                                            </div>
-                                        </div>
+                                    <div>
+                                        <h3 class="font-bold text-lg">Inside Our Center</h3>
+                                        <p class="text-sm text-blue-100">A quick look at our care environment and patient-first approach.</p>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                        
+
                         <!-- Decorative elements -->
-                        <div class="absolute -top-6 -right-6 w-24 h-24 bg-brand-red-cta rounded-full opacity-20 blur-2xl animate-pulse-3d"></div>
-                        <div class="absolute -bottom-6 -left-6 w-32 h-32 bg-brand-blue-light rounded-full opacity-15 blur-3xl animate-pulse-3d delay-300"></div>
+                        <div
+                            class="absolute -top-6 -right-6 w-24 h-24 bg-brand-red-cta rounded-full opacity-20 blur-2xl animate-pulse-3d pointer-events-none">
+                        </div>
+                        <div
+                            class="absolute -bottom-6 -left-6 w-32 h-32 bg-brand-blue-light rounded-full opacity-15 blur-3xl animate-pulse-3d delay-300 pointer-events-none">
+                        </div>
                     </div>
+
                 </div>
             </div>
         </section>
 
         <!-- Testimonials Section -->
-        <section id="testimonials" data-section-id="testimonials" class="scroll-depth-item py-16 sm:py-24 lg:py-32 bg-slate-50 relative overflow-hidden">
-            
+        <section id="testimonials" data-section-id="testimonials"
+            class="scroll-depth-item py-16 sm:py-24 lg:py-32 bg-slate-50 relative overflow-hidden">
+
             <!-- Animated background elements -->
-            <div class="absolute top-0 left-0 w-96 h-96 bg-gradient-to-br from-brand-blue-light to-blue-100 rounded-full blur-3xl opacity-15 -ml-48 -mt-48 animate-pulse-3d"></div>
-            <div class="absolute bottom-0 right-0 w-80 h-80 bg-gradient-to-tl from-brand-red-cta to-red-100 rounded-full blur-3xl opacity-10 -mr-40 -mb-40 animate-pulse-3d delay-300"></div>
-            
+            <div
+                class="absolute top-0 left-0 w-96 h-96 bg-gradient-to-br from-brand-blue-light to-blue-100 rounded-full blur-3xl opacity-15 -ml-48 -mt-48 animate-pulse-3d">
+            </div>
+            <div
+                class="absolute bottom-0 right-0 w-80 h-80 bg-gradient-to-tl from-brand-red-cta to-red-100 rounded-full blur-3xl opacity-10 -mr-40 -mb-40 animate-pulse-3d delay-300">
+            </div>
+
             <div class="mx-auto max-w-7xl px-4 sm:px-6 relative z-10">
                 <!-- Section Header -->
                 <div class="text-center max-w-3xl mx-auto mb-12 sm:mb-16 lg:mb-20 animate-slide-in-up">
-                    <div class="inline-flex items-center gap-2 glass px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-brand-blue-dark font-bold text-[10px] sm:text-xs uppercase tracking-widest mb-4 sm:mb-6 animate-fade-in">
+                    <div
+                        class="inline-flex items-center gap-2 glass px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-brand-blue-dark font-bold text-[10px] sm:text-xs uppercase tracking-widest mb-4 sm:mb-6 animate-fade-in">
                         <span class="relative flex h-2 w-2">
-                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+                            <span
+                                class="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
                             <span class="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span>
                         </span>
                         Patient Stories
                     </div>
-                    <h2 class="text-3xl sm:text-4xl lg:text-6xl font-black text-slate-900 mb-4 sm:mb-6 px-4 sm:px-0" data-content="testimonialsSection.heading">What Our Patients Say</h2>
-                    <p class="text-base sm:text-lg lg:text-xl text-slate-600 px-4 sm:px-0" data-content="testimonialsSection.subheading">Real stories from people who have walked the journey with us.</p>
+                    <h2 class="text-3xl sm:text-4xl lg:text-6xl font-black text-slate-900 mb-4 sm:mb-6 px-4 sm:px-0"
+                        data-content="testimonialsSection.heading">What Our Patients Say</h2>
+                    <p class="text-base sm:text-lg lg:text-xl text-slate-600 px-4 sm:px-0"
+                        data-content="testimonialsSection.subheading">Real stories from people who have walked the
+                        journey with us.</p>
                 </div>
 
                 <!-- Testimonials Grid -->
@@ -861,82 +1056,73 @@
         <section id="contact" data-section-id="contact" class="scroll-depth-item py-16 sm:py-24 lg:py-32 bg-white">
             <div class="mx-auto max-w-7xl px-4 sm:px-6">
                 <div class="text-center max-w-3xl mx-auto mb-12 sm:mb-16 lg:mb-20">
-                    <div class="inline-flex items-center gap-2 glass px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-brand-blue-dark font-bold text-[10px] sm:text-xs uppercase tracking-widest mb-4 sm:mb-6">
+                    <div
+                        class="inline-flex items-center gap-2 glass px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-brand-blue-dark font-bold text-[10px] sm:text-xs uppercase tracking-widest mb-4 sm:mb-6">
                         Get In Touch
                     </div>
-                    <h2 class="text-3xl sm:text-4xl lg:text-6xl font-black text-slate-900 mb-4 sm:mb-6 px-4 sm:px-0" data-content="contactSection.heading">Start a confidential conversation with our team</h2>
-                    <p class="text-base sm:text-lg lg:text-xl text-slate-600 px-4 sm:px-0" data-content="contactSection.subheading">Share a few details and our patient coordination team will call you back to discuss appointment options. This form is not for emergencies.</p>
+                    <h2 class="text-3xl sm:text-4xl lg:text-6xl font-black text-slate-900 mb-4 sm:mb-6 px-4 sm:px-0"
+                        data-content="contactSection.heading">Start a confidential conversation with our team</h2>
+                    <p class="text-base sm:text-lg lg:text-xl text-slate-600 px-4 sm:px-0"
+                        data-content="contactSection.subheading">Share a few details and our patient coordination team
+                        will call you back to discuss appointment options. This form is not for emergencies.</p>
                 </div>
 
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8 lg:gap-12">
-                    
+
                     <!-- Contact Form -->
                     <div class="lg:col-span-2">
                         <div class="bg-slate-50 rounded-2xl sm:rounded-3xl p-6 sm:p-8 lg:p-12">
-                            <h3 class="text-xl sm:text-2xl font-bold text-slate-900 mb-6 sm:mb-8">Request a Consultation</h3>
-                            
+                            <h3 class="text-xl sm:text-2xl font-bold text-slate-900 mb-6 sm:mb-8">Request a Consultation
+                            </h3>
+
                             <form id="contactForm" class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
                                 <!-- First Name -->
                                 <div class="space-y-2">
-                                    <label for="firstName" class="text-[10px] sm:text-xs font-bold text-slate-400 uppercase">First Name</label>
-                                    <input 
-                                        type="text" 
-                                        id="firstName"
-                                        name="firstName"
-                                        required
+                                    <label for="firstName"
+                                        class="text-[10px] sm:text-xs font-bold text-slate-400 uppercase">First
+                                        Name</label>
+                                    <input type="text" id="firstName" name="firstName" required
                                         class="w-full px-4 sm:px-5 py-3 sm:py-4 rounded-xl bg-white border-transparent focus:border-brand-blue-light focus:ring-0 transition-all text-sm sm:text-base"
-                                        placeholder="John"
-                                    >
+                                        placeholder="John">
                                 </div>
 
                                 <!-- Last Name -->
                                 <div class="space-y-2">
-                                    <label for="lastName" class="text-[10px] sm:text-xs font-bold text-slate-400 uppercase">Last Name</label>
-                                    <input 
-                                        type="text" 
-                                        id="lastName"
-                                        name="lastName"
-                                        required
+                                    <label for="lastName"
+                                        class="text-[10px] sm:text-xs font-bold text-slate-400 uppercase">Last
+                                        Name</label>
+                                    <input type="text" id="lastName" name="lastName" required
                                         class="w-full px-4 sm:px-5 py-3 sm:py-4 rounded-xl bg-white border-transparent focus:border-brand-blue-light focus:ring-0 transition-all text-sm sm:text-base"
-                                        placeholder="Doe"
-                                    >
+                                        placeholder="Doe">
                                 </div>
 
                                 <!-- Email -->
                                 <div class="space-y-2">
-                                    <label for="email" class="text-[10px] sm:text-xs font-bold text-slate-400 uppercase">Email Address</label>
-                                    <input 
-                                        type="email" 
-                                        id="email"
-                                        name="email"
-                                        required
+                                    <label for="email"
+                                        class="text-[10px] sm:text-xs font-bold text-slate-400 uppercase">Email
+                                        Address</label>
+                                    <input type="email" id="email" name="email" required
                                         class="w-full px-4 sm:px-5 py-3 sm:py-4 rounded-xl bg-white border-transparent focus:border-brand-blue-light focus:ring-0 transition-all text-sm sm:text-base"
-                                        placeholder="john@example.com"
-                                    >
+                                        placeholder="john@example.com">
                                 </div>
 
                                 <!-- Phone -->
                                 <div class="space-y-2">
-                                    <label for="phone" class="text-[10px] sm:text-xs font-bold text-slate-400 uppercase">Phone Number</label>
-                                    <input 
-                                        type="tel" 
-                                        id="phone"
-                                        name="phone"
-                                        required
+                                    <label for="phone"
+                                        class="text-[10px] sm:text-xs font-bold text-slate-400 uppercase">Phone
+                                        Number</label>
+                                    <input type="tel" id="phone" name="phone" required
                                         class="w-full px-4 sm:px-5 py-3 sm:py-4 rounded-xl bg-white border-transparent focus:border-brand-blue-light focus:ring-0 transition-all text-sm sm:text-base"
-                                        placeholder="+1 (555) 123-4567"
-                                    >
+                                        placeholder="+1 (555) 123-4567">
                                 </div>
 
                                 <!-- Primary Concern -->
                                 <div class="space-y-2 md:col-span-2">
-                                    <label for="concern" class="text-[10px] sm:text-xs font-bold text-slate-400 uppercase">Primary Concern</label>
-                                    <select 
-                                        id="concern"
-                                        name="concern"
-                                        required
-                                        class="w-full px-4 sm:px-5 py-3 sm:py-4 rounded-xl bg-white border-transparent focus:border-brand-blue-light focus:ring-0 transition-all text-sm sm:text-base"
-                                    >
+                                    <label for="concern"
+                                        class="text-[10px] sm:text-xs font-bold text-slate-400 uppercase">Primary
+                                        Concern</label>
+                                    <select id="concern" name="concern" required
+                                        class="w-full px-4 sm:px-5 py-3 sm:py-4 rounded-xl bg-white border-transparent focus:border-brand-blue-light focus:ring-0 transition-all text-sm sm:text-base">
                                         <option value="">Select an option</option>
                                         <option value="diagnosis">New Diagnosis / Second Opinion</option>
                                         <option value="treatment">Treatment Planning</option>
@@ -947,48 +1133,53 @@
 
                                 <!-- Message -->
                                 <div class="space-y-2 md:col-span-2">
-                                    <label for="message" class="text-[10px] sm:text-xs font-bold text-slate-400 uppercase">Additional Message</label>
-                                    <textarea 
-                                        id="message"
-                                        name="message"
-                                        rows="4"
+                                    <label for="message"
+                                        class="text-[10px] sm:text-xs font-bold text-slate-400 uppercase">Additional
+                                        Message</label>
+                                    <textarea id="message" name="message" rows="4"
                                         class="w-full px-4 sm:px-5 py-3 sm:py-4 rounded-xl bg-white border-transparent focus:border-brand-blue-light focus:ring-0 transition-all text-sm sm:text-base"
-                                        placeholder="How can we help you today?"
-                                    ></textarea>
+                                        placeholder="How can we help you today?"></textarea>
                                 </div>
 
                                 <!-- Submit Button -->
-                                <button 
-                                    type="submit"
-                                    class="md:col-span-2 bg-brand-red-cta text-white py-3 sm:py-4 rounded-xl sm:rounded-2xl font-bold text-base sm:text-lg hover:bg-red-700 transition-all shadow-lg shadow-red-100 mt-2 sm:mt-4"
-                                >
+                                <button type="submit"
+                                    class="md:col-span-2 bg-brand-red-cta text-white py-3 sm:py-4 rounded-xl sm:rounded-2xl font-bold text-base sm:text-lg hover:bg-red-700 transition-all shadow-lg shadow-red-100 mt-2 sm:mt-4">
                                     Request Private Consultation
                                 </button>
                             </form>
 
                             <!-- Privacy notice -->
-                            <div class="mt-4 sm:mt-5 text-[11px] sm:text-xs text-slate-500 leading-relaxed" data-content="contactSection.privacyNotice">
-                                Information sent through this form is reviewed by our clinical coordination team and kept confidential in line with applicable privacy standards. Please do not include full medical records or highly sensitive identifiers.
+                            <div class="mt-4 sm:mt-5 text-[11px] sm:text-xs text-slate-500 leading-relaxed"
+                                data-content="contactSection.privacyNotice">
+                                Information sent through this form is reviewed by our clinical coordination team and
+                                kept confidential in line with applicable privacy standards. Please do not include full
+                                medical records or highly sensitive identifiers.
                             </div>
 
                             <!-- Success Message -->
-                            <div id="successMessage" class="hidden mt-4 sm:mt-4 p-4 sm:p-5 bg-green-50 border border-green-200 rounded-xl sm:rounded-2xl">
+                            <div id="successMessage"
+                                class="hidden mt-4 sm:mt-4 p-4 sm:p-5 bg-green-50 border border-green-200 rounded-xl sm:rounded-2xl">
                                 <div class="flex items-center gap-3">
                                     <span class="material-symbols-outlined text-green-600">check_circle</span>
                                     <div>
-                                        <p class="font-bold text-sm sm:text-base text-green-900">Thank you for reaching out.</p>
-                                        <p class="text-xs sm:text-sm text-green-700">Your message has been received. A member of our team will contact you within one business day.</p>
+                                        <p class="font-bold text-sm sm:text-base text-green-900">Thank you for reaching
+                                            out.</p>
+                                        <p class="text-xs sm:text-sm text-green-700">Your message has been received. A
+                                            member of our team will contact you within one business day.</p>
                                     </div>
                                 </div>
                             </div>
 
                             <!-- Error Message -->
-                            <div id="errorMessage" class="hidden mt-4 sm:mt-4 p-4 sm:p-5 bg-red-50 border border-red-200 rounded-xl sm:rounded-2xl">
+                            <div id="errorMessage"
+                                class="hidden mt-4 sm:mt-4 p-4 sm:p-5 bg-red-50 border border-red-200 rounded-xl sm:rounded-2xl">
                                 <div class="flex items-center gap-3">
                                     <span class="material-symbols-outlined text-red-600">error</span>
                                     <div>
-                                        <p class="font-bold text-sm sm:text-base text-red-900">We could not submit your request.</p>
-                                        <p id="errorMessageText" class="text-xs sm:text-sm text-red-700">Please check the form and try again, or call us using the phone numbers listed.</p>
+                                        <p class="font-bold text-sm sm:text-base text-red-900">We could not submit your
+                                            request.</p>
+                                        <p id="errorMessageText" class="text-xs sm:text-sm text-red-700">Please check
+                                            the form and try again, or call us using the phone numbers listed.</p>
                                     </div>
                                 </div>
                             </div>
@@ -997,28 +1188,33 @@
 
                     <!-- Contact Info Sidebar -->
                     <div class="space-y-4 sm:space-y-6">
-                        
+
                         <!-- Immediate Support -->
                         <div class="bg-brand-blue-dark text-white p-6 sm:p-8 rounded-2xl sm:rounded-3xl shadow-xl">
                             <h3 class="font-bold text-lg sm:text-xl mb-4 sm:mb-6">Immediate Support</h3>
                             <div class="space-y-3 sm:space-y-4">
                                 <div class="flex items-center gap-3 sm:gap-4">
-                                    <span class="material-symbols-outlined text-brand-blue-light text-xl sm:text-2xl">emergency</span>
+                                    <span
+                                        class="material-symbols-outlined text-brand-blue-light text-xl sm:text-2xl">emergency</span>
                                     <div>
-                                        <p class="text-[10px] sm:text-xs text-blue-300 font-bold uppercase tracking-wider">24/7 Nurse Hotline</p>
-                                        <a href="#"
-                                           data-content="contact.phone"
-                                           data-content-attr="href:tel"
-                                           class="text-base sm:text-lg font-bold hover:text-brand-blue-light transition-colors">
+                                        <p
+                                            class="text-[10px] sm:text-xs text-blue-300 font-bold uppercase tracking-wider">
+                                            24/7 Nurse Hotline</p>
+                                        <a href="#" data-content="contact.phone" data-content-attr="href:tel"
+                                            class="text-base sm:text-lg font-bold hover:text-brand-blue-light transition-colors">
                                             <span data-content="contact.phone">+20 11 2080 0011</span>
                                         </a>
                                     </div>
                                 </div>
                                 <div class="flex items-center gap-3 sm:gap-4">
-                                    <span class="material-symbols-outlined text-brand-blue-light text-xl sm:text-2xl">assignment_ind</span>
+                                    <span
+                                        class="material-symbols-outlined text-brand-blue-light text-xl sm:text-2xl">assignment_ind</span>
                                     <div>
-                                        <p class="text-[10px] sm:text-xs text-blue-300 font-bold uppercase tracking-wider">New Patient Navigator</p>
-                                        <a href="tel:+201120800012" class="text-base sm:text-lg font-bold hover:text-brand-blue-light transition-colors">
+                                        <p
+                                            class="text-[10px] sm:text-xs text-blue-300 font-bold uppercase tracking-wider">
+                                            New Patient Navigator</p>
+                                        <a href="tel:+201120800012"
+                                            class="text-base sm:text-lg font-bold hover:text-brand-blue-light transition-colors">
                                             +20 11 2080 0012
                                         </a>
                                     </div>
@@ -1029,16 +1225,14 @@
                         <!-- Insurance Info -->
                         <div class="bg-white p-6 sm:p-8 rounded-2xl sm:rounded-3xl border border-slate-100 shadow-sm">
                             <h3 class="font-bold text-lg sm:text-xl mb-2 text-slate-900">Insurance & Finance</h3>
-                            <p class="text-sm sm:text-base text-slate-500 mb-3 sm:mb-4 leading-relaxed" data-content="insurance.blurb">
-                                We work with a broad range of payers and will help you understand available coverage and payment options before treatment begins.
+                            <p class="text-sm sm:text-base text-slate-500 mb-3 sm:mb-4 leading-relaxed"
+                                data-content="insurance.blurb">
+                                We work with a broad range of payers and will help you understand available coverage and
+                                payment options before treatment begins.
                             </p>
-                            <a 
-                                href="#" 
-                                id="coverageTrigger"
+                            <a href="#" id="coverageTrigger"
                                 class="inline-flex items-center gap-2 text-brand-blue-dark font-bold text-xs sm:text-sm hover:underline"
-                                aria-haspopup="dialog"
-                                aria-controls="coverageModal"
-                            >
+                                aria-haspopup="dialog" aria-controls="coverageModal">
                                 <span id="coverageTriggerLabel">Check Your Coverage</span>
                                 <span class="material-symbols-outlined text-sm">open_in_new</span>
                             </a>
@@ -1047,29 +1241,31 @@
                         <div id="coverageModal" class="hidden fixed inset-0 z-[80]" aria-hidden="true">
                             <div id="coverageBackdrop" class="absolute inset-0 bg-slate-900/50"></div>
                             <div class="absolute inset-0 flex items-center justify-center p-4">
-                                <div class="w-full max-w-2xl max-h-[82vh] overflow-hidden rounded-2xl bg-white shadow-2xl border border-slate-200">
+                                <div
+                                    class="w-full max-w-2xl max-h-[82vh] overflow-hidden rounded-2xl bg-white shadow-2xl border border-slate-200">
                                     <div class="flex items-center justify-between px-5 py-4 border-b border-slate-100">
-                                        <h4 class="font-bold text-slate-900 text-base sm:text-lg">Accepted Coverage Partners</h4>
-                                        <button id="coverageCloseBtn" type="button" class="inline-flex items-center justify-center w-9 h-9 rounded-lg text-slate-500 hover:bg-slate-100" aria-label="Close list">
+                                        <h4 class="font-bold text-slate-900 text-base sm:text-lg">Accepted Coverage
+                                            Partners</h4>
+                                        <button id="coverageCloseBtn" type="button"
+                                            class="inline-flex items-center justify-center w-9 h-9 rounded-lg text-slate-500 hover:bg-slate-100"
+                                            aria-label="Close list">
                                             <span class="material-symbols-outlined">close</span>
                                         </button>
                                     </div>
                                     <div class="p-5 overflow-y-auto max-h-[65vh]">
-                                        <ul id="coverageList" class="space-y-2 text-sm sm:text-base text-slate-700"></ul>
+                                        <ul id="coverageList" class="space-y-2 text-sm sm:text-base text-slate-700">
+                                        </ul>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
                         <!-- Map -->
-                        <div class="h-48 sm:h-56 lg:h-64 w-full rounded-2xl sm:rounded-3xl overflow-hidden shadow-lg border-2 sm:border-4 border-white">
-                            <iframe 
+                        <div
+                            class="h-48 sm:h-56 lg:h-64 w-full rounded-2xl sm:rounded-3xl overflow-hidden shadow-lg border-2 sm:border-4 border-white">
+                            <iframe
                                 src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3474.831509326674!2d29.953735!3d31.221777!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x14f5c3e9b210a5c1%3A0x0!2z2YXYtdmG2LnZh9iu2YrYqSDZhNmE2YTYr9mI2YrYr9in2Kk!5e0!3m2!1sen!2seg!4v1700000000000!5m2!1sen!2seg"
-                                class="w-full h-full"
-                                style="border:0;"
-                                allowfullscreen=""
-                                loading="lazy"
-                            ></iframe>
+                                class="w-full h-full" style="border:0;" allowfullscreen="" loading="lazy"></iframe>
                         </div>
                     </div>
                 </div>
@@ -1078,65 +1274,78 @@
 
         <!-- CTA Section -->
         <section data-section-id="cta" class="py-16 sm:py-24 lg:py-32 relative overflow-hidden bg-brand-blue-dark">
-            <div class="absolute inset-0 opacity-20 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]"></div>
-            
+            <div class="absolute inset-0 opacity-20 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]">
+            </div>
+
             <!-- Multiple animated orbs -->
-            <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] h-[300px] sm:w-[500px] sm:h-[500px] lg:w-[600px] lg:h-[600px] bg-blue-400 rounded-full blur-[100px] sm:blur-[150px] opacity-40 animate-breathe"></div>
-            <div class="absolute top-20 left-20 w-40 h-40 bg-blue-300 rounded-full blur-3xl opacity-30 animate-pulse-3d"></div>
-            <div class="absolute bottom-20 right-20 w-60 h-60 bg-cyan-400 rounded-full blur-3xl opacity-20 animate-pulse-3d delay-300"></div>
-            
+            <div
+                class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] h-[300px] sm:w-[500px] sm:h-[500px] lg:w-[600px] lg:h-[600px] bg-blue-400 rounded-full blur-[100px] sm:blur-[150px] opacity-40 animate-breathe">
+            </div>
+            <div
+                class="absolute top-20 left-20 w-40 h-40 bg-blue-300 rounded-full blur-3xl opacity-30 animate-pulse-3d">
+            </div>
+            <div
+                class="absolute bottom-20 right-20 w-60 h-60 bg-cyan-400 rounded-full blur-3xl opacity-20 animate-pulse-3d delay-300">
+            </div>
+
             <!-- Floating particles -->
             <div class="absolute inset-0 overflow-hidden pointer-events-none">
                 <div class="particle absolute top-10 left-10 w-2 h-2 bg-white rounded-full opacity-40"></div>
-                <div class="particle absolute top-1/4 right-20 w-3 h-3 bg-blue-200 rounded-full opacity-30" style="animation-delay: 3s;"></div>
-                <div class="particle absolute bottom-1/3 left-1/4 w-2 h-2 bg-white rounded-full opacity-50" style="animation-delay: 6s;"></div>
-                <div class="particle absolute top-1/2 right-1/3 w-4 h-4 bg-cyan-200 rounded-full opacity-25" style="animation-delay: 9s;"></div>
+                <div class="particle absolute top-1/4 right-20 w-3 h-3 bg-blue-200 rounded-full opacity-30"
+                    style="animation-delay: 3s;"></div>
+                <div class="particle absolute bottom-1/3 left-1/4 w-2 h-2 bg-white rounded-full opacity-50"
+                    style="animation-delay: 6s;"></div>
+                <div class="particle absolute top-1/2 right-1/3 w-4 h-4 bg-cyan-200 rounded-full opacity-25"
+                    style="animation-delay: 9s;"></div>
             </div>
-            
+
             <div class="mx-auto max-w-4xl px-4 sm:px-6 relative z-10 text-center space-y-6 sm:space-y-8 lg:space-y-10">
-                
+
                 <!-- 3D Animated Sphere -->
                 <div class="inline-block relative perspective-container">
                     <!-- Outer rotating ring -->
                     <div class="absolute inset-0 -m-8">
-                        <div class="w-full h-full border-4 border-blue-300 rounded-full opacity-20 animate-spin-3d"></div>
+                        <div class="w-full h-full border-4 border-blue-300 rounded-full opacity-20 animate-spin-3d">
+                        </div>
                     </div>
-                    
+
                     <!-- Pulsing glow effect -->
                     <div class="absolute inset-0 bg-brand-blue-light blur-2xl opacity-50 animate-pulse"></div>
-                    
+
                     <!-- Main image with 3D transform -->
-                    <img 
-                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuBUgYDd55YRgg97AI_zEsedPYGZxaV4AJ32QCSb1MohcukVz4RDNU63wJpwvgeoPcXJ9nsHXIGuu9bgVYqufAHu7KrHwymythxWyyeRY2i_1Aorn83wfDa2SOKdzHnJzkXHLCJumdEHjiyAEBrq2bJotVnQ5byHhXKdUr5WAPSjcoSwp_M03_N41JDWyCsVMgtX2z4Fe5kF5ObK3YbFT-VGZoFoKWRvpP63BziCxNBRAeW7gzdy0IAr76mOUamsnXPw4FgH0JA2_Yg" 
-                        alt="Healing Sphere" 
+                    <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuBUgYDd55YRgg97AI_zEsedPYGZxaV4AJ32QCSb1MohcukVz4RDNU63wJpwvgeoPcXJ9nsHXIGuu9bgVYqufAHu7KrHwymythxWyyeRY2i_1Aorn83wfDa2SOKdzHnJzkXHLCJumdEHjiyAEBrq2bJotVnQ5byHhXKdUr5WAPSjcoSwp_M03_N41JDWyCsVMgtX2z4Fe5kF5ObK3YbFT-VGZoFoKWRvpP63BziCxNBRAeW7gzdy0IAr76mOUamsnXPw4FgH0JA2_Yg"
+                        alt="Healing Sphere"
                         class="relative h-24 w-24 sm:h-32 sm:w-32 lg:h-40 lg:w-40 mx-auto animate-float"
-                        style="filter: drop-shadow(0 0 30px rgba(0, 150, 214, 0.6));"
-                    >
-                    
+                        style="filter: drop-shadow(0 0 30px rgba(0, 150, 214, 0.6));">
+
                     <!-- Inner rotating ring (opposite direction) -->
                     <div class="absolute inset-4">
-                        <div class="w-full h-full border-2 border-cyan-300 rounded-full opacity-30 animate-spin-3d" style="animation-direction: reverse; animation-duration: 8s;"></div>
+                        <div class="w-full h-full border-2 border-cyan-300 rounded-full opacity-30 animate-spin-3d"
+                            style="animation-direction: reverse; animation-duration: 8s;"></div>
                     </div>
                 </div>
-                
-                <h2 class="text-3xl sm:text-4xl lg:text-6xl font-black text-white leading-tight px-4 sm:px-0 animate-slide-in-up">
+
+                <h2
+                    class="text-3xl sm:text-4xl lg:text-6xl font-black text-white leading-tight px-4 sm:px-0 animate-slide-in-up">
                     <span data-content="ctaSection.heading">You're not alone.</span> <br>
-                    <span class="inline-block animate-pulse-3d" data-content="ctaSection.subheading">We walk this journey with you.</span>
+                    <span class="inline-block animate-pulse-3d" data-content="ctaSection.subheading">We walk this
+                        journey with you.</span>
                 </h2>
-                
+
                 <div class="flex justify-center px-4 sm:px-0 animate-scale-in delay-300">
-                    <button 
-                        onclick="scrollToSection('contact')"
-                        class="group relative px-6 sm:px-8 lg:px-10 py-3 sm:py-4 lg:py-5 bg-white text-brand-blue-dark rounded-xl sm:rounded-2xl font-black text-base sm:text-lg lg:text-xl overflow-hidden transition-all hover:scale-110 active:scale-95 shadow-2xl perspective-container"
-                        style="transform-style: preserve-3d;"
-                        data-content="ctaSection.buttonLabel"
-                    >
+                    <a href="#contact" onclick="scrollToSection('contact')"
+                        class="group relative px-6 sm:px-8 lg:px-10 py-3 sm:py-4 lg:py-5 bg-white text-brand-blue-dark rounded-xl sm:rounded-2xl font-black text-base sm:text-lg lg:text-xl overflow-hidden transition-all hover:scale-110 active:scale-95 shadow-2xl perspective-container inline-flex justify-center"
+                        style="transform-style: preserve-3d;" data-content="ctaSection.buttonLabel">
                         <span class="relative z-10">Book a Consultation</span>
-                        <div class="absolute inset-0 bg-gradient-to-r from-blue-100 via-cyan-100 to-blue-100 translate-y-full group-hover:translate-y-0 transition-transform duration-300 animate-gradient"></div>
-                        
+                        <div
+                            class="absolute inset-0 bg-gradient-to-r from-blue-100 via-cyan-100 to-blue-100 translate-y-full group-hover:translate-y-0 transition-transform duration-300 animate-gradient">
+                        </div>
+
                         <!-- Animated shine effect -->
-                        <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent opacity-0 group-hover:opacity-30 group-hover:animate-[slideInRight_0.6s_ease-out]"></div>
-                    </button>
+                        <div
+                            class="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent opacity-0 group-hover:opacity-30 group-hover:animate-[slideInRight_0.6s_ease-out]">
+                        </div>
+                    </a>
                 </div>
             </div>
         </section>
@@ -1148,21 +1357,18 @@
     ======================================== -->
     <footer class="bg-white border-t border-slate-100 pt-12 sm:pt-16 lg:pt-20 pb-8 sm:pb-12">
         <div class="mx-auto max-w-7xl px-4 sm:px-6">
-            
+
             <!-- Footer Grid -->
             <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-8 sm:gap-10 lg:gap-12 mb-12 sm:mb-16">
-                
+
                 <!-- Brand Column -->
                 <div class="col-span-2 space-y-4 sm:space-y-6">
                     <div class="flex items-center gap-2 sm:gap-3">
                         <div class="size-6 sm:size-8 text-brand-blue-dark">
                             <svg fill="none" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
-                                <path 
-                                    clip-rule="evenodd" 
-                                    d="M12.0799 24L4 19.2479L9.95537 8.75216L18.04 13.4961L18.0446 4H29.9554L29.96 13.4961L38.0446 8.75216L44 19.2479L35.92 24L44 28.7521L38.0446 39.2479L29.96 34.5039L29.9554 44H18.0446L18.04 34.5039L9.95537 39.2479L4 28.7521L12.0799 24Z" 
-                                    fill="currentColor" 
-                                    fill-rule="evenodd"
-                                />
+                                <path clip-rule="evenodd"
+                                    d="M12.0799 24L4 19.2479L9.95537 8.75216L18.04 13.4961L18.0446 4H29.9554L29.96 13.4961L38.0446 8.75216L44 19.2479L35.92 24L44 28.7521L38.0446 39.2479L29.96 34.5039L29.9554 44H18.0446L18.04 34.5039L9.95537 39.2479L4 28.7521L12.0799 24Z"
+                                    fill="currentColor" fill-rule="evenodd" />
                             </svg>
                         </div>
                         <h2 class="text-base sm:text-lg lg:text-xl font-extrabold text-slate-900">
@@ -1170,28 +1376,28 @@
                             <span class="sm:hidden">Cancer Center</span>
                         </h2>
                     </div>
-                    <p class="text-xs sm:text-sm text-slate-500 leading-relaxed max-w-xs" data-content="aboutSection.footerBlurb">
-                        Providing coordinated, guideline-based cancer care with an emphasis on clear communication, safety, and support for patients and families.
+                    <p class="text-xs sm:text-sm text-slate-500 leading-relaxed max-w-xs"
+                        data-content="aboutSection.footerBlurb">
+                        Providing coordinated, guideline-based cancer care with an emphasis on clear communication,
+                        safety, and support for patients and families.
                     </p>
-                    
+
                     <!-- Social Links -->
                     <div class="flex gap-3 sm:gap-4">
-                        <a 
-                            href="#" 
+                        <a href="#"
                             class="size-9 sm:size-10 rounded-lg sm:rounded-xl bg-slate-50 flex items-center justify-center text-slate-400 hover:bg-blue-50 hover:text-brand-blue-dark transition-all"
-                            aria-label="Facebook"
-                        >
+                            aria-label="Facebook">
                             <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="currentColor" viewBox="0 0 24 24">
-                                <path d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.878v-6.987h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.988C18.343 21.128 22 16.991 22 12z"/>
+                                <path
+                                    d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.878v-6.987h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.988C18.343 21.128 22 16.991 22 12z" />
                             </svg>
                         </a>
-                        <a 
-                            href="#" 
+                        <a href="#"
                             class="size-9 sm:size-10 rounded-lg sm:rounded-xl bg-slate-50 flex items-center justify-center text-slate-400 hover:bg-blue-50 hover:text-brand-blue-dark transition-all"
-                            aria-label="Instagram"
-                        >
+                            aria-label="Instagram">
                             <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="currentColor" viewBox="0 0 24 24">
-                                <path d="M12.315 2c2.43 0 2.784.012 3.855.06 1.061.048 1.791.222 2.427.458 1.063.413 1.864.97 2.666 1.772.802.802 1.359 1.603 1.772 2.666.236.636.41 1.366.458 2.427.048 1.071.06 1.425.06 3.855 0 2.43-.012 2.784-.06 3.855-.048 1.061-.222 1.791-.458 2.427a4.902 4.902 0 01-1.772 2.666 4.902 4.902 0 01-2.666 1.772c-.636.236-1.366.41-2.427.458-1.071.048-1.425.06-3.855.06-2.43 0-2.784-.012-3.855-.06-1.061-.048-1.791-.222-2.427-.458a4.902 4.902 0 01-2.666-1.772 4.902 4.902 0 01-1.772-2.666c-.236-.636-.41-1.366-.458-2.427-.048-1.071-.06-1.425-.06-3.855 0-2.43.012-2.784.06-3.855.048-1.061.222-1.791.458-2.427.413-1.063.97-1.864 1.772-2.666.802-.802 1.603-1.359 2.666-1.772.636-.236 1.366-.41 2.427-.458 1.071-.048 1.425-.06 3.855-.06zM12 7.163a4.837 4.837 0 100 9.674 4.837 4.837 0 000-9.674zM12 14.7a2.7 2.7 0 110-5.4 2.7 2.7 0 010 5.4zm7.885-7.569a1.125 1.125 0 11-2.25 0 1.125 1.125 0 012.25 0z"/>
+                                <path
+                                    d="M12.315 2c2.43 0 2.784.012 3.855.06 1.061.048 1.791.222 2.427.458 1.063.413 1.864.97 2.666 1.772.802.802 1.359 1.603 1.772 2.666.236.636.41 1.366.458 2.427.048 1.071.06 1.425.06 3.855 0 2.43-.012 2.784-.06 3.855-.048 1.061-.222 1.791-.458 2.427a4.902 4.902 0 01-1.772 2.666 4.902 4.902 0 01-2.666 1.772c-.636.236-1.366.41-2.427.458-1.071.048-1.425.06-3.855.06-2.43 0-2.784-.012-3.855-.06-1.061-.048-1.791-.222-2.427-.458a4.902 4.902 0 01-2.666-1.772 4.902 4.902 0 01-1.772-2.666c-.236-.636-.41-1.366-.458-2.427-.048-1.071-.06-1.425-.06-3.855 0-2.43.012-2.784.06-3.855.048-1.061.222-1.791.458-2.427.413-1.063.97-1.864 1.772-2.666.802-.802 1.603-1.359 2.666-1.772.636-.236 1.366-.41 2.427-.458 1.071-.048 1.425-.06 3.855-.06zM12 7.163a4.837 4.837 0 100 9.674 4.837 4.837 0 000-9.674zM12 14.7a2.7 2.7 0 110-5.4 2.7 2.7 0 010 5.4zm7.885-7.569a1.125 1.125 0 11-2.25 0 1.125 1.125 0 012.25 0z" />
                             </svg>
                         </a>
                     </div>
@@ -1236,15 +1442,13 @@
                     <h4 class="font-bold mb-4 sm:mb-6 text-sm sm:text-base">Visit Us</h4>
                     <ul class="space-y-3 sm:space-y-4 text-xs sm:text-sm text-slate-500">
                         <li class="flex gap-2">
-                            <span class="material-symbols-outlined text-xs">location_on</span> 
+                            <span class="material-symbols-outlined text-xs">location_on</span>
                             <span data-content="contact.address">644 El Horreya Road,<br>Gianaclis, Alexandria</span>
                         </li>
                         <li class="flex gap-2">
-                            <span class="material-symbols-outlined text-xs">mail</span> 
-                            <a href="#"
-                               data-content="contact.email"
-                               data-content-attr="href:mailto"
-                               class="hover:text-brand-blue-dark transition-all break-all">
+                            <span class="material-symbols-outlined text-xs">mail</span>
+                            <a href="#" data-content="contact.email" data-content-attr="href:mailto"
+                                class="hover:text-brand-blue-dark transition-all break-all">
                                 <span data-content="contact.email">info@comprehensivecancercenter.com</span>
                             </a>
                         </li>
@@ -1253,7 +1457,8 @@
             </div>
 
             <!-- Footer Bottom -->
-            <div class="pt-6 sm:pt-8 border-t border-slate-100 flex flex-col md:flex-row justify-between items-center gap-3 sm:gap-4 text-[10px] sm:text-xs font-bold text-slate-400 uppercase tracking-widest">
+            <div
+                class="pt-6 sm:pt-8 border-t border-slate-100 flex flex-col md:flex-row justify-between items-center gap-3 sm:gap-4 text-[10px] sm:text-xs font-bold text-slate-400 uppercase tracking-widest">
                 <div class="flex flex-col gap-1 text-center md:text-left">
                     <p data-content="footer.hours">Clinic hours: Mon–Fri 8:00–18:00 | Sat 9:00–14:00</p>
                     <p data-content="footer.copyright">© 2025 Comprehensive Cancer Center. All rights reserved.</p>
@@ -1266,10 +1471,12 @@
             </div>
             <div class="pt-4 sm:pt-5 flex flex-col gap-2 text-[10px] sm:text-xs text-slate-500">
                 <p data-content="footer.emergencyText">
-                    If you are experiencing a medical emergency, please contact your local emergency number immediately. Do not use this website or contact form for urgent symptoms.
+                    If you are experiencing a medical emergency, please contact your local emergency number immediately.
+                    Do not use this website or contact form for urgent symptoms.
                 </p>
                 <p class="uppercase tracking-widest font-bold">
-                    This website does not provide medical diagnosis or treatment recommendations. All care decisions must be made between you and your treating clinician.
+                    This website does not provide medical diagnosis or treatment recommendations. All care decisions
+                    must be made between you and your treating clinician.
                 </p>
             </div>
         </div>
@@ -1298,14 +1505,14 @@
             var animatedElements = document.querySelectorAll('.animate-slide-in-left, .animate-slide-in-right, .animate-slide-in-up, .animate-fade-in, .animate-scale-in');
 
             if (!observer) {
-                animatedElements.forEach(function(el) {
+                animatedElements.forEach(function (el) {
                     el.classList.remove('reveal-on-scroll');
                     el.classList.add('visible');
                 });
                 return;
             }
 
-            animatedElements.forEach(function(el) {
+            animatedElements.forEach(function (el) {
                 if (el.classList.contains('visible')) return;
                 el.classList.add('reveal-on-scroll');
                 observer.observe(el);
@@ -1361,12 +1568,13 @@
             if (initial) setActiveSection(initial.getAttribute('data-section-id'));
         }
 
+    
         // ===== Mobile Menu Toggle =====
         function toggleMobileMenu() {
             const menu = document.getElementById('mobileMenu');
             const backdrop = document.getElementById('mobileMenuBackdrop');
             const isActive = menu.classList.contains('active');
-            
+
             if (isActive) {
                 // Close menu
                 menu.classList.remove('active');
@@ -1386,7 +1594,7 @@
         function scrollToSection(sectionId) {
             const element = document.getElementById(sectionId);
             if (element) {
-                element.scrollIntoView({ 
+                element.scrollIntoView({
                     behavior: 'smooth',
                     block: 'start'
                 });
@@ -1395,17 +1603,17 @@
 
         // ===== Parallax Scrolling Effect =====
         let ticking = false;
-        
+
         function updateParallax() {
             const scrolled = window.pageYOffset;
             const parallaxElements = document.querySelectorAll('.parallax');
-            
+
             parallaxElements.forEach(element => {
                 const speed = element.dataset.speed || 0.5;
                 const yPos = -(scrolled * speed);
                 element.style.transform = `translateY(${yPos}px)`;
             });
-            
+
             ticking = false;
         }
 
@@ -1419,22 +1627,22 @@
         // ===== 3D Card Mouse Movement Effect =====
         document.addEventListener('DOMContentLoaded', () => {
             const cards = document.querySelectorAll('.card-3d');
-            
+
             cards.forEach(card => {
                 card.addEventListener('mousemove', (e) => {
                     const rect = card.getBoundingClientRect();
                     const x = e.clientX - rect.left;
                     const y = e.clientY - rect.top;
-                    
+
                     const centerX = rect.width / 2;
                     const centerY = rect.height / 2;
-                    
+
                     const rotateX = (y - centerY) / 10;
                     const rotateY = (centerX - x) / 10;
-                    
+
                     card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.05)`;
                 });
-                
+
                 card.addEventListener('mouseleave', () => {
                     card.style.transform = 'perspective(1000px) rotateX(0) rotateY(0) scale(1)';
                 });
@@ -1442,14 +1650,59 @@
         });
 
         // ===== Form Submission Handler =====
-        (function() {
+        (function () {
             const form = document.getElementById('contactForm');
             const successMsg = document.getElementById('successMessage');
             const errorMsg = document.getElementById('errorMessage');
             const errorMsgText = document.getElementById('errorMessageText');
             if (!form) return;
 
-            form.addEventListener('submit', function(e) {
+            function buildContactMessage(data) {
+                return [
+                    'New contact request:',
+                    'Name: ' + (data.firstName || '') + ' ' + (data.lastName || ''),
+                    'Email: ' + (data.email || ''),
+                    'Phone: ' + (data.phone || ''),
+                    'Concern: ' + (data.concern || ''),
+                    'Message: ' + (data.message || '')
+                ].join('\\n');
+            }
+
+            function routeAfterSubmit(data) {
+                var type = (form.dataset.routeType || 'none').toLowerCase();
+                var value = (form.dataset.routeValue || '').trim();
+                if (!type || type === 'none' || !value) return;
+                var msg = buildContactMessage(data);
+                if (type === 'email') {
+                    var mailto = 'mailto:' + encodeURIComponent(value) +
+                        '?subject=' + encodeURIComponent('New contact request') +
+                        '&body=' + encodeURIComponent(msg);
+                    window.location.href = mailto;
+                    return;
+                }
+                if (type === 'whatsapp') {
+                    var phone = value.replace(/\\D+/g, '');
+                    if (!phone) return;
+                    var wa = 'https://wa.me/' + phone + '?text=' + encodeURIComponent(msg);
+                    window.location.href = wa;
+                    return;
+                }
+                if (type === 'url') {
+                    if (!/^https?:\/\//i.test(value)) return;//i.test(value)) return;
+                    var params = new URLSearchParams({
+                        firstName: data.firstName || '',
+                        lastName: data.lastName || '',
+                        email: data.email || '',
+                        phone: data.phone || '',
+                        concern: data.concern || '',
+                        message: data.message || ''
+                    });
+                    var joiner = value.indexOf('?') === -1 ? '?' : '&';
+                    window.location.assign(value + joiner + params.toString());
+                }
+            }
+
+            form.addEventListener('submit', function (e) {
                 e.preventDefault();
 
                 if (successMsg) {
@@ -1481,8 +1734,8 @@
                     },
                     body: JSON.stringify(payload)
                 })
-                    .then(function(r) { return r.json().then(function(data) { return { ok: r.ok, data: data }; }); })
-                    .then(function(result) {
+                    .then(function (r) { return r.json().then(function (data) { return { ok: r.ok, data: data }; }); })
+                    .then(function (result) {
                         if (result.ok && result.data && result.data.success) {
                             if (successMsg) {
                                 successMsg.classList.remove('hidden');
@@ -1492,11 +1745,16 @@
                                     block: 'nearest'
                                 });
                             }
+                            if (result.data && result.data.route && result.data.route.redirectUrl) {
+                                window.location.href = result.data.route.redirectUrl;
+                            } else {
+                                routeAfterSubmit(payload);
+                            }
                             form.reset();
-                            setTimeout(function() {
+                            setTimeout(function () {
                                 if (!successMsg) return;
                                 successMsg.style.animation = 'fadeOut 0.5s ease-out';
-                                setTimeout(function() {
+                                setTimeout(function () {
                                     successMsg.classList.add('hidden');
                                 }, 500);
                             }, 5000);
@@ -1511,7 +1769,7 @@
                             }
                         }
                     })
-                    .catch(function() {
+                    .catch(function () {
                         if (errorMsg && errorMsgText) {
                             errorMsgText.textContent = 'We could not submit your request. Please try again in a few minutes or contact us by phone.';
                             errorMsg.classList.remove('hidden');
@@ -1521,7 +1779,7 @@
                             });
                         }
                     })
-                    .finally(function() {
+                    .finally(function () {
                         if (submitBtn) {
                             submitBtn.disabled = false;
                             submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
@@ -1531,7 +1789,7 @@
         })();
 
         // ===== Close mobile menu on escape key =====
-        document.addEventListener('keydown', function(event) {
+        document.addEventListener('keydown', function (event) {
             if (event.key === 'Escape') {
                 const menu = document.getElementById('mobileMenu');
                 if (menu.classList.contains('active')) {
@@ -1542,7 +1800,7 @@
 
         // ===== Smooth scroll for all anchor links =====
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function(e) {
+            anchor.addEventListener('click', function (e) {
                 const href = this.getAttribute('href');
                 if (href !== '#') {
                     e.preventDefault();
@@ -1555,7 +1813,7 @@
         });
 
         // ===== Close menu on window resize to desktop =====
-        window.addEventListener('resize', function() {
+        window.addEventListener('resize', function () {
             if (window.innerWidth >= 1024) {
                 const menu = document.getElementById('mobileMenu');
                 const backdrop = document.getElementById('mobileMenuBackdrop');
@@ -1572,7 +1830,7 @@
         function animateCounter(element, target, duration = 2000) {
             let start = 0;
             const increment = target / (duration / 16);
-            
+
             const timer = setInterval(() => {
                 start += increment;
                 if (start >= target) {
@@ -1615,7 +1873,7 @@
 
     <!-- Dynamic content from dashboard + i18n (single source of truth: /api/public/content) -->
     <script>
-        (function() {
+        (function () {
             var currentLang = localStorage.getItem('lang') || 'en';
             var websiteContent = null;
             var coverageModalTimeout = null;
@@ -1633,21 +1891,226 @@
                     return (val[lang] != null && val[lang] !== '') ? String(val[lang]) : (val.en != null ? String(val.en) : String(val.ar || ''));
                 return String(val);
             }
+            function setupAboutVideoControls() {
+                var video = document.getElementById('aboutVideoFile');
+                var controls = document.getElementById('aboutVideoControls');
+                if (!video || !controls) return;
+                if (controls.dataset.bound === '1') return;
+                controls.dataset.bound = '1';
+                var playBtn = controls.querySelector('[data-action="play"]');
+                var muteBtn = controls.querySelector('[data-action="mute"]');
+                var restartBtn = controls.querySelector('[data-action="restart"]');
+                var fullscreenBtn = controls.querySelector('[data-action="fullscreen"]');
+                var progressEl = document.getElementById('aboutVideoProgress');
+
+                function syncIcons() {
+                    if (playBtn) {
+                        var icon = playBtn.querySelector('.material-symbols-outlined');
+                        if (icon) icon.textContent = video.paused ? 'play_arrow' : 'pause';
+                    }
+                    if (muteBtn) {
+                        var mIcon = muteBtn.querySelector('.material-symbols-outlined');
+                        if (mIcon) mIcon.textContent = video.muted ? 'volume_off' : 'volume_up';
+                    }
+                }
+
+                if (playBtn) {
+                    playBtn.addEventListener('click', function () {
+                        if (video.paused) video.play();
+                        else video.pause();
+                    });
+                }
+                video.addEventListener('click', function () {
+                    if (video.paused) video.play();
+                    else video.pause();
+                });
+                if (muteBtn) {
+                    muteBtn.addEventListener('click', function () {
+                        video.muted = !video.muted;
+                        syncIcons();
+                    });
+                }
+                if (restartBtn) {
+                    restartBtn.addEventListener('click', function () {
+                        video.currentTime = 0;
+                        video.play();
+                    });
+                }
+                if (fullscreenBtn) {
+                    fullscreenBtn.addEventListener('click', function () {
+                        var target = video;
+                        if (target.requestFullscreen) target.requestFullscreen();
+                    });
+                }
+
+                video.addEventListener('play', syncIcons);
+                video.addEventListener('pause', syncIcons);
+                video.addEventListener('volumechange', syncIcons);
+                video.addEventListener('loadedmetadata', syncIcons);
+                video.addEventListener('timeupdate', function () {
+                    if (!progressEl || !video.duration) return;
+                    var pct = Math.max(0, Math.min(100, (video.currentTime / video.duration) * 100));
+                    progressEl.style.width = pct + '%';
+                });
+            }
+            function setupAboutVideoAutoplay() {
+                var video = document.getElementById('aboutVideoFile');
+                var iframe = document.getElementById('aboutVideo');
+                var section = document.getElementById('about');
+                if (!video || !section) return;
+                if (!video.src || video.classList.contains('hidden')) return;
+
+                var timer = null;
+                function clearTimer() { if (timer) { clearTimeout(timer); timer = null; } }
+                function playVideo() { video.play().catch(function () {}); }
+                function pauseVideo() { if (!video.paused) video.pause(); }
+
+                var observer = new IntersectionObserver(function (entries) {
+                    entries.forEach(function (entry) {
+                        if (entry.isIntersecting) {
+                            clearTimer();
+                            timer = setTimeout(playVideo, 3000);
+                        } else {
+                            clearTimer();
+                            pauseVideo();
+                        }
+                    });
+                }, { threshold: 0.6 });
+
+                observer.observe(section);
+                window.addEventListener('beforeunload', function () { clearTimer(); observer.disconnect(); });
+                if (iframe) {
+                    iframe.classList.add('pointer-events-none');
+                }
+            }
+            var timelineObserver = null;
+            function getSectionLabel(c, id, lang, sectionEl) {
+                if (!c) return id;
+                function pick(objPath) {
+                    var val = get(c, objPath);
+                    return getLocalized(val, lang);
+                }
+                var label = '';
+                if (id === 'hero') label = pick('siteInfo.heroHeading') || pick('siteInfo.title') || 'Home';
+                else if (id === 'services') label = pick('servicesSection.heading') || 'Services';
+                else if (id === 'team') label = pick('teamSection.heading') || 'Team';
+                else if (id === 'testimonials') label = pick('testimonialsSection.heading') || 'Testimonials';
+                else if (id === 'about') label = pick('aboutSection.heading') || 'About';
+                else if (id === 'contact') label = pick('contactSection.heading') || 'Contact';
+                else if (id === 'cta') label = pick('ctaSection.heading') || 'CTA';
+                if (!label && sectionEl) {
+                    var h = sectionEl.querySelector('h2, h3');
+                    if (h) label = h.textContent || '';
+                }
+                label = (label || id).trim();
+                if (label.length > 28) label = label.slice(0, 27) + '...';
+                return label;
+            }
+            function buildTimelineNav(c, lang) {
+                var nav = document.getElementById('timelineNav');
+                var main = document.querySelector('main');
+                if (!nav || !main) return;
+                var sections = Array.prototype.slice.call(main.querySelectorAll('[data-section-id]'))
+                    .filter(function (el) { return el.style.display !== 'none'; });
+                nav.innerHTML = sections.map(function (sectionEl) {
+                    var id = sectionEl.getAttribute('data-section-id');
+                    var label = getSectionLabel(c, id, lang, sectionEl);
+                    return '<button type="button" class="timeline-item" data-target="' + id + '">' +
+                        '<span class="timeline-dot"></span><span class="timeline-label">' + escapeHtml(label) + '</span></button>';
+                }).join('');
+
+                if (!nav.dataset.bound) {
+                    nav.addEventListener('click', function (e) {
+                        var btn = e.target.closest('[data-target]');
+                        if (!btn) return;
+                        var targetId = btn.getAttribute('data-target');
+                        var target = document.querySelector('[data-section-id="' + targetId + '"]');
+                        if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    });
+                    nav.dataset.bound = '1';
+                }
+            }
+            function setupTimelineObserver() {
+                var nav = document.getElementById('timelineNav');
+                var main = document.querySelector('main');
+                if (!nav || !main) return;
+                var sections = Array.prototype.slice.call(main.querySelectorAll('[data-section-id]'))
+                    .filter(function (el) { return el.style.display !== 'none'; });
+                if (timelineObserver) timelineObserver.disconnect();
+                timelineObserver = new IntersectionObserver(function (entries) {
+                    var best = null;
+                    entries.forEach(function (entry) {
+                        if (!entry.isIntersecting) return;
+                        if (!best || entry.intersectionRatio > best.intersectionRatio) best = entry;
+                    });
+                    if (!best) return;
+                    var activeId = best.target.getAttribute('data-section-id');
+                    nav.querySelectorAll('.timeline-item').forEach(function (btn) {
+                        var isActive = btn.getAttribute('data-target') === activeId;
+                        btn.classList.toggle('is-active', isActive);
+                    });
+                }, { threshold: [0.3, 0.6, 0.9] });
+                sections.forEach(function (sectionEl) { timelineObserver.observe(sectionEl); });
+            }
+            function setupTimelineDrag() {
+                var nav = document.getElementById('timelineNav');
+                if (!nav || nav.dataset.dragBound === '1') return;
+                nav.dataset.dragBound = '1';
+
+                var isDragging = false;
+                var startY = 0;
+                var startScroll = 0;
+                var maxScroll = 0;
+
+                function refreshBounds() {
+                    maxScroll = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
+                }
+
+                function onPointerDown(e) {
+                    isDragging = true;
+                    nav.classList.add('is-dragging');
+                    startY = e.clientY;
+                    startScroll = window.scrollY;
+                    refreshBounds();
+                    nav.setPointerCapture(e.pointerId);
+                }
+                function onPointerMove(e) {
+                    if (!isDragging) return;
+                    var dy = e.clientY - startY;
+                    var navHeight = nav.getBoundingClientRect().height;
+                    var ratio = navHeight ? dy / navHeight : 0;
+                    var target = startScroll + ratio * maxScroll;
+                    if (target < 0) target = 0;
+                    if (target > maxScroll) target = maxScroll;
+                    window.scrollTo(0, target);
+                }
+                function onPointerUp(e) {
+                    if (!isDragging) return;
+                    isDragging = false;
+                    nav.classList.remove('is-dragging');
+                    nav.releasePointerCapture(e.pointerId);
+                }
+
+                nav.addEventListener('pointerdown', onPointerDown);
+                nav.addEventListener('pointermove', onPointerMove);
+                nav.addEventListener('pointerup', onPointerUp);
+                nav.addEventListener('pointercancel', onPointerUp);
+            }
             function applyContent(c, lang) {
                 lang = lang || currentLang;
                 if (!c) return;
-                document.querySelectorAll('[data-content]').forEach(function(el) {
+                document.querySelectorAll('[data-content]').forEach(function (el) {
                     var val = get(c, el.getAttribute('data-content'));
                     var text = getLocalized(val, lang);
                     if (text == null) return;
                     var suffix = el.getAttribute('data-suffix') || '';
                     el.textContent = text + suffix;
                 });
-                document.querySelectorAll('[data-content-src]').forEach(function(el) {
+                document.querySelectorAll('[data-content-src]').forEach(function (el) {
                     var url = get(c, el.getAttribute('data-content-src'));
                     if (url && typeof url === 'string') el.src = url;
                 });
-                document.querySelectorAll('[data-content-attr]').forEach(function(el) {
+                document.querySelectorAll('[data-content-attr]').forEach(function (el) {
                     var attrSpec = el.getAttribute('data-content-attr') || '';
                     var parts = attrSpec.split(':');
                     var attrName = parts[0];
@@ -1665,6 +2128,51 @@
                         el.setAttribute(attrName, text);
                     }
                 });
+                var aboutIframe = document.getElementById('aboutVideo');
+                var aboutVideo = document.getElementById('aboutVideoFile');
+                var aboutControls = document.getElementById('aboutVideoControls');
+                var aboutProgress = document.getElementById('aboutVideoProgress');
+                if (aboutIframe && aboutVideo) {
+                    var rawVideoUrl = get(c, 'aboutSection.videoUrl');
+                    var videoUrl = getLocalized(rawVideoUrl, lang);
+                    if (videoUrl) {
+                        var isFileVideo = /\.(mp4|webm|ogv|ogg)(\?|#|$)/i.test(videoUrl) || videoUrl.indexOf('/uploads/') === 0;
+                        if (isFileVideo) {
+                            aboutVideo.src = videoUrl;
+                            aboutVideo.classList.remove('hidden');
+                            aboutVideo.style.pointerEvents = 'auto';
+                            aboutVideo.style.zIndex = '20';
+                            aboutIframe.classList.add('hidden');
+                            aboutIframe.style.pointerEvents = 'none';
+                            aboutIframe.style.display = 'none';
+                            if (aboutControls) aboutControls.classList.add('hidden');
+                        } else {
+                            var isEmbed = /facebook\.com\/plugins\/video\.php/i.test(videoUrl);
+                            var embedSrc = isEmbed
+                                ? videoUrl
+                                : 'https://www.facebook.com/plugins/video.php?href=' + encodeURIComponent(videoUrl) + '&show_text=false&width=560';
+                            aboutIframe.setAttribute('src', embedSrc);
+                            aboutIframe.classList.remove('hidden');
+                            aboutIframe.style.display = '';
+                            aboutVideo.classList.add('hidden');
+                            aboutVideo.removeAttribute('src');
+                            aboutVideo.style.pointerEvents = '';
+                            aboutVideo.style.zIndex = '';
+                            if (aboutControls) aboutControls.classList.add('hidden');
+                        }
+                    }
+                }
+                var contactForm = document.getElementById('contactForm');
+                if (contactForm) {
+                    var route = get(c, 'contactSection.formRoute') || {};
+                    contactForm.dataset.routeType = route.type || 'none';
+                    contactForm.dataset.routeValue = route.value || '';
+                }
+                setupAboutVideoControls();
+                setupAboutVideoAutoplay();
+                buildTimelineNav(c, lang);
+                setupTimelineObserver();
+                setupTimelineDrag();
                 var titleObj = c.siteInfo && (c.siteInfo.title || c.siteInfo.tagline);
                 var seo = c.seo || {};
                 if (titleObj || seo.metaTitle) {
@@ -1710,7 +2218,7 @@
                         "medicalSpecialty": "Oncologic",
                         "description": getLocalized((c.seo && c.seo.metaDescription) || (c.siteInfo && c.siteInfo.tagline) || '', lang) || undefined
                     };
-                    var firstExpert = Array.isArray(c.experts) ? c.experts.find(function(ex) { return ex && ex.visible !== false; }) : null;
+                    var firstExpert = Array.isArray(c.experts) ? c.experts.find(function (ex) { return ex && ex.visible !== false; }) : null;
                     if (firstExpert && firstExpert.name) {
                         org.employee = {
                             "@type": "Physician",
@@ -1733,7 +2241,7 @@
                 return String(rawText)
                     .replace(/\\n/g, '\n')
                     .split(/\n+/)
-                    .map(function(line) { return line.trim(); })
+                    .map(function (line) { return line.trim(); })
                     .filter(Boolean);
             }
 
@@ -1745,7 +2253,7 @@
                 var rawList = c && c.insurance ? getLocalized(c.insurance.coverageList || '', lang) : '';
                 var label = c && c.insurance ? getLocalized(c.insurance.coverageLinkLabel || '', lang) : '';
                 var items = toCoverageItems(rawList);
-                listEl.innerHTML = items.map(function(item) {
+                listEl.innerHTML = items.map(function (item) {
                     return '<li class="rounded-xl bg-slate-50 border border-slate-100 px-3 py-2">' + escapeHtml(item) + '</li>';
                 }).join('');
                 if (!items.length) {
@@ -1772,26 +2280,26 @@
                     modal.setAttribute('aria-hidden', 'true');
                 }
 
-                trigger.addEventListener('click', function(e) {
+                trigger.addEventListener('click', function (e) {
                     e.preventDefault();
                     openModal();
                 });
 
-                trigger.addEventListener('mouseenter', function() {
+                trigger.addEventListener('mouseenter', function () {
                     clearTimeout(coverageModalTimeout);
                     openModal();
                 });
 
-                modal.addEventListener('mouseleave', function() {
+                modal.addEventListener('mouseleave', function () {
                     coverageModalTimeout = setTimeout(closeModal, 220);
                 });
-                modal.addEventListener('mouseenter', function() {
+                modal.addEventListener('mouseenter', function () {
                     clearTimeout(coverageModalTimeout);
                 });
 
                 closeBtn.addEventListener('click', closeModal);
                 backdrop.addEventListener('click', closeModal);
-                document.addEventListener('keydown', function(e) {
+                document.addEventListener('keydown', function (e) {
                     if (e.key === 'Escape') closeModal();
                 });
             }
@@ -1801,19 +2309,19 @@
                 var order = c.sectionsOrder || [];
                 var vis = c.sectionVisibility || {};
                 var byId = {};
-                main.querySelectorAll('[data-section-id]').forEach(function(s) {
+                main.querySelectorAll('[data-section-id]').forEach(function (s) {
                     byId[s.getAttribute('data-section-id')] = s;
                 });
                 var ordered = [];
-                order.forEach(function(id) {
+                order.forEach(function (id) {
                     if (vis[id] === false) return;
                     var el = byId[id];
                     if (el) { el.style.display = ''; ordered.push(el); }
                 });
-                Object.keys(byId).forEach(function(id) {
+                Object.keys(byId).forEach(function (id) {
                     if (vis[id] === false) byId[id].style.display = 'none';
                 });
-                ordered.forEach(function(el) { main.appendChild(el); });
+                ordered.forEach(function (el) { main.appendChild(el); });
             }
             function setLanguage(lang) {
                 currentLang = lang;
@@ -1823,7 +2331,7 @@
                 html.setAttribute('lang', lang === 'ar' ? 'ar' : 'en');
                 html.classList.remove('lang-en', 'lang-ar');
                 html.classList.add('lang-' + lang);
-                document.querySelectorAll('.lang-toggle').forEach(function(btn) {
+                document.querySelectorAll('.lang-toggle').forEach(function (btn) {
                     var isActive = btn.getAttribute('data-lang') === lang;
                     btn.classList.toggle('bg-brand-blue-dark', isActive);
                     btn.classList.toggle('text-white', isActive);
@@ -1848,8 +2356,8 @@
             function applyExperts(c) {
                 var grid = document.getElementById('expertsGrid');
                 if (!grid || !c.experts || !Array.isArray(c.experts)) return;
-                var list = c.experts.filter(function(ex) { return ex.visible !== false; });
-                grid.innerHTML = list.map(function(ex, i) {
+                var list = c.experts.filter(function (ex) { return ex.visible !== false; });
+                grid.innerHTML = list.map(function (ex, i) {
                     var grad = EXPERT_GRADIENTS[i % EXPERT_GRADIENTS.length];
                     var badge = EXPERT_BADGES[i % EXPERT_BADGES.length];
                     var delay = EXPERT_DELAYS[i % EXPERT_DELAYS.length];
@@ -1885,8 +2393,8 @@
             function applyTestimonials(c) {
                 var grid = document.getElementById('testimonialsGrid');
                 if (!grid) return;
-                var list = Array.isArray(c.testimonials) ? c.testimonials.filter(function(t) { return t && t.visible !== false; }) : [];
-                grid.innerHTML = list.map(function(t, i) {
+                var list = Array.isArray(c.testimonials) ? c.testimonials.filter(function (t) { return t && t.visible !== false; }) : [];
+                grid.innerHTML = list.map(function (t, i) {
                     var quote = getLocalized(t.quote || '', currentLang);
                     var author = getLocalized(t.author || '', currentLang);
                     var role = getLocalized(t.role || '', currentLang);
@@ -1903,8 +2411,8 @@
             function applyServices(c) {
                 var grid = document.getElementById('servicesGrid');
                 if (!grid || !c.services || !Array.isArray(c.services)) return;
-                var list = c.services.filter(function(s) { return s.visible !== false; });
-                grid.innerHTML = list.map(function(s, i) {
+                var list = c.services.filter(function (s) { return s.visible !== false; });
+                grid.innerHTML = list.map(function (s, i) {
                     var icon = s.icon || 'psychology';
                     var title = getLocalized(s.title || '', currentLang);
                     var desc = getLocalized(s.description || '', currentLang);
@@ -1932,7 +2440,7 @@
             }
             var isPreview = window.location.search.indexOf('preview=1') !== -1;
             var contentEndpoint = isPreview ? '/api/admin/content' : '/api/public/content';
-            fetch(contentEndpoint).then(function(r) { return r.json(); }).then(function(c) {
+            fetch(contentEndpoint).then(function (r) { return r.json(); }).then(function (c) {
                 websiteContent = c;
                 applySections(c);
                 applyExperts(c);
@@ -1940,16 +2448,16 @@
                 applyTestimonials(c);
                 setupCoverageModal();
                 setLanguage(currentLang);
-                document.querySelectorAll('.lang-toggle').forEach(function(btn) {
-                    btn.addEventListener('click', function() { switchLanguage(btn.getAttribute('data-lang')); });
+                document.querySelectorAll('.lang-toggle').forEach(function (btn) {
+                    btn.addEventListener('click', function () { switchLanguage(btn.getAttribute('data-lang')); });
                 });
                 if (window.observeAnimatedElements) window.observeAnimatedElements();
-            }).catch(function() {
+            }).catch(function () {
                 initDynamicSectionFocus();
                 setupCoverageModal();
                 setLanguage(currentLang);
-                document.querySelectorAll('.lang-toggle').forEach(function(btn) {
-                    btn.addEventListener('click', function() { switchLanguage(btn.getAttribute('data-lang')); });
+                document.querySelectorAll('.lang-toggle').forEach(function (btn) {
+                    btn.addEventListener('click', function () { switchLanguage(btn.getAttribute('data-lang')); });
                 });
                 if (window.observeAnimatedElements) window.observeAnimatedElements();
             });
@@ -1958,10 +2466,10 @@
 
     <!-- Attention-Guided Navigation System -->
     <script src="/js/attention-guided-nav.js"></script>
-    
+
     <!-- Language Manager -->
     <script src="/js/language-manager.js"></script>
-    
+
     <!-- Accessibility Manager -->
     <script src="/js/accessibility-manager.js"></script>
     <!-- Scroll Depth Effects -->
@@ -1969,10 +2477,10 @@
 
     <!-- Initialize Systems -->
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             // Initialize Attention-Guided Navigation
             window.attentionNav = new AttentionGuidedNavigation({
-                focusZoneMargin: '20% 0px 20% 0px',
+                focusZoneMargin: '30% 0px 20% 0px',
                 observerThreshold: 0.5,
                 debugMode: false,
                 enableLanguageTransition: true,
@@ -2004,4 +2512,5 @@
         });
     </script>
 </body>
+
 </html>

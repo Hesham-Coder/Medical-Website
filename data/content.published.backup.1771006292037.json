@@ -47,10 +47,6 @@
     "emergencyPhone": {
       "en": "03-5865843",
       "ar": "03-5865843"
-    },
-    "formRoute": {
-      "type": "none",
-      "value": ""
     }
   },
   "stats": {
@@ -63,10 +59,6 @@
     "heading": {
       "en": "Comprehensive Cancer Care Services",
       "ar": "حزمة متكاملة من خدمات علاج الأورام"
-    },
-    "highlightsHeading": {
-      "en": "Why Choose Us",
-      "ar": "لماذا تختارنا"
     },
     "subheading": {
       "en": "From diagnosis and treatment planning to survivorship and supportive care, our team coordinates every step of your journey.",
@@ -164,10 +156,6 @@
       "en": "Hello From About Section",
       "ar": "ريادة في علاج الأورام بالعلم والإنسانية"
     },
-    "highlightsHeading": {
-      "en": "Why Choose Us",
-      "ar": "لماذا تختارنا"
-    },
     "paragraphs": [
       {
         "en": "At Comprehensive Cancer Center, we recognize that every person and every cancer diagnosis is unique. Our goal is to provide clear information, coordinated care, and a calm, supportive environment for you and your family.",
@@ -199,8 +187,7 @@
     "footerBlurb": {
       "en": "Providing coordinated, guideline-based cancer care with an emphasis on clear communication, safety, and support for patients and families.",
       "ar": "نقدم رعاية منسقة قائمة على الإرشادات العلمية مع التركيز على وضوح المعلومات وسلامة المريض ودعم الأسرة."
-    },
-    "videoUrl": "/uploads/vid-1771018300492-rmrmlo.mp4"
+    }
   },
   "footer": {
     "copyright": {
@@ -220,14 +207,6 @@
     "blurb": {
       "en": "We work with a broad range of payers and will help you understand available coverage and payment options before treatment begins.",
       "ar": "نتعاون مع عدد كبير من الجهات الممولة للرعاية الصحية ونساعدك على فهم خيارات التغطية والتكاليف قبل بدء العلاج."
-    },
-    "coverageLinkLabel": {
-      "en": "Check Your Coverage",
-      "ar": "تحقق من التغطية"
-    },
-    "coverageList": {
-      "en": "",
-      "ar": ""
     }
   },
   "sectionsOrder": [
@@ -253,10 +232,6 @@
       "en": "Start a confidential conversation with our team",
       "ar": "ابدأ تواصلًا سريًا مع فريق الرعاية لدينا"
     },
-    "highlightsHeading": {
-      "en": "Why Choose Us",
-      "ar": "????? ???????"
-    },
     "subheading": {
       "en": "Share a few details and our patient coordination team will call you back to discuss appointment options. This form is not for emergencies.",
       "ar": "أخبرنا ببعض التفاصيل وسيتواصل معك فريق تنسيق المرضى لمناقشة مواعيد الزيارة. هذا النموذج غير مخصص للحالات الطارئة."
@@ -264,20 +239,12 @@
     "privacyNotice": {
       "en": "Information sent through this form is reviewed by our clinical coordination team and kept confidential in line with applicable privacy standards. Please do not include full medical records or highly sensitive identifiers.",
       "ar": "تتم مراجعة المعلومات الواردة في هذا النموذج من قبل فريق تنسيق الرعاية مع الحفاظ على سريتها وفق المعايير المعتمدة لحماية الخصوصية. برجاء عدم إرسال تقارير طبية كاملة أو بيانات تعريفية عالية الحساسية."
-    },
-    "formRoute": {
-      "type": "email",
-      "value": "hesham1essam@gmail.com"
     }
   },
   "ctaSection": {
     "heading": {
       "en": "You do not have to navigate cancer alone.",
       "ar": "لست مضطرًا لمواجهة رحلة علاج السرطان بمفردك."
-    },
-    "highlightsHeading": {
-      "en": "Why Choose Us",
-      "ar": "????? ???????"
     },
     "subheading": {
       "en": "A dedicated coordinator will help you understand the next appropriate steps and connect you with the right specialist.",
@@ -401,10 +368,6 @@
       "en": "Specialists focused on your type of cancer",
       "ar": "فريق متخصص في أنواع السرطان المختلفة"
     },
-    "highlightsHeading": {
-      "en": "Why Choose Us",
-      "ar": "????? ???????"
-    },
     "subheading": {
       "en": "Our consultants hold recognized board certifications and many years of experience in their subspecialties.",
       "ar": "يتمتع استشاريو المركز بشهادات تخصص معترف بها وخبرة طويلة في مجالاتهم الدقيقة."
@@ -475,10 +438,6 @@
     "heading": {
       "en": "Patient Stories",
       "ar": "تجارب المرضى"
-    },
-    "highlightsHeading": {
-      "en": "Why Choose Us",
-      "ar": "????? ???????"
     },
     "subheading": {
       "en": "Real feedback from patients and families we have supported.",

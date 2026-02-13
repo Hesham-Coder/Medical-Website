@@ -47,10 +47,6 @@
     "emergencyPhone": {
       "en": "03-5865843",
       "ar": "03-5865843"
-    },
-    "formRoute": {
-      "type": "none",
-      "value": ""
     }
   },
   "stats": {
@@ -166,7 +162,7 @@
     },
     "highlightsHeading": {
       "en": "Why Choose Us",
-      "ar": "لماذا تختارنا"
+      "ar": "\u0644\u0645\u0627\u0630\u0627 \u062A\u062E\u062A\u0627\u0631\u0646\u0627"
     },
     "paragraphs": [
       {
@@ -200,7 +196,7 @@
       "en": "Providing coordinated, guideline-based cancer care with an emphasis on clear communication, safety, and support for patients and families.",
       "ar": "نقدم رعاية منسقة قائمة على الإرشادات العلمية مع التركيز على وضوح المعلومات وسلامة المريض ودعم الأسرة."
     },
-    "videoUrl": "/uploads/vid-1771018300492-rmrmlo.mp4"
+    "videoUrl": "https://www.facebook.com/reel/8113161795385494"
   },
   "footer": {
     "copyright": {
@@ -220,14 +216,6 @@
     "blurb": {
       "en": "We work with a broad range of payers and will help you understand available coverage and payment options before treatment begins.",
       "ar": "نتعاون مع عدد كبير من الجهات الممولة للرعاية الصحية ونساعدك على فهم خيارات التغطية والتكاليف قبل بدء العلاج."
-    },
-    "coverageLinkLabel": {
-      "en": "Check Your Coverage",
-      "ar": "تحقق من التغطية"
-    },
-    "coverageList": {
-      "en": "",
-      "ar": ""
     }
   },
   "sectionsOrder": [
@@ -264,10 +252,6 @@
     "privacyNotice": {
       "en": "Information sent through this form is reviewed by our clinical coordination team and kept confidential in line with applicable privacy standards. Please do not include full medical records or highly sensitive identifiers.",
       "ar": "تتم مراجعة المعلومات الواردة في هذا النموذج من قبل فريق تنسيق الرعاية مع الحفاظ على سريتها وفق المعايير المعتمدة لحماية الخصوصية. برجاء عدم إرسال تقارير طبية كاملة أو بيانات تعريفية عالية الحساسية."
-    },
-    "formRoute": {
-      "type": "email",
-      "value": "hesham1essam@gmail.com"
     }
   },
   "ctaSection": {

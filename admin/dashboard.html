@@ -400,6 +400,38 @@
                 </div>
             </div>
         </div>
+
+        <div class="card">
+            <h2>Form Routing</h2>
+            <p style="font-size: 13px; color: #666; margin-bottom: 12px;">Choose where contact form submissions should be routed after a successful submit.</p>
+            <div class="form-group">
+                <label>Destination type</label>
+                <select id="formRouteType">
+                    <option value="none">None (stay on page)</option>
+                    <option value="email">Email (mailto)</option>
+                    <option value="whatsapp">WhatsApp</option>
+                    <option value="url">CRM / URL</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Destination value</label>
+                <input type="text" id="formRouteValue" placeholder="email@example.com | +20123456789 | https://crm.example.com/lead">
+            </div>
+            <p id="formRouteHint" style="font-size: 12px; color: #666;">For WhatsApp, use a phone number with country code. For URL, use https://.</p>
+        </div>
+
+        <div class="card">
+            <h2>Videos</h2>
+            <p style="font-size: 13px; color: #666; margin-bottom: 16px;">Upload MP4/WebM/OGG. Video preview updates before saving.</p>
+            <div class="form-group">
+                <label>About section video</label>
+                <div class="drop-zone" id="dropAboutVideo" data-content-key="aboutSection.videoUrl">
+                    <div class="drop-label">Drag & drop or click to upload</div>
+                    <video class="drop-preview" id="previewAboutVideo" src="" controls style="display: none; width: 100%; border-radius: 8px;"></video>
+                    <input type="file" id="fileAboutVideo" accept="video/*">
+                </div>
+            </div>
+        </div>
     </div>
 
     <div id="toast" class="toast" style="display: none;"></div>
@@ -1150,13 +1182,15 @@
                     ]},
                     { id: 'about', label: 'About', fields: [
                         { key: 'aboutSection.heading', label: 'Heading', bilingual: true },
+                        { key: 'aboutSection.highlightsHeading', label: 'Why choose us heading', bilingual: true },
                         { key: 'aboutSection.paragraphs.0', label: 'Paragraph 1', bilingual: true },
                         { key: 'aboutSection.paragraphs.1', label: 'Paragraph 2', bilingual: true },
                         { key: 'aboutSection.highlights.0', label: 'Highlight 1', bilingual: true },
                         { key: 'aboutSection.highlights.1', label: 'Highlight 2', bilingual: true },
                         { key: 'aboutSection.highlights.2', label: 'Highlight 3', bilingual: true },
                         { key: 'aboutSection.highlights.3', label: 'Highlight 4', bilingual: true },
-                        { key: 'aboutSection.footerBlurb', label: 'Short footer blurb', bilingual: true }
+                        { key: 'aboutSection.footerBlurb', label: 'Short footer blurb', bilingual: true },
+                        { key: 'aboutSection.videoUrl', label: 'About video URL (Facebook reel or embed)', bilingual: false }
                     ]},
                     { id: 'contactSection', label: 'Contact section', fields: [
                         { key: 'contactSection.heading', label: 'Heading', bilingual: true },
@@ -1367,6 +1401,87 @@
                 if (obj && typeof obj === 'string') setPreview(obj);
             }
 
+            function setupVideoUpload(dropId, fileId, previewId, contentKey) {
+                var drop = document.getElementById(dropId);
+                var fileInput = document.getElementById(fileId);
+                var preview = document.getElementById(previewId);
+                if (!drop || !fileInput || !preview) return;
+                function setPreview(url) {
+                    if (url) {
+                        preview.src = url;
+                        preview.style.display = 'block';
+                    } else {
+                        preview.removeAttribute('src');
+                        preview.style.display = 'none';
+                    }
+                }
+                function uploadFile(file) {
+                    if (!file || !file.type.match(/^video\//)) { showToast('Please choose a video file', 'error'); return; }
+                    var fd = new FormData();
+                    fd.append('file', file);
+                    setSaveStatus('Uploading...', 'saving');
+                    fetch('/api/admin/upload-video', {
+                        method: 'POST',
+                        headers: csrfToken ? { 'X-CSRF-Token': csrfToken } : {},
+                        body: fd
+                    })
+                        .then(function(r) { return r.json(); })
+                        .then(function(data) {
+                            if (data.success && data.url) {
+                                var keys = contentKey.split('.');
+                                var obj = content;
+                                for (var i = 0; i < keys.length - 1; i++) {
+                                    if (!obj[keys[i]]) obj[keys[i]] = {};
+                                    obj = obj[keys[i]];
+                                }
+                                obj[keys[keys.length - 1]] = data.url;
+                                setPreview(data.url);
+                                scheduleSave();
+                                showToast('Video saved', 'success');
+                            } else showToast(data.error || 'Upload failed', 'error');
+                            setSaveStatus('Ready', '');
+                        })
+                        .catch(function() { showToast('Upload failed', 'error'); setSaveStatus('Ready', ''); });
+                }
+                drop.addEventListener('click', function(e) { if (e.target !== fileInput) fileInput.click(); });
+                fileInput.addEventListener('change', function() {
+                    if (fileInput.files && fileInput.files[0]) uploadFile(fileInput.files[0]);
+                    fileInput.value = '';
+                });
+                drop.addEventListener('dragover', function(e) { e.preventDefault(); drop.classList.add('dragover'); });
+                drop.addEventListener('dragleave', function() { drop.classList.remove('dragover'); });
+                drop.addEventListener('drop', function(e) {
+                    e.preventDefault();
+                    drop.classList.remove('dragover');
+                    if (e.dataTransfer.files && e.dataTransfer.files[0]) uploadFile(e.dataTransfer.files[0]);
+                });
+                var keys = contentKey.split('.');
+                var obj = content;
+                for (var i = 0; i < keys.length && obj != null; i++) obj = obj[keys[i]];
+                if (obj && typeof obj === 'string') setPreview(obj);
+            }
+            function setupFormRouteUI() {
+                var typeEl = document.getElementById('formRouteType');
+                var valueEl = document.getElementById('formRouteValue');
+                if (!typeEl || !valueEl) return;
+                if (!content) return;
+                if (!content.contactSection) content.contactSection = {};
+                if (!content.contactSection.formRoute) content.contactSection.formRoute = { type: 'none', value: '' };
+
+                typeEl.value = content.contactSection.formRoute.type || 'none';
+                valueEl.value = content.contactSection.formRoute.value || '';
+
+                function updateRoute() {
+                    content.contactSection.formRoute = {
+                        type: typeEl.value || 'none',
+                        value: valueEl.value.trim()
+                    };
+                    scheduleSave();
+                }
+                typeEl.addEventListener('change', updateRoute);
+                valueEl.addEventListener('input', updateRoute);
+            }
+
             checkAuth().then(function(ok) {
                 if (!ok) return;
                 return Promise.all([loadContent(), loadCsrfToken()]);
@@ -1383,6 +1498,8 @@
                 renderEditors();
                 setupImageUpload('dropLogo', 'fileLogo', 'previewLogo', 'siteInfo.logoUrl');
                 setupImageUpload('dropHero', 'fileHero', 'previewHero', 'siteInfo.heroImageUrl');
+                setupVideoUpload('dropAboutVideo', 'fileAboutVideo', 'previewAboutVideo', 'aboutSection.videoUrl');
+                setupFormRouteUI();
             }).catch(function(err) {
                 document.getElementById('sectionList').innerHTML = '<li class="loading">Failed to load. <a href="/login.html">Log in again</a>.</li>';
                 console.error(err);

@@ -264,10 +264,6 @@
     "privacyNotice": {
       "en": "Information sent through this form is reviewed by our clinical coordination team and kept confidential in line with applicable privacy standards. Please do not include full medical records or highly sensitive identifiers.",
       "ar": "تتم مراجعة المعلومات الواردة في هذا النموذج من قبل فريق تنسيق الرعاية مع الحفاظ على سريتها وفق المعايير المعتمدة لحماية الخصوصية. برجاء عدم إرسال تقارير طبية كاملة أو بيانات تعريفية عالية الحساسية."
-    },
-    "formRoute": {
-      "type": "email",
-      "value": "hesham1essam@gmail.com"
     }
   },
   "ctaSection": {
