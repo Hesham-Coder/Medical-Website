@@ -7,6 +7,14 @@
   const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   if (prefersReducedMotion) return;
 
+  if (!('IntersectionObserver' in window)) {
+    document.querySelectorAll('.scroll-depth-item').forEach((el) => {
+      el.classList.add('is-in-view');
+      el.style.transform = 'none';
+    });
+    return;
+  }
+
   const targets = Array.from(document.querySelectorAll('.scroll-depth-item'));
   if (!targets.length) return;
 

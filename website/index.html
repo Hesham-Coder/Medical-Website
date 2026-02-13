@@ -111,6 +111,15 @@
             }
         }
 
+        @keyframes fadeOut {
+            from {
+                opacity: 1;
+            }
+            to {
+                opacity: 0;
+            }
+        }
+
         @keyframes scaleIn {
             from {
                 opacity: 0;
@@ -325,6 +334,16 @@
         .delay-500 { animation-delay: 0.5s; }
         .delay-600 { animation-delay: 0.6s; }
 
+        .reveal-on-scroll {
+            opacity: 0;
+            animation-play-state: paused;
+        }
+
+        .reveal-on-scroll.visible {
+            opacity: 1 !important;
+            animation-play-state: running;
+        }
+
         /* i18n: RTL uses Tajawal; LTR uses Manrope */
         html.lang-ar, html.lang-ar body { font-family: 'Tajawal', sans-serif; }
         html.lang-en, html.lang-en body { font-family: 'Manrope', sans-serif; }
@@ -376,6 +395,25 @@
             .scroll-depth-item {
                 opacity: 1 !important;
                 transform: none !important;
+                transition: none !important;
+            }
+
+            .animate-float,
+            .animate-breathe,
+            .animate-slide-in-left,
+            .animate-slide-in-right,
+            .animate-slide-in-up,
+            .animate-fade-in,
+            .animate-scale-in,
+            .animate-rotate,
+            .animate-pulse-3d,
+            .animate-spin-3d,
+            .animate-flip,
+            .animate-wobble,
+            .animate-bounce-3d,
+            .animate-gradient,
+            .particle {
+                animation: none !important;
                 transition: none !important;
             }
         }
@@ -1221,44 +1259,39 @@
     ======================================== -->
     <script>
         // ===== Scroll Reveal Animation =====
-        const observerOptions = {
-            threshold: 0.1,
-            rootMargin: '0px 0px -50px 0px'
-        };
-
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
+        const observer = ('IntersectionObserver' in window)
+            ? new IntersectionObserver((entries, io) => {
+                entries.forEach(entry => {
+                    if (!entry.isIntersecting) return;
                     entry.target.classList.add('visible');
-                    // Optional: stop observing after animation
-                    // observer.unobserve(entry.target);
-                }
-            });
-        }, observerOptions);
+                    io.unobserve(entry.target);
+                });
+            }, {
+                threshold: 0.1,
+                rootMargin: '0px 0px -50px 0px'
+            })
+            : null;
 
         // Observe all elements with animation classes
         function observeAnimatedElements() {
             var animatedElements = document.querySelectorAll('.animate-slide-in-left, .animate-slide-in-right, .animate-slide-in-up, .animate-fade-in, .animate-scale-in');
+
+            if (!observer) {
+                animatedElements.forEach(function(el) {
+                    el.classList.remove('reveal-on-scroll');
+                    el.classList.add('visible');
+                });
+                return;
+            }
+
             animatedElements.forEach(function(el) {
-                el.style.opacity = '0';
-                try { observer.observe(el); } catch (e) { /* ignore */ }
+                if (el.classList.contains('visible')) return;
+                el.classList.add('reveal-on-scroll');
+                observer.observe(el);
             });
         }
         window.observeAnimatedElements = observeAnimatedElements;
         document.addEventListener('DOMContentLoaded', observeAnimatedElements);
-
-        // Add visible class styles dynamically
-        const style = document.createElement('style');
-        style.textContent = `
-            .animate-slide-in-left.visible,
-            .animate-slide-in-right.visible,
-            .animate-slide-in-up.visible,
-            .animate-fade-in.visible,
-            .animate-scale-in.visible {
-                opacity: 1 !important;
-            }
-        `;
-        document.head.appendChild(style);
 
 
         // ===== Dynamic Section Focus (active section emphasis) =====
