@@ -193,6 +193,14 @@
                 transform: translateY(-30px) scale(0.95);
             }
         }
+        @keyframes dnaPulse {
+            0%, 100% { transform: scale(1) rotate(0deg); opacity: 0.9; }
+            50% { transform: scale(1.08) rotate(6deg); opacity: 1; }
+        }
+        @keyframes sectionPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.015); }
+        }
 
         .animate-float {
             animation: float 6s ease-in-out infinite;
@@ -293,25 +301,42 @@
         /* Floating particles */
         @keyframes floatParticle {
             0%, 100% {
-                transform: translate(0, 0) rotate(0deg);
-                opacity: 0.3;
+                transform: translate(0, 0);
+                opacity: 0.25;
             }
             25% {
-                transform: translate(100px, -100px) rotate(90deg);
-                opacity: 0.6;
+                transform: translate(40px, -60px);
+                opacity: 0.45;
             }
             50% {
-                transform: translate(-50px, -200px) rotate(180deg);
-                opacity: 0.9;
+                transform: translate(-30px, -120px);
+                opacity: 0.6;
             }
             75% {
-                transform: translate(-150px, -100px) rotate(270deg);
-                opacity: 0.6;
+                transform: translate(-60px, -40px);
+                opacity: 0.4;
             }
         }
 
         .particle {
-            animation: floatParticle 20s infinite ease-in-out;
+            animation: floatParticle 18s infinite ease-in-out;
+            will-change: transform, opacity;
+        }
+        .particle:nth-child(2n) { animation-duration: 20s; }
+        .particle:nth-child(3n) { animation-duration: 22s; }
+        .global-particles {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 5;
+            overflow: hidden;
+        }
+        .global-particles .particle {
+            position: absolute;
+            opacity: 0.3;
+            filter: blur(0.4px);
+            border-radius: 999px;
+            mix-blend-mode: screen;
         }
 
         /* Gradient animation */
@@ -370,6 +395,7 @@
             transform: scale(1);
             position: relative;
             z-index: 2;
+            animation: sectionPulse 2.2s ease-in-out infinite;
         }
         @media (max-width: 768px) {
             main.dynamic-section-focus.has-focus-state [data-section-id] {
@@ -439,6 +465,8 @@
             border-radius: 999px;
             background: rgba(0, 74, 141, 0.25);
             box-shadow: inset 0 0 0 2px rgba(0, 74, 141, 0.15);
+            order: 2;
+            display: none;
         }
         .timeline-label {
             max-width: 0;
@@ -446,6 +474,7 @@
             overflow: hidden;
             transition: all 0.25s ease;
             margin-left: 8px;
+            order: 1;
         }
         .timeline-item.is-active {
             background: linear-gradient(90deg, rgba(0, 150, 214, 0.16), rgba(0, 150, 214, 0.04));
@@ -458,7 +487,7 @@
         .timeline-item.is-active::after {
             content: "";
             position: absolute;
-            right: 6px;
+            left: 6px;
             width: 10px;
             height: 10px;
             border-radius: 999px;
@@ -530,6 +559,13 @@
                 transition: none !important;
             }
         }
+        .force-particles .particle {
+            animation: floatParticle 18s infinite ease-in-out !important;
+        }
+        /* Force specific hero background animation */
+        #home .force-animate {
+            animation: dnaPulse 3.2s ease-in-out infinite !important;
+        }
     </style>
 
     <!-- Tailwind Configuration -->
@@ -560,6 +596,32 @@
 
 <body class="font-display bg-slate-50 text-slate-900 overflow-x-hidden">
     <nav id="timelineNav" class="timeline-nav" aria-label="Section timeline navigation"></nav>
+    <div class="global-particles force-particles" aria-hidden="true">
+        <span class="particle" style="top: 6%; left: 6%; width: 6px; height: 6px; background:#22D3EE;"></span>
+        <span class="particle" style="top: 10%; left: 18%; width: 4px; height: 4px; background:#F97316; animation-delay: 2s;"></span>
+        <span class="particle" style="top: 12%; left: 78%; width: 5px; height: 5px; background:#60A5FA; animation-delay: 4s;"></span>
+        <span class="particle" style="top: 16%; left: 36%; width: 7px; height: 7px; background:#FCA5A5; animation-delay: 6s;"></span>
+        <span class="particle" style="top: 20%; left: 88%; width: 4px; height: 4px; background:#7DD3FC; animation-delay: 1s;"></span>
+        <span class="particle" style="top: 24%; left: 52%; width: 6px; height: 6px; background:#FDBA74; animation-delay: 3s;"></span>
+        <span class="particle" style="top: 28%; left: 8%; width: 5px; height: 5px; background:#22D3EE; animation-delay: 5s;"></span>
+        <span class="particle" style="top: 32%; left: 64%; width: 7px; height: 7px; background:#F97316; animation-delay: 7s;"></span>
+        <span class="particle" style="top: 36%; left: 26%; width: 4px; height: 4px; background:#60A5FA; animation-delay: 2.5s;"></span>
+        <span class="particle" style="top: 40%; left: 90%; width: 6px; height: 6px; background:#FCA5A5; animation-delay: 4.5s;"></span>
+        <span class="particle" style="top: 44%; left: 12%; width: 5px; height: 5px; background:#7DD3FC; animation-delay: 6.5s;"></span>
+        <span class="particle" style="top: 48%; left: 42%; width: 4px; height: 4px; background:#FDBA74; animation-delay: 8s;"></span>
+        <span class="particle" style="top: 52%; left: 72%; width: 6px; height: 6px; background:#22D3EE; animation-delay: 1.5s;"></span>
+        <span class="particle" style="top: 56%; left: 30%; width: 5px; height: 5px; background:#F97316; animation-delay: 3.5s;"></span>
+        <span class="particle" style="top: 60%; left: 82%; width: 7px; height: 7px; background:#60A5FA; animation-delay: 5.5s;"></span>
+        <span class="particle" style="top: 64%; left: 6%; width: 4px; height: 4px; background:#FCA5A5; animation-delay: 7.5s;"></span>
+        <span class="particle" style="top: 68%; left: 56%; width: 6px; height: 6px; background:#7DD3FC; animation-delay: 2.2s;"></span>
+        <span class="particle" style="top: 72%; left: 18%; width: 5px; height: 5px; background:#FDBA74; animation-delay: 4.2s;"></span>
+        <span class="particle" style="top: 76%; left: 92%; width: 7px; height: 7px; background:#22D3EE; animation-delay: 6.2s;"></span>
+        <span class="particle" style="top: 80%; left: 38%; width: 4px; height: 4px; background:#F97316; animation-delay: 8.2s;"></span>
+        <span class="particle" style="top: 84%; left: 70%; width: 6px; height: 6px; background:#60A5FA; animation-delay: 1.2s;"></span>
+        <span class="particle" style="top: 88%; left: 10%; width: 5px; height: 5px; background:#FCA5A5; animation-delay: 3.2s;"></span>
+        <span class="particle" style="top: 92%; left: 46%; width: 4px; height: 4px; background:#7DD3FC; animation-delay: 5.2s;"></span>
+        <span class="particle" style="top: 95%; left: 86%; width: 6px; height: 6px; background:#FDBA74; animation-delay: 7.2s;"></span>
+    </div>
 
     <!-- ========================================
          HEADER / NAVIGATION
@@ -699,18 +761,47 @@
                     style="animation-delay: 8s;"></div>
             </div>
 
-            <!-- 3D DNA Helix SVG -->
-            <div class="absolute top-10 right-10 opacity-10 animate-spin-3d hidden lg:block">
-                <svg width="200" height="300" viewBox="0 0 200 300" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M100 20 Q60 50 100 80 Q140 110 100 140 Q60 170 100 200 Q140 230 100 260" stroke="#0096D6"
-                        stroke-width="8" fill="none" />
-                    <path d="M100 20 Q140 50 100 80 Q60 110 100 140 Q140 170 100 200 Q60 230 100 260" stroke="#004A8D"
-                        stroke-width="8" fill="none" />
-                    <circle cx="100" cy="20" r="8" fill="#B61927" />
-                    <circle cx="100" cy="80" r="8" fill="#0096D6" />
-                    <circle cx="100" cy="140" r="8" fill="#B61927" />
-                    <circle cx="100" cy="200" r="8" fill="#0096D6" />
-                    <circle cx="100" cy="260" r="8" fill="#B61927" />
+            <!-- DNA Helix (Biological Style) -->
+            <div class="absolute top-4 right-6 opacity-20 force-animate hidden lg:block" style="will-change: transform;">
+                <svg width="260" height="360" viewBox="0 0 260 360" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <linearGradient id="dnaA" x1="0" y1="0" x2="1" y2="1">
+                            <stop offset="0%" stop-color="#22D3EE" />
+                            <stop offset="100%" stop-color="#0EA5E9" />
+                        </linearGradient>
+                        <linearGradient id="dnaB" x1="1" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stop-color="#F97316" />
+                            <stop offset="100%" stop-color="#EF4444" />
+                        </linearGradient>
+                    </defs>
+                    <path d="M130 8 C78 44 78 94 130 130 C182 166 182 216 130 252 C78 288 78 338 130 352"
+                        stroke="url(#dnaA)" stroke-width="7" stroke-linecap="round" fill="none" />
+                    <path d="M130 8 C182 44 182 94 130 130 C78 166 78 216 130 252 C182 288 182 338 130 352"
+                        stroke="url(#dnaB)" stroke-width="7" stroke-linecap="round" fill="none" />
+                    <path d="M96 48 H164" stroke="rgba(255,255,255,0.55)" stroke-width="3" />
+                    <path d="M90 96 H170" stroke="rgba(255,255,255,0.45)" stroke-width="3" />
+                    <path d="M96 144 H164" stroke="rgba(255,255,255,0.55)" stroke-width="3" />
+                    <path d="M90 192 H170" stroke="rgba(255,255,255,0.45)" stroke-width="3" />
+                    <path d="M96 240 H164" stroke="rgba(255,255,255,0.55)" stroke-width="3" />
+                    <path d="M90 288 H170" stroke="rgba(255,255,255,0.45)" stroke-width="3" />
+                    <g opacity="0.95">
+                        <circle cx="130" cy="8" r="6" fill="#38BDF8" />
+                        <circle cx="130" cy="130" r="6" fill="#F59E0B" />
+                        <circle cx="130" cy="252" r="6" fill="#38BDF8" />
+                        <circle cx="130" cy="352" r="6" fill="#F59E0B" />
+                    </g>
+                    <g opacity="0.6">
+                        <circle cx="78" cy="44" r="4" fill="#60A5FA" />
+                        <circle cx="182" cy="44" r="4" fill="#FCA5A5" />
+                        <circle cx="82" cy="96" r="4" fill="#7DD3FC" />
+                        <circle cx="178" cy="96" r="4" fill="#FDBA74" />
+                        <circle cx="78" cy="166" r="4" fill="#60A5FA" />
+                        <circle cx="182" cy="166" r="4" fill="#FCA5A5" />
+                        <circle cx="82" cy="216" r="4" fill="#7DD3FC" />
+                        <circle cx="178" cy="216" r="4" fill="#FDBA74" />
+                        <circle cx="78" cy="288" r="4" fill="#60A5FA" />
+                        <circle cx="182" cy="288" r="4" fill="#FCA5A5" />
+                    </g>
                 </svg>
             </div>
 
@@ -1514,12 +1605,18 @@
 
             animatedElements.forEach(function (el) {
                 if (el.classList.contains('visible')) return;
+                if (el.closest && el.closest('#home')) {
+                    el.classList.remove('reveal-on-scroll');
+                    el.classList.add('visible');
+                    return;
+                }
                 el.classList.add('reveal-on-scroll');
                 observer.observe(el);
             });
         }
         window.observeAnimatedElements = observeAnimatedElements;
         document.addEventListener('DOMContentLoaded', observeAnimatedElements);
+        window.addEventListener('load', observeAnimatedElements);
 
 
         // ===== Dynamic Section Focus (active section emphasis) =====
@@ -1668,38 +1765,8 @@
                 ].join('\\n');
             }
 
-            function routeAfterSubmit(data) {
-                var type = (form.dataset.routeType || 'none').toLowerCase();
-                var value = (form.dataset.routeValue || '').trim();
-                if (!type || type === 'none' || !value) return;
-                var msg = buildContactMessage(data);
-                if (type === 'email') {
-                    var mailto = 'mailto:' + encodeURIComponent(value) +
-                        '?subject=' + encodeURIComponent('New contact request') +
-                        '&body=' + encodeURIComponent(msg);
-                    window.location.href = mailto;
-                    return;
-                }
-                if (type === 'whatsapp') {
-                    var phone = value.replace(/\\D+/g, '');
-                    if (!phone) return;
-                    var wa = 'https://wa.me/' + phone + '?text=' + encodeURIComponent(msg);
-                    window.location.href = wa;
-                    return;
-                }
-                if (type === 'url') {
-                    if (!/^https?:\/\//i.test(value)) return;//i.test(value)) return;
-                    var params = new URLSearchParams({
-                        firstName: data.firstName || '',
-                        lastName: data.lastName || '',
-                        email: data.email || '',
-                        phone: data.phone || '',
-                        concern: data.concern || '',
-                        message: data.message || ''
-                    });
-                    var joiner = value.indexOf('?') === -1 ? '?' : '&';
-                    window.location.assign(value + joiner + params.toString());
-                }
+            function routeAfterSubmit() {
+                // Routing is handled server-side to avoid opening mail clients.
             }
 
             form.addEventListener('submit', function (e) {
@@ -2416,6 +2483,8 @@
                     var icon = s.icon || 'psychology';
                     var title = getLocalized(s.title || '', currentLang);
                     var desc = getLocalized(s.description || '', currentLang);
+                    var hoverDesc = getLocalized((s.hoverDescription || ''), currentLang) || desc;
+                    var imageUrl = s.imageUrl || '';
                     var delay = EXPERT_DELAYS[i % EXPERT_DELAYS.length];
                     var colorClasses = [
                         'bg-blue-50 text-brand-blue-light',
@@ -2426,15 +2495,21 @@
                         'bg-cyan-50 text-cyan-600'
                     ];
                     var color = colorClasses[i % colorClasses.length];
-                    return '<div class="bg-white border border-slate-100 rounded-2xl sm:rounded-3xl p-6 sm:p-8 shadow-sm hover:shadow-xl transition-all duration-300 card-glow tilt-card animate-scale-in ' + delay + ' perspective-container">' +
+                    var imageBlock = imageUrl
+                        ? '<img src="' + escapeHtml(imageUrl) + '" alt="' + escapeHtml(title || 'Service image') + '" class="absolute inset-0 w-full h-full object-cover">' 
+                        : '<div class="absolute inset-0 bg-gradient-to-br from-brand-blue-light/30 to-brand-blue-dark/40"></div>';
+                    return '<div class="group relative overflow-hidden bg-white border border-slate-100 rounded-2xl sm:rounded-3xl p-6 sm:p-8 shadow-sm hover:shadow-xl transition-all duration-300 card-glow tilt-card animate-scale-in ' + delay + ' perspective-container">' +
                         '<div class="w-12 h-12 sm:w-16 sm:h-16 ' + color.split(' ')[0] + ' rounded-xl sm:rounded-2xl flex items-center justify-center mb-4 sm:mb-6 animate-pulse-3d">' +
                         '<span class="material-symbols-outlined text-3xl sm:text-4xl ' + color.split(' ')[1] + '">' + escapeHtml(icon) + '</span>' +
                         '</div>' +
                         '<h3 class="text-xl sm:text-2xl font-bold text-slate-900 mb-3 sm:mb-4">' + escapeHtml(title || '') + '</h3>' +
                         '<p class="text-sm sm:text-base text-slate-600 leading-relaxed mb-4 sm:mb-6">' + escapeHtml(desc || '') + '</p>' +
-                        '<a href="#contact" class="inline-flex items-center gap-2 text-sm sm:text-base text-brand-blue-dark font-bold hover:gap-4 transition-all">' +
-                        'Learn more about this service <span class="material-symbols-outlined text-sm">arrow_forward</span>' +
-                        '</a>' +
+                        '<div class="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300">' +
+                        imageBlock +
+                        '<div class="absolute inset-0 bg-slate-900/55"></div>' +
+                        '<div class="absolute inset-0 p-6 sm:p-8 flex items-end">' +
+                        '<p class="text-sm sm:text-base text-white font-semibold leading-relaxed">' + escapeHtml(hoverDesc || '') + '</p>' +
+                        '</div></div>' +
                         '</div>';
                 }).join('');
             }

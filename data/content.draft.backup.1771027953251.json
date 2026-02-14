@@ -87,13 +87,7 @@
       "description": {
         "en": "Collaborative review by medical, radiation, and surgical oncologists to recommend evidence-based options for your specific diagnosis.",
         "ar": "مراجعة تشاركية من أطباء الأورام الطبيين والإشعاعيين والجراحيين لوضع خيارات علاجية قائمة على الدليل لحالتك المحددة."
-      },
-      "imageUrl": "/uploads/img-1771027952625-y09lbq.png",
-      "hoverDescription": {
-        "en": "",
-        "ar": "حمو اللولو"
-      },
-      "visible": true
+      }
     },
     {
       "icon": "vaccines",

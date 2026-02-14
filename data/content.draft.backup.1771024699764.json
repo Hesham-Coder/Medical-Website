@@ -87,13 +87,7 @@
       "description": {
         "en": "Collaborative review by medical, radiation, and surgical oncologists to recommend evidence-based options for your specific diagnosis.",
         "ar": "مراجعة تشاركية من أطباء الأورام الطبيين والإشعاعيين والجراحيين لوضع خيارات علاجية قائمة على الدليل لحالتك المحددة."
-      },
-      "imageUrl": "/uploads/img-1771027952625-y09lbq.png",
-      "hoverDescription": {
-        "en": "",
-        "ar": "حمو اللولو"
-      },
-      "visible": true
+      }
     },
     {
       "icon": "vaccines",
@@ -233,7 +227,7 @@
     },
     "coverageList": {
       "en": "",
-      "ar": "Medi Consult\n ميدي كونسلت \n\nUnimed Egypt\n يوني ميد \n\nUnicare\n يوني كير \n\nPetroLog International Inc\n شركو بترولوج \n\nDiamond\n دايموند \n\nCustoms and Sales Tax Authority\n شركه مصلحه الجمارك والضرائب علي المبيعات \n\nMisr Fertilizers Production Company (mopco)\n موبكو. المصرية لإنتاج الأسمدة \n\nEthydco\n إثيدكو \n\nPetroleum Marine Services(PMS)\n شركة خدمات البترول البحرية \n\nLife Makers Alexandria\n جمعية صناع الحياة - الاسكندرية \n\nLord Company\n شركة لورد \n\nسكك حديد مصر (هيئة ميناء الاسكندرية-القابضة للنقل البحري)\n سكك حديد مصر (هيئة ميناء الاسكندرية-القابضة للنقل البحري) \n\nSeha one\n صحة وان \n\nContracting foreigners\n تعاقد اجانب \n\nAMOC\n أموك \n\ncash company\n شركة تعاقدات نقدي \n\nHayah\n كارت حياة \n\nAbu Qir Fertilizers and Chemicals Industries\n أبوقير للأسمدة والصناعات الكيماوية \n\nMisr Healthcare\n مصر هيلث كير \n\nPetrogas Company\n شركة بتروجاس \n\nEngineers Syndicate\n نقابة المهندسين \n\nAbu Qir Petroleum\n بترول ابو قير \n\nEzzsteel\n عز الدخيلة للحديد والصلب \n\nAlexandria Port Authority Employees Health Care Fund\n صندوق الرعايه الصحيه للعاملين بهيئه ميناء الإسكندرية \n\nAlexandria Tax Authority\n مصلحه ضرائب الاسكندرية \n\nHealth Insurance Of Medical Union\n اتحاد نقابات المهن الطبية \n\nMisr Insurance Company\n شركة مصر للتأمين \n\nAl Ahly Medical Company (AMC)\n الأهلي للخدمات الطبية \n\nAlexandria Petroleum Company\n شركة الإسكندرية للبترول \n\nANRPC\n أنربك \n\nAmreya Petrolem Refining Company (APRC)\n شركة العامرية للبترول \n\nEPROM Company\n شركة ايبروم \n\nEGYCARE\n إيجي كير \n\nPetrotrade Company\n شركة بتروتريد \n\nWEPCO Company\n شركة ويبكو \n\nAlexandria Water Company\n شركة مياه الشرب بالإسكندرية \n\nMedexa Company\n شركة ميديكسا \n\nTelecom Egypt Company\n شركة المصرية للاتصالات \n\nNextCare\n نكست كير \n\nInaya Egypt\n شركة عناية مصر \n\nAl Hamra Oil Company\n شركة الحمرا أويل \n\nPetrojet Company\n شركة بتروجيت "
+      "ar": ""
     }
   },
   "sectionsOrder": [
@@ -273,7 +267,7 @@
     },
     "formRoute": {
       "type": "email",
-      "value": "hesho.zero@gmail.com"
+      "value": "hesho.zero"
     }
   },
   "ctaSection": {
@@ -509,31 +503,16 @@
     },
     {
       "quote": {
-        "en": "",
-        "ar": "الأستاذ الدكتور وليد عرفات طبيب عالمي على أعلى مستوى ربنا يبارك في حضرتك ويزيدك من فضله"
+        "en": "i was amazed by the center and hospitality",
+        "ar": "صباح الخير هذا المكان رائع و مبهر"
       },
       "author": {
-        "en": "",
-        "ar": "Sahar Abdelatty's post"
+        "en": "hamo el so8ayer",
+        "ar": "حمو الصغير"
       },
       "role": {
-        "en": "",
-        "ar": ""
-      },
-      "visible": true
-    },
-    {
-      "quote": {
-        "en": "",
-        "ar": "افضل مركز طبي بصراحه وافضل دكتور في العالم بس هي المشكله الواحيد ه كلمه قليل جدا مع المرضي واي مريض محتاج اللي يتكلم معاه مده اطول بس هو احسن دكتور في العالم ربنا يباركله يارب زي ما خالني وصلت لدرجه ماكنتش متوقعه اني هاروق وارجع كدي"
-      },
-      "author": {
-        "en": "Mnona Mnona's post",
-        "ar": ""
-      },
-      "role": {
-        "en": "",
-        "ar": "متعافية"
+        "en": "ROle",
+        "ar": "رول"
       },
       "visible": true
     }

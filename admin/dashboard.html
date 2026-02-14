@@ -330,6 +330,22 @@
                     <textarea id="serviceDescriptionAr" rows="3" placeholder="وصف مختصر يظهر على البطاقة"></textarea>
                 </div>
                 <div class="form-group">
+                    <label>Hover description (English)</label>
+                    <textarea id="serviceHoverEn" rows="3" placeholder="Shown on hover overlay"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Hover description (Arabic)</label>
+                    <textarea id="serviceHoverAr" rows="3" placeholder="Ù†Øµ Ø¥Ø¶Ø§ÙÙŠ ÙŠØ¸Ù‡Ø± Ø¹Ù†Ø¯ Ø§Ù„Ù…Ø±ÙˆØ±"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Service image</label>
+                    <div class="drop-zone" id="dropServiceImage">
+                        <div class="drop-label">Drag & drop or click to upload</div>
+                        <img class="drop-preview" id="previewServiceImage" src="" alt="" style="display: none;">
+                        <input type="file" id="fileServiceImage" accept="image/*">
+                    </div>
+                </div>
+                <div class="form-group">
                     <label>Icon name</label>
                     <input type="text" id="serviceIcon" placeholder="e.g. psychology">
                 </div>
@@ -830,6 +846,7 @@
 
             // ----- Services management -----
             var editingServiceIndex = -1;
+            var serviceImageUploadBound = false;
             function ensureServicesArray() {
                 if (!Array.isArray(content.services)) content.services = [];
             }
@@ -894,15 +911,19 @@
             function openServiceForm(index) {
                 ensureServicesArray();
                 editingServiceIndex = index;
-                var s = content.services[index] || { title: { en: '', ar: '' }, description: { en: '', ar: '' }, icon: 'psychology', visible: true };
+                var s = content.services[index] || { title: { en: '', ar: '' }, description: { en: '', ar: '' }, hoverDescription: { en: '', ar: '' }, imageUrl: '', icon: 'psychology', visible: true };
                 document.getElementById('serviceFormTitle').textContent = index >= 0 ? 'Edit service' : 'Add service';
                 document.getElementById('serviceTitleEn').value = (s.title && s.title.en) || '';
                 document.getElementById('serviceTitleAr').value = (s.title && s.title.ar) || '';
                 document.getElementById('serviceDescriptionEn').value = (s.description && s.description.en) || '';
                 document.getElementById('serviceDescriptionAr').value = (s.description && s.description.ar) || '';
+                document.getElementById('serviceHoverEn').value = (s.hoverDescription && s.hoverDescription.en) || '';
+                document.getElementById('serviceHoverAr').value = (s.hoverDescription && s.hoverDescription.ar) || '';
                 document.getElementById('serviceIcon').value = s.icon || '';
                 var toggle = document.getElementById('serviceVisibleToggle');
                 toggle.classList.toggle('on', s.visible !== false);
+                setupServiceImageUpload();
+                setServiceImagePreview(s.imageUrl || '');
                 document.getElementById('serviceForm').classList.add('show');
             }
             function closeServiceForm() {
@@ -932,6 +953,8 @@
                         icon: 'psychology',
                         title: { en: '', ar: '' },
                         description: { en: '', ar: '' },
+                        hoverDescription: { en: '', ar: '' },
+                        imageUrl: '',
                         visible: true
                     });
                     editingServiceIndex = content.services.length - 1;
@@ -944,10 +967,13 @@
                     var s = content.services[editingServiceIndex];
                     if (!s.title || typeof s.title !== 'object') s.title = { en: '', ar: '' };
                     if (!s.description || typeof s.description !== 'object') s.description = { en: '', ar: '' };
+                    if (!s.hoverDescription || typeof s.hoverDescription !== 'object') s.hoverDescription = { en: '', ar: '' };
                     s.title.en = document.getElementById('serviceTitleEn').value.trim() || '';
                     s.title.ar = document.getElementById('serviceTitleAr').value.trim() || '';
                     s.description.en = document.getElementById('serviceDescriptionEn').value.trim() || '';
                     s.description.ar = document.getElementById('serviceDescriptionAr').value.trim() || '';
+                    s.hoverDescription.en = document.getElementById('serviceHoverEn').value.trim() || '';
+                    s.hoverDescription.ar = document.getElementById('serviceHoverAr').value.trim() || '';
                     s.icon = document.getElementById('serviceIcon').value.trim() || 'psychology';
                     s.visible = document.getElementById('serviceVisibleToggle').classList.contains('on');
                     scheduleSave();
@@ -959,6 +985,60 @@
                 document.getElementById('serviceVisibleToggle').onclick = function() {
                     this.classList.toggle('on');
                 };
+            }
+            function setServiceImagePreview(url) {
+                var preview = document.getElementById('previewServiceImage');
+                if (!preview) return;
+                if (url) {
+                    preview.src = url;
+                    preview.style.display = 'block';
+                } else {
+                    preview.src = '';
+                    preview.style.display = 'none';
+                }
+            }
+            function setupServiceImageUpload() {
+                if (serviceImageUploadBound) return;
+                serviceImageUploadBound = true;
+                var drop = document.getElementById('dropServiceImage');
+                var fileInput = document.getElementById('fileServiceImage');
+                if (!drop || !fileInput) return;
+                function uploadFile(file) {
+                    if (!file || !file.type.match(/^image\//)) { showToast('Please choose an image file', 'error'); return; }
+                    var fd = new FormData();
+                    fd.append('file', file);
+                    setSaveStatus('Uploading...', 'saving');
+                    fetch('/api/admin/upload', {
+                        method: 'POST',
+                        headers: csrfToken ? { 'X-CSRF-Token': csrfToken } : {},
+                        body: fd
+                    })
+                        .then(function(r) { return r.json(); })
+                        .then(function(data) {
+                            if (data.success && data.url) {
+                                if (editingServiceIndex >= 0 && content.services[editingServiceIndex]) {
+                                    content.services[editingServiceIndex].imageUrl = data.url;
+                                    setServiceImagePreview(data.url);
+                                    scheduleSave();
+                                    showToast('Image saved', 'success');
+                                }
+                            } else showToast(data.error || 'Upload failed', 'error');
+                            setSaveStatus('Ready', '');
+                        })
+                        .catch(function() { showToast('Upload failed', 'error'); setSaveStatus('Ready', ''); });
+                }
+                drop.addEventListener('click', function(e) { if (e.target !== fileInput) fileInput.click(); });
+                fileInput.addEventListener('change', function() {
+                    if (fileInput.files && fileInput.files[0]) uploadFile(fileInput.files[0]);
+                    fileInput.value = '';
+                });
+                drop.addEventListener('dragover', function(e) { e.preventDefault(); drop.classList.add('dragover'); });
+                drop.addEventListener('dragleave', function() { drop.classList.remove('dragover'); });
+                drop.addEventListener('drop', function(e) {
+                    e.preventDefault();
+                    drop.classList.remove('dragover');
+                    if (e.dataTransfer.files && e.dataTransfer.files[0]) uploadFile(e.dataTransfer.files[0]);
+                });
             }
 
 
@@ -1162,7 +1242,9 @@
                         { key: 'contact.phone', label: 'Phone', bilingual: true },
                         { key: 'contact.emergencyPhone', label: 'Emergency phone', bilingual: true },
                         { key: 'contact.email', label: 'Email', bilingual: true },
-                        { key: 'contact.address', label: 'Address', bilingual: true },
+                        { key: 'contact.address', label: 'Address', bilingual: true }
+                    ]},
+                    { id: 'insurance', label: 'Insurance & coverage', fields: [
                         { key: 'insurance.blurb', label: 'Insurance & finance blurb', bilingual: true },
                         { key: 'insurance.coverageLinkLabel', label: 'Coverage link label', bilingual: true },
                         { key: 'insurance.coverageList', label: 'Coverage list (one item per line)', bilingual: true, multiline: true }
