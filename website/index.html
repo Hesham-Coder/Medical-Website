@@ -384,18 +384,28 @@
             transition: opacity 0.45s ease, filter 0.45s ease, transform 0.45s ease, box-shadow 0.45s ease;
             transform-origin: center top;
         }
+        main {
+            scroll-snap-type: y proximity;
+            perspective: 1200px;
+        }
+        main [data-section-id] {
+            scroll-snap-align: start;
+            transform-style: preserve-3d;
+        }
         main.dynamic-section-focus.has-focus-state [data-section-id] {
-            opacity: 0.42;
-            filter: saturate(0.8) blur(1.25px);
-            transform: scale(0.992);
+            opacity: 0.35;
+            filter: saturate(0.75) blur(1.5px);
+            transform: perspective(1200px) translate3d(0, 22px, -60px) rotateX(2deg) scale(0.985);
+            box-shadow: none;
         }
         main.dynamic-section-focus.has-focus-state [data-section-id].is-section-active {
             opacity: 1;
             filter: saturate(1) blur(0);
-            transform: scale(1);
+            transform: perspective(1200px) translate3d(0, 0, 0) rotateX(0deg) scale(1);
             position: relative;
             z-index: 2;
             animation: sectionPulse 2.2s ease-in-out infinite;
+            box-shadow: 0 30px 80px rgba(0, 74, 141, 0.12);
         }
         @media (max-width: 768px) {
             main.dynamic-section-focus.has-focus-state [data-section-id] {
@@ -525,13 +535,14 @@
 
         /* Scroll depth effect for existing sections */
         .scroll-depth-item {
-            transform: perspective(1200px) translate3d(0, 32px, -60px) rotateX(5deg);
+            transform: perspective(1200px) translate3d(0, 40px, -80px) rotateX(6deg);
             opacity: 0;
             transition: transform 700ms cubic-bezier(0.22, 1, 0.36, 1), opacity 500ms ease;
             will-change: transform, opacity;
         }
         .scroll-depth-item.is-in-view {
             opacity: 1;
+            transform: perspective(1200px) translate3d(0, 0, 0) rotateX(0deg);
         }
         @media (prefers-reduced-motion: reduce) {
             .scroll-depth-item {
@@ -595,6 +606,12 @@
 </head>
 
 <body class="font-display bg-slate-50 text-slate-900 overflow-x-hidden">
+    <div id="pageLoader" class="fixed inset-0 z-[100] flex items-center justify-center bg-white">
+        <div class="flex flex-col items-center gap-4">
+            <div class="size-12 rounded-full border-4 border-brand-blue-light/30 border-t-brand-blue-dark animate-spin"></div>
+            <p class="text-sm font-bold text-brand-blue-dark">Loading...</p>
+        </div>
+    </div>
     <nav id="timelineNav" class="timeline-nav" aria-label="Section timeline navigation"></nav>
     <div class="global-particles force-particles" aria-hidden="true">
         <span class="particle" style="top: 6%; left: 6%; width: 6px; height: 6px; background:#22D3EE;"></span>
@@ -742,7 +759,7 @@
     <!-- ========================================
          MAIN CONTENT
     ======================================== -->
-    <main>
+    <main class="scroll-smooth">
 
         <!-- Hero Section -->
         <section id="home" data-section-id="hero"
@@ -1617,6 +1634,13 @@
         window.observeAnimatedElements = observeAnimatedElements;
         document.addEventListener('DOMContentLoaded', observeAnimatedElements);
         window.addEventListener('load', observeAnimatedElements);
+        window.addEventListener('load', function () {
+            var loader = document.getElementById('pageLoader');
+            if (!loader) return;
+            loader.style.transition = 'opacity 0.3s ease';
+            loader.style.opacity = '0';
+            setTimeout(function () { loader.remove(); }, 300);
+        });
 
 
         // ===== Dynamic Section Focus (active section emphasis) =====
