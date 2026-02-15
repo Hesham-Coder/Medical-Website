@@ -138,28 +138,30 @@ app.get('/health', async (req, res) => {
   });
 });
 
-// Block access to sensitive paths before serving static files
-app.use(blockSensitivePaths);
+function mountAppRoutes() {
+  // Block access to sensitive paths before serving static files
+  app.use(blockSensitivePaths);
 
-// Routes (before static)
-app.use(publicRoutes);
-app.use(authRoutes);
-app.use(adminRoutes);
+  // Routes (before static)
+  app.use(publicRoutes);
+  app.use(authRoutes);
+  app.use(adminRoutes);
 
-// Serve uploaded images with cache
-app.use('/uploads', express.static(UPLOADS_DIR, {
-  maxAge: IS_PROD ? '1d' : 0,
-  setHeaders: (res) => { if (IS_PROD) res.setHeader('Cache-Control', 'public, max-age=86400'); },
-}));
+  // Serve uploaded images with cache
+  app.use('/uploads', express.static(UPLOADS_DIR, {
+    maxAge: IS_PROD ? '1d' : 0,
+    setHeaders: (res) => { if (IS_PROD) res.setHeader('Cache-Control', 'public, max-age=86400'); },
+  }));
 
-// Serve only whitelisted static directories
-app.use('/assets', express.static(PUBLIC_DIR, { maxAge: IS_PROD ? '1d' : 0 }));
-app.use('/admin-static', express.static(ADMIN_DIR, { maxAge: IS_PROD ? '1d' : 0 }));
-app.use('/', express.static(WEBSITE_DIR, { maxAge: IS_PROD ? '1d' : 0 }));
+  // Serve only whitelisted static directories
+  app.use('/assets', express.static(PUBLIC_DIR, { maxAge: IS_PROD ? '1d' : 0 }));
+  app.use('/admin-static', express.static(ADMIN_DIR, { maxAge: IS_PROD ? '1d' : 0 }));
+  app.use('/', express.static(WEBSITE_DIR, { maxAge: IS_PROD ? '1d' : 0 }));
 
-// 404 and error handlers
-app.use(notFoundHandler);
-app.use(errorHandler);
+  // 404 and error handlers
+  app.use(notFoundHandler);
+  app.use(errorHandler);
+}
 
 process.on('unhandledRejection', (reason) => {
   logger.error('Unhandled promise rejection', {
@@ -176,6 +178,8 @@ process.on('uncaughtException', (error) => {
 async function startServer() {
   await initializeFiles();
   await configureSession();
+  // Session middleware must be registered before the routes that use req.session.
+  mountAppRoutes();
   app.listen(PORT, () => {
     logger.info('Server started', {
       port: PORT,
