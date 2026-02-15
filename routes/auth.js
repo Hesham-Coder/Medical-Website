@@ -53,6 +53,10 @@ router.post('/login', ensureSessionAvailable, loginLimiter, async (req, res) => 
     await audit('auth_login_success', { user: userRow.record.username });
     res.json({ success: true, message: 'Login successful', redirect: '/dashboard.html' });
   } catch (error) {
+    if (error && error.code === 'EUSERSTORE') {
+      logger.error('Login error: users store unavailable', { error: error.message });
+      return res.status(503).json({ error: 'Authentication storage unavailable' });
+    }
     logger.error('Login error', { error: error.message });
     res.status(500).json({ error: 'Server error' });
   }
