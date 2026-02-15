@@ -17,12 +17,36 @@ router.get('/', (req, res) => {
   res.sendFile(path.join(WEBSITE_DIR, 'index.html'));
 });
 
+// Desktop-only legacy experience (keeps old desktop UI).
+router.get('/desktop', (req, res) => {
+  res.sendFile(path.join(WEBSITE_DIR, 'desktop.html'));
+});
+
+router.get('/desktop/posts/:slug', (req, res) => {
+  res.sendFile(path.join(WEBSITE_DIR, 'post-desktop.html'));
+});
+
 router.get('/posts/:slug', (req, res) => {
   res.sendFile(path.join(WEBSITE_DIR, 'post.html'));
 });
 
 router.get('/posts', (req, res) => {
-  res.redirect('/#news');
+  // Legacy path -> new navigation-driven route (no anchor scrolling)
+  res.redirect('/news');
+});
+
+// Navigation-driven routes (SPA). Keep server-side routing stable on refresh/deep links.
+[
+  '/services',
+  '/team',
+  '/stories',
+  '/news',
+  '/updates',
+  '/articles',
+  '/about',
+  '/contact',
+].forEach((p) => {
+  router.get(p, (req, res) => res.sendFile(path.join(WEBSITE_DIR, 'index.html')));
 });
 
 router.get('/robots.txt', (req, res) => {
