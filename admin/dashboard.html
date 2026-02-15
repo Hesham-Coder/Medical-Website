@@ -1615,6 +1615,34 @@
 
                 function setStatus(text) { statusEl.textContent = text || ''; }
 
+                function xhrUploadJson(url, formData, headers, onProgress) {
+                    headers = headers || {};
+                    return new Promise(function(resolve, reject) {
+                        var xhr = new XMLHttpRequest();
+                        xhr.open('POST', url, true);
+                        xhr.withCredentials = true;
+                        Object.keys(headers).forEach(function(k) { xhr.setRequestHeader(k, headers[k]); });
+
+                        xhr.upload.onprogress = function(e) {
+                            if (!onProgress) return;
+                            if (e.lengthComputable) onProgress(Math.round((e.loaded / e.total) * 100));
+                            else onProgress(null);
+                        };
+
+                        xhr.onload = function() {
+                            var text = xhr.responseText || '';
+                            var data = null;
+                            try { data = text ? JSON.parse(text) : {}; } catch { data = {}; }
+                            if (xhr.status >= 200 && xhr.status < 300) return resolve(data);
+                            reject(new Error((data && data.error) || ('Restore failed (' + xhr.status + ')')));
+                        };
+                        xhr.onerror = function() { reject(new Error('Network error')); };
+                        xhr.ontimeout = function() { reject(new Error('Request timeout')); };
+                        xhr.timeout = 180000;
+                        xhr.send(formData);
+                    });
+                }
+
                 btn.addEventListener('click', function() {
                     if (!csrfToken) {
                         showToast('Missing security token. Please refresh and try again.', 'error');
@@ -1631,26 +1659,16 @@
                     fd.append('file', file);
 
                     btn.disabled = true;
-                    setStatus('Restoring...');
-                    fetch('/api/admin/restore', {
-                        method: 'POST',
-                        headers: { 'X-CSRF-Token': csrfToken },
-                        body: fd
-                    }).then(function(r) {
-                        return r.json().then(function(data) {
-                            if (!r.ok) {
-                                showToast(data.error || 'Restore failed', 'error');
-                                setStatus('');
-                                btn.disabled = false;
-                                return;
-                            }
-                            showToast('Restore completed. Reloading...', 'success');
-                            setStatus('Done');
-                            setTimeout(function() { window.location.reload(); }, 1200);
-                        });
+                    setStatus('Uploading... 0%');
+                    xhrUploadJson('/api/admin/restore', fd, { 'X-CSRF-Token': csrfToken }, function(pct) {
+                        setStatus(pct == null ? 'Uploading...' : ('Uploading... ' + pct + '%'));
+                    }).then(function() {
+                        showToast('Restore completed. Reloading...', 'success');
+                        setStatus('Done');
+                        setTimeout(function() { window.location.reload(); }, 1200);
                     }).catch(function(err) {
                         showToast('Restore failed: ' + (err && err.message ? err.message : 'unknown error'), 'error');
-                        setStatus('');
+                        setStatus('Error: ' + (err && err.message ? err.message : 'unknown error'));
                         btn.disabled = false;
                     });
                 });

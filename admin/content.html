@@ -292,6 +292,7 @@
         <div class="field">
           <label class="sr" for="postImageFile">Upload image</label>
           <input id="postImageFile" type="file" accept="image/*">
+          <div id="postImageUploadStatus" class="muted" style="margin-top:6px; min-height:18px;"></div>
         </div>
         <div class="field">
           <label for="postVideoUrl">Video URL</label>
@@ -302,6 +303,7 @@
         <div class="field">
           <label class="sr" for="postVideoFile">Upload video</label>
           <input id="postVideoFile" type="file" accept="video/mp4,video/webm,video/ogg,video/quicktime,video/x-m4v,.mov,.m4v">
+          <div id="postVideoUploadStatus" class="muted" style="margin-top:6px; min-height:18px;"></div>
         </div>
         <div class="field">
           <label for="postTags">Tags (comma separated)</label>
@@ -372,6 +374,37 @@
             if (!r.ok) throw new Error(data.error || 'Request failed');
             return data;
           });
+        });
+      }
+
+      function xhrUploadJson(url, formData, headers, onProgress) {
+        headers = headers || {};
+        return new Promise(function (resolve, reject) {
+          var xhr = new XMLHttpRequest();
+          xhr.open('POST', url, true);
+          xhr.withCredentials = true;
+          Object.keys(headers).forEach(function (k) { xhr.setRequestHeader(k, headers[k]); });
+
+          xhr.upload.onprogress = function (e) {
+            if (!onProgress) return;
+            if (e.lengthComputable) {
+              onProgress(Math.round((e.loaded / e.total) * 100));
+            } else {
+              onProgress(null);
+            }
+          };
+
+          xhr.onload = function () {
+            var text = xhr.responseText || '';
+            var data = null;
+            try { data = text ? JSON.parse(text) : {}; } catch { data = {}; }
+            if (xhr.status >= 200 && xhr.status < 300) return resolve(data);
+            reject(new Error((data && data.error) || ('Upload failed (' + xhr.status + ')')));
+          };
+          xhr.onerror = function () { reject(new Error('Network error')); };
+          xhr.ontimeout = function () { reject(new Error('Request timeout')); };
+          xhr.timeout = 120000;
+          xhr.send(formData);
         });
       }
 
@@ -551,18 +584,18 @@
       function uploadImage(file) {
         var fd = new FormData();
         fd.append('file', file);
-        return fetch('/api/admin/upload', {
-          method: 'POST',
-          headers: { 'X-CSRF-Token': csrfToken },
-          body: fd,
-          credentials: 'same-origin'
-        }).then(function (r) {
-          return r.json().then(function (data) {
-            if (!r.ok || !data.success) throw new Error(data.error || 'Upload failed');
-            document.getElementById('postFeaturedImage').value = data.url;
-            syncFeaturedPreview();
-          });
+        var statusEl = document.getElementById('postImageUploadStatus');
+        if (statusEl) statusEl.textContent = 'Uploading... 0%';
+        return xhrUploadJson('/api/admin/upload', fd, { 'X-CSRF-Token': csrfToken }, function (pct) {
+          if (!statusEl) return;
+          statusEl.textContent = pct == null ? 'Uploading...' : ('Uploading... ' + pct + '%');
+        }).then(function (data) {
+          if (!data || !data.success) throw new Error((data && data.error) || 'Upload failed');
+          document.getElementById('postFeaturedImage').value = data.url;
+          syncFeaturedPreview();
+          if (statusEl) statusEl.textContent = 'Uploaded. 100%';
         }).catch(function (err) {
+          if (statusEl) statusEl.textContent = 'Error: ' + (err && err.message ? err.message : 'Upload failed');
           alert(err.message);
         });
       }
@@ -570,18 +603,18 @@
       function uploadVideo(file) {
         var fd = new FormData();
         fd.append('file', file);
-        return fetch('/api/admin/upload-video', {
-          method: 'POST',
-          headers: { 'X-CSRF-Token': csrfToken },
-          body: fd,
-          credentials: 'same-origin'
-        }).then(function (r) {
-          return r.json().then(function (data) {
-            if (!r.ok || !data.success) throw new Error(data.error || 'Upload failed');
-            document.getElementById('postVideoUrl').value = data.url;
-            syncVideoPreview();
-          });
+        var statusEl = document.getElementById('postVideoUploadStatus');
+        if (statusEl) statusEl.textContent = 'Uploading... 0%';
+        return xhrUploadJson('/api/admin/upload-video', fd, { 'X-CSRF-Token': csrfToken }, function (pct) {
+          if (!statusEl) return;
+          statusEl.textContent = pct == null ? 'Uploading...' : ('Uploading... ' + pct + '%');
+        }).then(function (data) {
+          if (!data || !data.success) throw new Error((data && data.error) || 'Upload failed');
+          document.getElementById('postVideoUrl').value = data.url;
+          syncVideoPreview();
+          if (statusEl) statusEl.textContent = 'Uploaded. 100%';
         }).catch(function (err) {
+          if (statusEl) statusEl.textContent = 'Error: ' + (err && err.message ? err.message : 'Upload failed');
           alert(err.message);
         });
       }
