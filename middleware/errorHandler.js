@@ -15,6 +15,27 @@ function notFoundHandler(req, res) {
 }
 
 function errorHandler(err, req, res, next) {
+  // Provide safer, actionable API errors for common security/multipart failures.
+  if (req.path && req.path.startsWith('/api/')) {
+    // CSRF failures
+    if (err && err.code === 'EBADCSRFTOKEN') {
+      return res.status(403).json({ error: 'Security token invalid or missing. Refresh the page and try again.' });
+    }
+
+    // Multer upload failures
+    if (err && (err.name === 'MulterError' || err.code === 'LIMIT_FILE_SIZE')) {
+      if (err.code === 'LIMIT_FILE_SIZE') {
+        return res.status(413).json({ error: 'File too large. Please upload a smaller file and try again.' });
+      }
+      return res.status(400).json({ error: 'Upload failed. Please try again.' });
+    }
+
+    // Common filesystem/storage failures (avoid leaking paths/details)
+    if (err && (err.code === 'EACCES' || err.code === 'EPERM' || err.code === 'EROFS' || err.code === 'ENOSPC')) {
+      return res.status(500).json({ error: 'Server storage is not writable. Check your hosting volume configuration and try again.' });
+    }
+  }
+
   logger.error('Unhandled error', {
     error: err && err.message ? err.message : 'Unknown error',
     method: req.method,
