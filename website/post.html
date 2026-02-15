@@ -36,7 +36,7 @@
       // Desktop uses the legacy post page (keeps old desktop experience intact).
       (function () {
         try {
-          if (window.matchMedia && window.matchMedia("(min-width: 1024px)").matches) {
+          if (window.matchMedia && window.matchMedia("(pointer: fine) and (min-width: 1024px)").matches) {
             window.location.replace("/desktop" + window.location.pathname);
           }
         } catch (e) {}
@@ -61,4 +61,3 @@
     <script type="module" src="/js/app.js"></script>
   </body>
 </html>
-

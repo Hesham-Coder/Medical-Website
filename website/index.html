@@ -41,7 +41,9 @@
       // Mobile/tablet uses the navigation-driven SPA for clarity + speed.
       (function () {
         try {
-          if (window.matchMedia && window.matchMedia("(min-width: 1024px)").matches) {
+          // Treat touch devices as mobile/tablet even if width is large (e.g., iPad 1024px).
+          // Only redirect to legacy desktop when we likely have a mouse/trackpad.
+          if (window.matchMedia && window.matchMedia("(pointer: fine) and (min-width: 1024px)").matches) {
             window.location.replace("/desktop");
           }
         } catch (e) {}
