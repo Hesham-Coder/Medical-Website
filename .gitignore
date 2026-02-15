@@ -14,6 +14,7 @@ data/content.backup.*.json
 
 # Uploaded images (dashboard)
 uploads/
+backups/*.zip
 
 # Logs
 *.log

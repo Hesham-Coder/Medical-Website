@@ -66,7 +66,7 @@ The project uses a **Node.js** backend with **Express** and a JSON-based file st
 3.  **Access the App**:
     *   **Website**: http://localhost:3000/
     *   **Admin Login**: http://localhost:3000/login.html
-    *   **Default Credentials**: Username: `admin`, Password: `admin123` (Change this in production!).
+    *   **Credentials**: Credentials must be configured via environment variables.
 
 ---
 
@@ -123,4 +123,5 @@ The project uses a **Node.js** backend with **Express** and a JSON-based file st
 3.  **الدخول للتطبيق**:
     *   **الموقع**: http://localhost:3000/
     *   **صفحة الدخول**: http://localhost:3000/login.html
-    *   **بيانات الدخول الافتراضية**: اسم المستخدم: `admin`، كلمة السر: `admin123` (يجب تغييرها عند النشر!).
+    *   **بيانات الدخول**: Credentials must be configured via environment variables.
+

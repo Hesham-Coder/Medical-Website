@@ -10,7 +10,7 @@ This guide explains the new folder structure, how to run the project, and how to
 admin-dashboard/
 ├── data/                    # Single source of truth (content + users)
 │   ├── content.json         # All editable site content; created on first run if missing
-│   └── users.json           # Admin users; created on first run (default: admin / admin123)
+│   └── users.json           # Admin users; created on first run (credentials via environment variables)
 ├── website/                 # Public site
 │   └── index.html           # Main cancer center page (loads content from API)
 ├── admin/                   # Dashboard & login
@@ -79,7 +79,7 @@ npm start
 - **Dashboard:** http://localhost:3000/dashboard.html (after login)
 - **Public API:** http://localhost:3000/api/public/content
 
-Default admin: **admin** / **admin123**. Change this in production.
+Credentials must be configured via environment variables.
 
 ---
 
@@ -114,5 +114,7 @@ If you need the old behavior temporarily:
 
 - Admin routes (`/dashboard.html`, `/api/admin/*`) require session auth.
 - Use **SESSION_SECRET** in `.env` in production.
-- Change the default admin password after first login.
+- Set strong bootstrap credentials through environment variables before first start.
 - Rate limiting on `/login` remains in place.
+
+

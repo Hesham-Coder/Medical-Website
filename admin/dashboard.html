@@ -224,6 +224,20 @@
         .btn-secondary:hover { background: #e5e7eb; }
         .btn-primary { background: #004A8D; color: white; border: none; padding: 10px 18px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; }
         .btn-primary:hover { background: #003a70; }
+        .account-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin-bottom: 16px; }
+        .account-item { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px; }
+        .account-label { font-size: 12px; color: #64748b; margin-bottom: 4px; }
+        .account-value { font-size: 14px; color: #0f172a; font-weight: 600; overflow-wrap: anywhere; }
+        .account-modal .form-group { margin-bottom: 12px; }
+        .account-modal .form-group input {
+            width: 100%;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            padding: 10px 12px;
+            font-size: 14px;
+        }
+        .account-error { color: #b91c1c; font-size: 13px; margin-bottom: 10px; min-height: 18px; }
+        .account-success { color: #166534; font-size: 13px; margin-bottom: 10px; min-height: 18px; }
     </style>
 </head>
 <body>
@@ -247,6 +261,28 @@
             <h2>Content / News</h2>
             <p style="font-size: 13px; color: #666; margin-bottom: 12px;">Manage News, What&apos;s New, and Articles from the dedicated content section.</p>
             <a href="/content.html" class="btn-primary" style="display: inline-block; text-decoration: none;">Open Content Dashboard</a>
+        </div>
+        <div class="card">
+            <h2>Account Settings</h2>
+            <div class="account-grid">
+                <div class="account-item">
+                    <div class="account-label">Current username</div>
+                    <div class="account-value" id="accountUsername">-</div>
+                </div>
+                <div class="account-item">
+                    <div class="account-label">Email</div>
+                    <div class="account-value" id="accountEmail">-</div>
+                </div>
+                <div class="account-item">
+                    <div class="account-label">Last login date</div>
+                    <div class="account-value" id="accountLastLogin">-</div>
+                </div>
+                <div class="account-item">
+                    <div class="account-label">Account creation date</div>
+                    <div class="account-value" id="accountCreatedAt">-</div>
+                </div>
+            </div>
+            <button type="button" class="btn-primary" id="openAccountSettingsBtn">Edit</button>
         </div>
         <div class="card">
             <h2>Page sections</h2>
@@ -469,12 +505,41 @@
         </div>
     </div>
 
+    <div id="accountSettingsModal" class="modal-backdrop account-modal" style="display: none;">
+        <div class="modal-box">
+            <h3>Edit Account Settings</h3>
+            <div id="accountFormError" class="account-error"></div>
+            <div id="accountFormSuccess" class="account-success"></div>
+            <div class="form-group">
+                <label>Current password</label>
+                <input type="password" id="accountCurrentPassword" autocomplete="current-password">
+            </div>
+            <div class="form-group">
+                <label>New username</label>
+                <input type="text" id="accountNewUsername" maxlength="64" autocomplete="username">
+            </div>
+            <div class="form-group">
+                <label>New password</label>
+                <input type="password" id="accountNewPassword" minlength="8" autocomplete="new-password">
+            </div>
+            <div class="form-group">
+                <label>Confirm new password</label>
+                <input type="password" id="accountConfirmPassword" minlength="8" autocomplete="new-password">
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="btn-secondary" id="accountModalCancel">Cancel</button>
+                <button type="button" class="btn-primary" id="accountModalSave">Save</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         (function() {
             var content = null;
             var saveTimer = null;
             var SAVE_DEBOUNCE_MS = 600;
             var csrfToken = null;
+            var authUser = null;
 
             var sectionLabels = {
                 hero: 'Hero',
@@ -1388,13 +1453,120 @@
                 });
             }
 
+            function formatAccountDate(value) {
+                if (!value) return '-';
+                var dt = new Date(value);
+                if (isNaN(dt.getTime())) return '-';
+                return dt.toLocaleString();
+            }
+
+            function renderAccountInfo() {
+                document.getElementById('headerUsername').textContent = (authUser && authUser.username) ? authUser.username : 'Admin';
+                document.getElementById('accountUsername').textContent = (authUser && authUser.username) ? authUser.username : '-';
+                document.getElementById('accountEmail').textContent = (authUser && authUser.email) ? authUser.email : '-';
+                document.getElementById('accountLastLogin').textContent = formatAccountDate(authUser && authUser.lastLoginAt);
+                document.getElementById('accountCreatedAt').textContent = formatAccountDate(authUser && authUser.createdAt);
+            }
+
+            function setAccountMessage(type, message) {
+                var errorEl = document.getElementById('accountFormError');
+                var successEl = document.getElementById('accountFormSuccess');
+                errorEl.textContent = '';
+                successEl.textContent = '';
+                if (type === 'error') errorEl.textContent = message || '';
+                if (type === 'success') successEl.textContent = message || '';
+            }
+
+            function openAccountModal() {
+                setAccountMessage('', '');
+                document.getElementById('accountCurrentPassword').value = '';
+                document.getElementById('accountNewPassword').value = '';
+                document.getElementById('accountConfirmPassword').value = '';
+                document.getElementById('accountNewUsername').value = (authUser && authUser.username) ? authUser.username : '';
+                document.getElementById('accountSettingsModal').style.display = 'flex';
+            }
+
+            function closeAccountModal() {
+                document.getElementById('accountSettingsModal').style.display = 'none';
+            }
+
+            function validateAccountForm(payload) {
+                if (!payload.currentPassword) return 'Current password is required.';
+                if (!payload.newUsername && !payload.newPassword) return 'Provide a new username or new password.';
+                if (payload.newUsername && !/^[A-Za-z0-9._-]{3,64}$/.test(payload.newUsername)) {
+                    return 'Username must be 3-64 characters and can only contain letters, numbers, dot, underscore, and hyphen.';
+                }
+                if (payload.newPassword) {
+                    if (payload.newPassword.length < 8) return 'New password must be at least 8 characters.';
+                    if (payload.newPassword !== payload.confirmNewPassword) return 'Password confirmation does not match.';
+                }
+                return '';
+            }
+
+            function submitAccountUpdate() {
+                if (!csrfToken) {
+                    setAccountMessage('error', 'Missing CSRF token. Refresh and try again.');
+                    return;
+                }
+                var payload = {
+                    currentPassword: document.getElementById('accountCurrentPassword').value || '',
+                    newUsername: (document.getElementById('accountNewUsername').value || '').trim(),
+                    newPassword: document.getElementById('accountNewPassword').value || '',
+                    confirmNewPassword: document.getElementById('accountConfirmPassword').value || ''
+                };
+                var validationError = validateAccountForm(payload);
+                if (validationError) {
+                    setAccountMessage('error', validationError);
+                    return;
+                }
+                fetch('/api/user/update-credentials', {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-Token': csrfToken
+                    },
+                    body: JSON.stringify(payload)
+                }).then(function(r) {
+                    return r.json().then(function(data) {
+                        if (!r.ok) {
+                            setAccountMessage('error', data.error || 'Unable to update credentials.');
+                            return;
+                        }
+                        authUser = data.user || authUser;
+                        renderAccountInfo();
+                        setAccountMessage('success', data.message || 'Credentials updated successfully.');
+                        document.getElementById('accountCurrentPassword').value = '';
+                        document.getElementById('accountNewPassword').value = '';
+                        document.getElementById('accountConfirmPassword').value = '';
+                        showToast('Account updated', 'success');
+                    });
+                }).catch(function(err) {
+                    setAccountMessage('error', err && err.message ? err.message : 'Request failed.');
+                });
+            }
+
+            function setupAccountSection() {
+                document.getElementById('openAccountSettingsBtn').addEventListener('click', openAccountModal);
+                document.getElementById('accountModalCancel').addEventListener('click', closeAccountModal);
+                document.getElementById('accountModalSave').addEventListener('click', submitAccountUpdate);
+                document.getElementById('accountSettingsModal').addEventListener('click', function(event) {
+                    if (event.target && event.target.id === 'accountSettingsModal') closeAccountModal();
+                });
+            }
+
             function checkAuth() {
                 return fetch('/api/auth/check').then(function(r) { return r.json(); }).then(function(data) {
                     if (!data.authenticated) {
                         window.location.href = '/login.html';
                         return false;
                     }
-                    document.getElementById('headerUsername').textContent = data.username || 'Admin';
+                    authUser = {
+                        username: data.username || '',
+                        email: data.email || '',
+                        createdAt: data.createdAt || null,
+                        lastLoginAt: data.lastLoginAt || null
+                    };
+                    renderAccountInfo();
                     return true;
                 });
             }
@@ -1583,6 +1755,7 @@
 
             checkAuth().then(function(ok) {
                 if (!ok) return;
+                setupAccountSection();
                 return Promise.all([loadContent(), loadCsrfToken()]);
             }).then(function() {
                 if (!content) return;
