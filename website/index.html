@@ -277,14 +277,51 @@
             transform: translateZ(20px) scale(1.05);
         }
 
+        /* Touch devices: disable hover-only transforms that can feel jumpy on mobile/tablet */
+        @media (hover: none) {
+            .card-glow:hover,
+            .tilt-card:hover,
+            .card-3d:hover,
+            .timeline-item:hover {
+                transform: none !important;
+                box-shadow: inherit !important;
+            }
+        }
+
         /* Mobile Menu */
         .mobile-menu {
             transform: translateX(100%);
             transition: transform 0.3s ease-in-out;
+            max-height: 100vh;
+            overflow-y: auto;
+            overscroll-behavior: contain;
+            padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 16px);
         }
 
         .mobile-menu.active {
             transform: translateX(0);
+        }
+
+        /* Mobile/Tablet bottom action bar */
+        .mobile-action-bar {
+            background: rgba(255, 255, 255, 0.82);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-top: 1px solid rgba(0, 74, 141, 0.12);
+            box-shadow: 0 -14px 40px rgba(2, 6, 23, 0.12);
+            padding-bottom: env(safe-area-inset-bottom, 0px);
+        }
+        .mobile-action-bar a {
+            -webkit-tap-highlight-color: transparent;
+        }
+        @media (max-width: 1024px) {
+            body {
+                /* prevent bottom bar overlap on mobile/tablet */
+                padding-bottom: 72px;
+            }
+        }
+        @media (max-width: 480px) {
+            body { padding-bottom: 78px; }
         }
 
         /* Parallax effect */
@@ -919,6 +956,26 @@
         class="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 opacity-0 pointer-events-none transition-opacity duration-300 lg:hidden"
         onclick="toggleMobileMenu()"></div>
 
+    <!-- Mobile/Tablet Action Bar -->
+    <div id="mobileActionBar" class="mobile-action-bar fixed bottom-0 inset-x-0 z-50 lg:hidden">
+        <div class="mx-auto max-w-7xl px-3 sm:px-6 py-3">
+            <div class="grid grid-cols-2 gap-3">
+                <a href="#" data-content="contact.phone" data-content-attr="href:tel"
+                    class="inline-flex items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white/90 text-brand-blue-dark font-extrabold py-3 shadow-sm active:scale-[0.99] transition"
+                    aria-label="Call">
+                    <span class="material-symbols-outlined text-xl">call</span>
+                    <span class="text-sm">Call</span>
+                </a>
+                <a href="#contact" onclick="scrollToSection('contact')"
+                    class="inline-flex items-center justify-center gap-2 rounded-2xl bg-brand-red-cta text-white font-extrabold py-3 shadow-md shadow-red-200 active:scale-[0.99] transition"
+                    aria-label="Book consultation">
+                    <span class="material-symbols-outlined text-xl">event_available</span>
+                    <span class="text-sm">Book</span>
+                </a>
+            </div>
+        </div>
+    </div>
+
     <!-- ========================================
          MAIN CONTENT
     ======================================== -->
@@ -1046,6 +1103,18 @@
                                 data-content="stats.specialists" data-suffix="+">50+</p>
                             <p class="text-[10px] sm:text-xs text-slate-500 font-bold uppercase tracking-wider">Expert
                                 Doctors</p>
+                        </div>
+                    </div>
+
+                    <!-- Mobile hero media (show the hero image below the copy) -->
+                    <div class="lg:hidden mt-8 px-2 sm:px-0">
+                        <div class="relative overflow-hidden rounded-3xl border border-white bg-white shadow-xl">
+                            <img src="./485279495_1084203800391025_2931703889426917655_n.jpg"
+                                data-content-src="siteInfo.heroImageUrl"
+                                alt="Medical Team"
+                                class="w-full h-56 sm:h-72 object-cover">
+                            <div class="absolute inset-0 bg-gradient-to-tr from-slate-950/10 via-transparent to-white/10"></div>
+                            <div class="absolute -bottom-10 -right-10 w-32 h-32 bg-brand-blue-light/30 rounded-full blur-2xl"></div>
                         </div>
                     </div>
                 </div>
@@ -1966,6 +2035,7 @@
         function toggleMobileMenu() {
             const menu = document.getElementById('mobileMenu');
             const backdrop = document.getElementById('mobileMenuBackdrop');
+            const actionBar = document.getElementById('mobileActionBar');
             const isActive = menu.classList.contains('active');
 
             if (isActive) {
@@ -1974,12 +2044,14 @@
                 backdrop.classList.remove('opacity-100');
                 backdrop.classList.add('opacity-0', 'pointer-events-none');
                 document.body.style.overflow = '';
+                if (actionBar) actionBar.style.display = '';
             } else {
                 // Open menu
                 menu.classList.add('active');
                 backdrop.classList.remove('opacity-0', 'pointer-events-none');
                 backdrop.classList.add('opacity-100');
                 document.body.style.overflow = 'hidden';
+                if (actionBar) actionBar.style.display = 'none';
             }
         }
 
