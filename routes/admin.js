@@ -7,7 +7,7 @@ const multer = require('multer');
 const AdmZip = require('adm-zip');
 const { ADMIN_DIR, UPLOADS_DIR, DATA_DIR } = require('../lib/config');
 const { requireAuth } = require('../middleware/auth');
-const { readContent, writeDraftContent, publishDraftContent } = require('../lib/contentStore');
+const { readContent, readContacts, writeDraftContent, publishDraftContent } = require('../lib/contentStore');
 const { readPosts, writePosts, syncPublishedPosts } = require('../lib/postStore');
 const { validatePostPayload, validatePostsQuery, slugify } = require('../lib/validation');
 const { audit } = require('../lib/audit');
@@ -113,6 +113,49 @@ router.get('/api/admin/content', requireAuth, async (req, res) => {
   } catch (error) {
     logger.error('Error reading content (admin)', { error: error.message });
     res.status(500).json({ error: 'Failed to read content' });
+  }
+});
+
+router.get('/api/admin/contacts', requireAuth, async (req, res) => {
+  try {
+    const page = Math.max(parseInt(req.query.page, 10) || 1, 1);
+    const limit = Math.min(Math.max(parseInt(req.query.limit, 10) || 25, 5), 100);
+    const search = (req.query.search ? String(req.query.search) : '').trim().toLowerCase().slice(0, 120);
+
+    const raw = await readContacts();
+    const list = Array.isArray(raw) ? raw : [];
+    const sorted = list.slice().sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
+    const filtered = !search ? sorted : sorted.filter((c) => {
+      const hay = [
+        c && c.firstName,
+        c && c.lastName,
+        c && c.email,
+        c && c.phone,
+        c && c.concern,
+        c && c.message,
+      ].filter(Boolean).join(' ').toLowerCase();
+      return hay.includes(search);
+    });
+
+    const total = filtered.length;
+    const pages = Math.max(Math.ceil(total / limit), 1);
+    const safePage = Math.min(page, pages);
+    const start = (safePage - 1) * limit;
+    const items = filtered.slice(start, start + limit);
+
+    res.json({
+      items,
+      pagination: {
+        page: safePage,
+        limit,
+        total,
+        pages,
+        hasNext: safePage < pages,
+      },
+    });
+  } catch (error) {
+    logger.error('Error reading contacts (admin)', { error: error.message });
+    res.status(500).json({ error: 'Failed to read contacts' });
   }
 });
 

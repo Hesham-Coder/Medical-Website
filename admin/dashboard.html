@@ -238,6 +238,15 @@
         }
         .account-error { color: #b91c1c; font-size: 13px; margin-bottom: 10px; min-height: 18px; }
         .account-success { color: #166534; font-size: 13px; margin-bottom: 10px; min-height: 18px; }
+        .table-wrap { overflow: auto; border: 1px solid #eee; border-radius: 12px; }
+        table.data-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        table.data-table th, table.data-table td { padding: 10px 12px; border-bottom: 1px solid #eee; vertical-align: top; }
+        table.data-table th { text-align: left; color: #475569; font-size: 12px; text-transform: uppercase; letter-spacing: 0.04em; background: #f8fafc; position: sticky; top: 0; }
+        table.data-table tr:hover td { background: #fafafa; }
+        .pill { display: inline-block; padding: 3px 8px; border-radius: 999px; font-size: 11px; font-weight: 700; background: #e0f2fe; color: #004A8D; border: 1px solid #bae6fd; }
+        .contacts-controls { display:flex; gap:10px; align-items:center; margin-bottom: 12px; flex-wrap: wrap; }
+        .contacts-controls input { flex: 1; min-width: 220px; padding: 10px 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; }
+        .muted { color: #64748b; font-size: 13px; }
     </style>
 </head>
 <body>
@@ -296,6 +305,36 @@
             <div style="display:flex; gap:10px; align-items:center;">
                 <button type="button" class="btn-danger" id="restoreBtn">Restore backup</button>
                 <span style="font-size:13px; color:#64748b;" id="restoreStatus"></span>
+            </div>
+        </div>
+        <div class="card">
+            <h2>Contact Form Submissions</h2>
+            <div class="contacts-controls">
+                <input type="text" id="contactsSearch" placeholder="Search name, email, phone, message...">
+                <button type="button" class="btn-secondary" id="contactsRefreshBtn">Refresh</button>
+            </div>
+            <div class="muted" id="contactsMeta">Loading...</div>
+            <div class="table-wrap" style="margin-top: 12px;">
+                <table class="data-table" id="contactsTable">
+                    <thead>
+                        <tr>
+                            <th style="min-width: 160px;">Date</th>
+                            <th style="min-width: 140px;">Name</th>
+                            <th style="min-width: 200px;">Email</th>
+                            <th style="min-width: 140px;">Phone</th>
+                            <th style="min-width: 120px;">Concern</th>
+                            <th style="min-width: 280px;">Message</th>
+                        </tr>
+                    </thead>
+                    <tbody id="contactsTbody">
+                        <tr><td colspan="6" class="muted">Loading...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <div style="display:flex; gap:10px; align-items:center; justify-content:flex-end; margin-top: 10px;">
+                <button type="button" class="btn-secondary" id="contactsPrevBtn">Prev</button>
+                <span class="muted" id="contactsPageLabel">Page 1</span>
+                <button type="button" class="btn-secondary" id="contactsNextBtn">Next</button>
             </div>
         </div>
         <div class="card">
@@ -1617,6 +1656,139 @@
                 });
             }
 
+            function escapeHtml(s) {
+                if (s == null) return '';
+                return String(s)
+                    .replace(/&/g, '&amp;')
+                    .replace(/</g, '&lt;')
+                    .replace(/>/g, '&gt;')
+                    .replace(/"/g, '&quot;')
+                    .replace(/'/g, '&#39;');
+            }
+
+            var contactsState = { page: 1, pages: 1, search: '', limit: 25 };
+
+            function formatDateTime(value) {
+                if (!value) return '-';
+                var dt = new Date(value);
+                if (isNaN(dt.getTime())) return '-';
+                return dt.toLocaleString();
+            }
+
+            function truncateText(value, max) {
+                var t = String(value == null ? '' : value).trim();
+                if (!t) return '';
+                if (t.length <= max) return t;
+                return t.slice(0, Math.max(max - 1, 0)) + '…';
+            }
+
+            function renderContacts(data) {
+                var tbody = document.getElementById('contactsTbody');
+                var meta = document.getElementById('contactsMeta');
+                var pageLabel = document.getElementById('contactsPageLabel');
+                if (!tbody || !meta || !pageLabel) return;
+
+                var items = (data && data.items && Array.isArray(data.items)) ? data.items : [];
+                var p = data && data.pagination ? data.pagination : null;
+
+                contactsState.pages = p && p.pages ? p.pages : 1;
+                contactsState.page = p && p.page ? p.page : contactsState.page;
+
+                pageLabel.textContent = 'Page ' + contactsState.page + ' of ' + contactsState.pages;
+                meta.textContent = (p && typeof p.total === 'number')
+                    ? ('Total: ' + p.total + ' submissions')
+                    : ('Total: ' + items.length + ' submissions');
+
+                if (!items.length) {
+                    tbody.innerHTML = '<tr><td colspan="6" class="muted">No submissions found.</td></tr>';
+                    return;
+                }
+
+                tbody.innerHTML = items.map(function(c) {
+                    var name = [c.firstName, c.lastName].filter(Boolean).join(' ').trim();
+                    var concern = c.concern ? String(c.concern) : '';
+                    var msg = c.message ? String(c.message) : '';
+                    var msgShort = truncateText(msg, 140);
+                    return '<tr>' +
+                        '<td>' + escapeHtml(formatDateTime(c.createdAt)) + '</td>' +
+                        '<td>' + escapeHtml(name || '-') + '</td>' +
+                        '<td>' + escapeHtml(c.email || '-') + '</td>' +
+                        '<td>' + escapeHtml(c.phone || '-') + '</td>' +
+                        '<td>' + (concern ? ('<span class="pill">' + escapeHtml(concern) + '</span>') : '-') + '</td>' +
+                        '<td title="' + escapeHtml(msg) + '">' + escapeHtml(msgShort || '-') + '</td>' +
+                    '</tr>';
+                }).join('');
+            }
+
+            function loadContacts() {
+                var tbody = document.getElementById('contactsTbody');
+                var meta = document.getElementById('contactsMeta');
+                if (tbody) tbody.innerHTML = '<tr><td colspan="6" class="muted">Loading...</td></tr>';
+                if (meta) meta.textContent = 'Loading...';
+
+                var qs = new URLSearchParams();
+                qs.set('page', String(contactsState.page));
+                qs.set('limit', String(contactsState.limit));
+                if (contactsState.search) qs.set('search', contactsState.search);
+
+                return fetch('/api/admin/contacts?' + qs.toString())
+                    .then(function(r) {
+                        return r.json().then(function(data) {
+                            if (r.status === 401) {
+                                window.location.href = '/login.html';
+                                return;
+                            }
+                            if (!r.ok) {
+                                showToast((data && data.error) ? data.error : 'Failed to load submissions', 'error');
+                                if (tbody) tbody.innerHTML = '<tr><td colspan="6" class="muted">Failed to load.</td></tr>';
+                                if (meta) meta.textContent = 'Failed to load.';
+                                return;
+                            }
+                            renderContacts(data);
+                        });
+                    })
+                    .catch(function(err) {
+                        showToast('Failed to load submissions: ' + (err && err.message ? err.message : 'unknown error'), 'error');
+                        if (tbody) tbody.innerHTML = '<tr><td colspan="6" class="muted">Failed to load.</td></tr>';
+                        if (meta) meta.textContent = 'Failed to load.';
+                    });
+            }
+
+            function setupContacts() {
+                var searchEl = document.getElementById('contactsSearch');
+                var refreshBtn = document.getElementById('contactsRefreshBtn');
+                var prevBtn = document.getElementById('contactsPrevBtn');
+                var nextBtn = document.getElementById('contactsNextBtn');
+                if (!searchEl || !refreshBtn || !prevBtn || !nextBtn) return;
+
+                var timer = null;
+                function schedule() {
+                    clearTimeout(timer);
+                    timer = setTimeout(function() {
+                        contactsState.page = 1;
+                        contactsState.search = (searchEl.value || '').trim().slice(0, 120);
+                        loadContacts();
+                    }, 350);
+                }
+
+                searchEl.addEventListener('input', schedule);
+                refreshBtn.addEventListener('click', function() {
+                    contactsState.page = 1;
+                    contactsState.search = (searchEl.value || '').trim().slice(0, 120);
+                    loadContacts();
+                });
+                prevBtn.addEventListener('click', function() {
+                    contactsState.page = Math.max(contactsState.page - 1, 1);
+                    loadContacts();
+                });
+                nextBtn.addEventListener('click', function() {
+                    contactsState.page = Math.min(contactsState.page + 1, contactsState.pages || 1);
+                    loadContacts();
+                });
+
+                loadContacts();
+            }
+
             function checkAuth() {
                 return fetch('/api/auth/check').then(function(r) { return r.json(); }).then(function(data) {
                     if (!data.authenticated) {
@@ -1820,6 +1992,7 @@
                 if (!ok) return;
                 setupAccountSection();
                 setupRestore();
+                setupContacts();
                 return Promise.all([loadContent(), loadCsrfToken()]);
             }).then(function() {
                 if (!content) return;
