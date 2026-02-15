@@ -285,6 +285,20 @@
             <button type="button" class="btn-primary" id="openAccountSettingsBtn">Edit</button>
         </div>
         <div class="card">
+            <h2>Backup & Restore</h2>
+            <p style="font-size: 13px; color: #666; margin-bottom: 12px;">
+                Restore a previously created backup zip (contains <code>data/</code> and <code>uploads/</code>). This will overwrite existing files.
+            </p>
+            <div class="form-group">
+                <label>Backup zip file</label>
+                <input type="file" id="restoreZipFile" accept=".zip,application/zip">
+            </div>
+            <div style="display:flex; gap:10px; align-items:center;">
+                <button type="button" class="btn-danger" id="restoreBtn">Restore backup</button>
+                <span style="font-size:13px; color:#64748b;" id="restoreStatus"></span>
+            </div>
+        </div>
+        <div class="card">
             <h2>Page sections</h2>
             <p style="font-size: 13px; color: #666; margin-bottom: 12px;">Drag to reorder. Toggle to show or hide a section on the website. Changes save automatically.</p>
             <ul class="section-list" id="sectionList">
@@ -1554,6 +1568,55 @@
                 });
             }
 
+            function setupRestore() {
+                var btn = document.getElementById('restoreBtn');
+                var fileInput = document.getElementById('restoreZipFile');
+                var statusEl = document.getElementById('restoreStatus');
+                if (!btn || !fileInput || !statusEl) return;
+
+                function setStatus(text) { statusEl.textContent = text || ''; }
+
+                btn.addEventListener('click', function() {
+                    if (!csrfToken) {
+                        showToast('Missing security token. Please refresh and try again.', 'error');
+                        return;
+                    }
+                    var file = fileInput.files && fileInput.files[0] ? fileInput.files[0] : null;
+                    if (!file) {
+                        showToast('Please choose a backup zip file first.', 'error');
+                        return;
+                    }
+                    if (!window.confirm('Restore will overwrite data/ and uploads/. Continue?')) return;
+
+                    var fd = new FormData();
+                    fd.append('file', file);
+
+                    btn.disabled = true;
+                    setStatus('Restoring...');
+                    fetch('/api/admin/restore', {
+                        method: 'POST',
+                        headers: { 'X-CSRF-Token': csrfToken },
+                        body: fd
+                    }).then(function(r) {
+                        return r.json().then(function(data) {
+                            if (!r.ok) {
+                                showToast(data.error || 'Restore failed', 'error');
+                                setStatus('');
+                                btn.disabled = false;
+                                return;
+                            }
+                            showToast('Restore completed. Reloading...', 'success');
+                            setStatus('Done');
+                            setTimeout(function() { window.location.reload(); }, 1200);
+                        });
+                    }).catch(function(err) {
+                        showToast('Restore failed: ' + (err && err.message ? err.message : 'unknown error'), 'error');
+                        setStatus('');
+                        btn.disabled = false;
+                    });
+                });
+            }
+
             function checkAuth() {
                 return fetch('/api/auth/check').then(function(r) { return r.json(); }).then(function(data) {
                     if (!data.authenticated) {
@@ -1756,6 +1819,7 @@
             checkAuth().then(function(ok) {
                 if (!ok) return;
                 setupAccountSection();
+                setupRestore();
                 return Promise.all([loadContent(), loadCsrfToken()]);
             }).then(function() {
                 if (!content) return;

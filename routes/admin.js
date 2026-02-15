@@ -1,14 +1,18 @@
 const express = require('express');
+const fs = require('fs').promises;
 const path = require('path');
+const os = require('os');
 const csurf = require('csurf');
 const multer = require('multer');
-const { ADMIN_DIR, UPLOADS_DIR } = require('../lib/config');
+const AdmZip = require('adm-zip');
+const { ADMIN_DIR, UPLOADS_DIR, DATA_DIR } = require('../lib/config');
 const { requireAuth } = require('../middleware/auth');
 const { readContent, writeDraftContent, publishDraftContent } = require('../lib/contentStore');
 const { readPosts, writePosts, syncPublishedPosts } = require('../lib/postStore');
 const { validatePostPayload, validatePostsQuery, slugify } = require('../lib/validation');
 const { audit } = require('../lib/audit');
 const logger = require('../lib/logger');
+const { restoreLimiter } = require('../lib/security');
 
 const router = express.Router();
 
@@ -55,6 +59,37 @@ const videoUpload = multer({
   limits: { fileSize: 50 * 1024 * 1024 },
   fileFilter: (req, file, cb) => {
     const ok = /^video\/(mp4|webm|ogg|quicktime|x-m4v)$/i.test(file.mimetype);
+    cb(null, !!ok);
+  },
+});
+
+function safeJoin(baseDir, relPath) {
+  const safeRel = relPath.replace(/^[\\/]+/, '');
+  const dest = path.resolve(baseDir, safeRel);
+  const base = path.resolve(baseDir);
+  if (!dest.startsWith(base + path.sep) && dest !== base) {
+    throw new Error('Invalid path');
+  }
+  return dest;
+}
+
+async function ensureDir(dir) {
+  await fs.mkdir(dir, { recursive: true });
+}
+
+const restoreUpload = multer({
+  storage: multer.diskStorage({
+    destination: function (req, file, cb) {
+      cb(null, os.tmpdir());
+    },
+    filename: function (req, file, cb) {
+      cb(null, 'restore-' + Date.now() + '-' + Math.random().toString(36).slice(2, 8) + '.zip');
+    },
+  }),
+  limits: { fileSize: 250 * 1024 * 1024 },
+  fileFilter: (req, file, cb) => {
+    const name = String(file.originalname || '').toLowerCase();
+    const ok = name.endsWith('.zip') || (file.mimetype || '').toLowerCase().includes('zip');
     cb(null, !!ok);
   },
 });
@@ -126,6 +161,58 @@ router.post('/api/admin/upload-video', requireAuth, csurf(), videoUpload.single(
   if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
   const url = '/uploads/' + path.basename(req.file.path);
   res.json({ success: true, url });
+});
+
+router.post('/api/admin/restore', requireAuth, restoreLimiter, csurf(), restoreUpload.single('file'), async (req, res) => {
+  const zipPath = req.file && req.file.path ? String(req.file.path) : '';
+  if (!zipPath) return res.status(400).json({ error: 'No backup file uploaded' });
+
+  try {
+    const zip = new AdmZip(zipPath);
+    const entries = zip.getEntries();
+    let restoredData = 0;
+    let restoredUploads = 0;
+
+    await ensureDir(DATA_DIR);
+    await ensureDir(UPLOADS_DIR);
+
+    for (const entry of entries) {
+      if (entry.isDirectory) continue;
+      const rawName = String(entry.entryName || '');
+      const normalized = rawName.replace(/\\/g, '/').replace(/^\/+/, '');
+      if (!(normalized.startsWith('data/') || normalized.startsWith('uploads/'))) continue;
+
+      const subPath = normalized.startsWith('data/')
+        ? normalized.slice('data/'.length)
+        : normalized.slice('uploads/'.length);
+
+      const targetBase = normalized.startsWith('data/') ? DATA_DIR : UPLOADS_DIR;
+      const destPath = safeJoin(targetBase, subPath);
+
+      await ensureDir(path.dirname(destPath));
+      const data = entry.getData();
+      await fs.writeFile(destPath, data);
+      if (normalized.startsWith('data/')) restoredData += 1;
+      else restoredUploads += 1;
+    }
+
+    await audit('restore_backup', {
+      user: req.session.userId || 'unknown',
+      restoredData,
+      restoredUploads,
+    });
+
+    res.json({
+      success: true,
+      message: 'Restore completed',
+      restored: { dataFiles: restoredData, uploadFiles: restoredUploads },
+    });
+  } catch (error) {
+    logger.error('Restore failed', { error: error.message });
+    res.status(500).json({ error: 'Restore failed' });
+  } finally {
+    fs.unlink(zipPath).catch(() => {});
+  }
 });
 
 function ensureUniqueSlug(posts, slug, currentId) {
