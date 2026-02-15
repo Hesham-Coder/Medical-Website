@@ -84,8 +84,6 @@ export function createRouter({ onRoute }) {
     run();
   }
 
-  // Allow views to navigate without importing router.
-  window.appNavigate = go;
-
   return { start, go, refresh };
 }
+

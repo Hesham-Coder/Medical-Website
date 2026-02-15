@@ -453,6 +453,7 @@ html[dir="rtl"] .drawer {
   border-radius: 12px;
   background: linear-gradient(90deg, #f2f6fb 0%, #e9f1f9 40%, #f2f6fb 100%);
   background-size: 200% 100%;
+  animation: shimmer 1.25s linear infinite;
 }
 .skeleton--title {
   height: 22px;
@@ -468,4 +469,17 @@ html[dir="rtl"] .drawer {
   margin-top: 14px;
   width: 55%;
 }
-/* No non-essential animations (performance-first). */
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .skeleton {
+    animation: none;
+  }
+}
+
