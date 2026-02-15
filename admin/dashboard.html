@@ -234,6 +234,7 @@
                 <span class="save-status" id="saveStatus">Ready</span>
                 <a href="/" target="_blank">View live</a>
                 <a href="/?preview=1" target="_blank">Preview draft</a>
+                <a href="/content.html">Content / News</a>
                 <button type="button" class="logout" id="publishBtn">Publish changes</button>
                 <span id="headerUsername">—</span>
                 <button type="button" class="logout" id="logoutBtn">Logout</button>
@@ -242,6 +243,11 @@
     </div>
 
     <div class="container">
+        <div class="card">
+            <h2>Content / News</h2>
+            <p style="font-size: 13px; color: #666; margin-bottom: 12px;">Manage News, What&apos;s New, and Articles from the dedicated content section.</p>
+            <a href="/content.html" class="btn-primary" style="display: inline-block; text-decoration: none;">Open Content Dashboard</a>
+        </div>
         <div class="card">
             <h2>Page sections</h2>
             <p style="font-size: 13px; color: #666; margin-bottom: 12px;">Drag to reorder. Toggle to show or hide a section on the website. Changes save automatically.</p>
@@ -475,6 +481,9 @@
                 services: 'Services',
                 team: 'Team',
                 testimonials: 'Testimonials',
+                news: 'News',
+                updates: "What's New",
+                articles: 'Articles',
                 about: 'About',
                 contact: 'Contact',
                 cta: 'CTA Banner'
@@ -501,7 +510,7 @@
                 { name: 'Dr. James Wilson', title: 'Surgical Oncologist', imageUrl: '', bio: 'Pioneer in minimally invasive surgical techniques.', icon: 'surgical', visible: true }
             ];
             function applyDefaults(c) {
-                if (!c.sectionsOrder) c.sectionsOrder = ['hero', 'services', 'team', 'testimonials', 'about', 'contact', 'cta'];
+                if (!c.sectionsOrder) c.sectionsOrder = ['hero', 'services', 'team', 'testimonials', 'news', 'updates', 'articles', 'about', 'contact', 'cta'];
                 if (!c.sectionVisibility) {
                     c.sectionVisibility = {};
                     c.sectionsOrder.forEach(function(id) { c.sectionVisibility[id] = true; });
@@ -512,6 +521,14 @@
                     if (aboutIndex >= 0) c.sectionsOrder.splice(aboutIndex, 0, 'testimonials');
                     else c.sectionsOrder.push('testimonials');
                 }
+                ['news', 'updates', 'articles'].forEach(function(id) {
+                    if (!c.sectionsOrder.includes(id)) {
+                        var aboutIndex = c.sectionsOrder.indexOf('about');
+                        if (aboutIndex >= 0) c.sectionsOrder.splice(aboutIndex, 0, id);
+                        else c.sectionsOrder.push(id);
+                    }
+                    if (c.sectionVisibility[id] === undefined) c.sectionVisibility[id] = true;
+                });
 
                 if (!c.teamSection) c.teamSection = { heading: 'World-Class Specialists', subheading: 'Our team combines decades of experience with cutting-edge research and compassionate care.' };
                 if (!Array.isArray(c.experts) || c.experts.length === 0) c.experts = DEFAULT_EXPERTS.slice();

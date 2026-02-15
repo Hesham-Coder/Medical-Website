@@ -239,12 +239,12 @@
   "sectionsOrder": [
     "hero",
     "services",
-    "about",
     "news",
     "updates",
+    "articles",
+    "about",
     "testimonials",
     "team",
-    "articles",
     "cta",
     "contact"
   ],
@@ -256,7 +256,7 @@
     "contact": true,
     "cta": true,
     "testimonials": true,
-    "news": false,
+    "news": true,
     "updates": true,
     "articles": true
   },

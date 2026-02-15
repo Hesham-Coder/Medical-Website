@@ -1,0 +1,183 @@
+[
+  {
+    "id": "p-20260215-004",
+    "title": "What’s New: Same-Week New Diagnosis Navigation Calls",
+    "slug": "same-week-diagnosis-navigation-calls",
+    "type": "update",
+    "excerpt": "Patients with new diagnoses can now receive a navigation call during the same week to clarify next steps before first visit.",
+    "content": "<p>We introduced same-week navigator outreach for new diagnosis pathways to reduce uncertainty before first consultation.</p>",
+    "featuredImage": "https://images.unsplash.com/photo-1551076805-e1869033e561?auto=format&fit=crop&w=1200&q=80",
+    "author": "Care Navigation Team",
+    "tags": [
+      "patient-navigation",
+      "new-diagnosis"
+    ],
+    "isPublished": true,
+    "isFeatured": true,
+    "seoTitle": "Same-Week Navigation Calls for New Diagnosis",
+    "seoDescription": "Same-week navigation calls now available for new diagnosis pathways.",
+    "createdAt": "2026-02-10T15:45:00.000Z",
+    "updatedAt": "2026-02-15T07:00:00.000Z"
+  },
+  {
+    "id": "p-20260215-007",
+    "title": "Article: How Multidisciplinary Tumor Boards Improve Treatment Decisions",
+    "slug": "how-tumor-boards-improve-treatment-decisions",
+    "type": "article",
+    "excerpt": "A practical overview of how multidisciplinary tumor boards align specialties and improve decision quality in complex oncology care.",
+    "content": "<h2>Why Tumor Boards Matter</h2><p>Tumor boards bring oncology, surgery, radiology, pathology, and supportive care together to review cases from multiple angles.</p><p>This structure helps reduce variation and improves treatment sequencing decisions.</p>",
+    "featuredImage": "https://images.unsplash.com/photo-1576091160550-2173dba999ef?auto=format&fit=crop&w=1200&q=80",
+    "author": "Dr. Sarah Chen",
+    "tags": [
+      "tumor-board",
+      "clinical-decision-making"
+    ],
+    "isPublished": true,
+    "isFeatured": true,
+    "seoTitle": "How Tumor Boards Improve Treatment Decisions",
+    "seoDescription": "Understand how multidisciplinary review improves treatment quality for complex oncology cases.",
+    "createdAt": "2026-02-08T08:40:00.000Z",
+    "updatedAt": "2026-02-15T07:00:00.000Z"
+  },
+  {
+    "id": "p-20260215-005",
+    "title": "What’s New: Extended Evening Infusion Slots",
+    "slug": "extended-evening-infusion-slots",
+    "type": "update",
+    "excerpt": "Infusion unit scheduling now includes additional evening slots on selected weekdays to improve flexibility.",
+    "content": "<p>To support patient access, selected infusion sessions are now available in extended evening windows based on treatment protocol suitability.</p>",
+    "featuredImage": "https://images.unsplash.com/photo-1580281657527-47aaf9d6f0f7?auto=format&fit=crop&w=1200&q=80",
+    "author": "Infusion Services",
+    "tags": [
+      "infusion",
+      "scheduling"
+    ],
+    "isPublished": true,
+    "isFeatured": false,
+    "seoTitle": "Extended Evening Infusion Slots",
+    "seoDescription": "Evening infusion slots added to improve treatment scheduling flexibility.",
+    "createdAt": "2026-02-06T11:20:00.000Z",
+    "updatedAt": "2026-02-15T07:00:00.000Z"
+  },
+  {
+    "id": "p-20260215-001",
+    "title": "Comprehensive Cancer Center Expands Precision Oncology Program",
+    "slug": "precision-oncology-program-expansion",
+    "type": "news",
+    "excerpt": "Our multidisciplinary team added advanced biomarker profiling pathways to improve treatment matching and reduce time to therapy decisions.",
+    "content": "<h2>Program Expansion</h2><p>The center has expanded precision oncology capabilities with broader biomarker and molecular profiling workflows.</p><p>This update supports earlier treatment alignment and stronger multidisciplinary planning for complex oncology cases.</p>",
+    "featuredImage": "https://images.unsplash.com/photo-1579154204601-01588f351e67?auto=format&fit=crop&w=1200&q=80",
+    "author": "Clinical Communications Team",
+    "tags": [
+      "precision-oncology",
+      "biomarkers",
+      "multidisciplinary-care"
+    ],
+    "isPublished": false,
+    "isFeatured": true,
+    "seoTitle": "Precision Oncology Program Expansion | Comprehensive Cancer Center",
+    "seoDescription": "Comprehensive Cancer Center expands precision oncology capabilities with advanced biomarker profiling and faster treatment planning.",
+    "createdAt": "2026-02-02T10:00:00.000Z",
+    "updatedAt": "2026-02-15T01:58:12.599Z"
+  },
+  {
+    "id": "p-20260215-006",
+    "title": "What’s New: Updated Contact Center Routing",
+    "slug": "updated-contact-center-routing",
+    "type": "update",
+    "excerpt": "Contact requests are now routed by care intent to reduce wait time and direct patients faster to the right team.",
+    "content": "<p>Routing improvements now classify requests by clinical intent, helping patients connect to the right pathway with fewer handoffs.</p>",
+    "featuredImage": "https://images.unsplash.com/photo-1483058712412-4245e9b90334?auto=format&fit=crop&w=1200&q=80",
+    "author": "Operations Team",
+    "tags": [
+      "contact-center",
+      "operations"
+    ],
+    "isPublished": true,
+    "isFeatured": false,
+    "seoTitle": "Updated Contact Center Routing",
+    "seoDescription": "New request routing improves first-response direction and lowers delays.",
+    "createdAt": "2026-01-31T14:10:00.000Z",
+    "updatedAt": "2026-02-15T07:00:00.000Z"
+  },
+  {
+    "id": "p-20260215-002",
+    "title": "New Integrated Survivorship Clinic Launches This Quarter",
+    "slug": "integrated-survivorship-clinic-launch",
+    "type": "news",
+    "excerpt": "The new clinic combines oncology follow-up, nutrition, psycho-oncology, and rehabilitation planning in one coordinated pathway.",
+    "content": "<h2>What Patients Can Expect</h2><p>Survivorship pathways now include coordinated follow-up, symptom management, and wellness planning from a single care team.</p><ul><li>Nutrition support</li><li>Psycho-oncology referrals</li><li>Rehabilitation planning</li></ul>",
+    "featuredImage": "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=1200&q=80",
+    "author": "Patient Experience Office",
+    "tags": [
+      "survivorship",
+      "supportive-care"
+    ],
+    "isPublished": true,
+    "isFeatured": false,
+    "seoTitle": "Integrated Survivorship Clinic Launch",
+    "seoDescription": "Comprehensive survivorship care now available through a coordinated clinic model.",
+    "createdAt": "2026-01-25T12:00:00.000Z",
+    "updatedAt": "2026-02-15T07:00:00.000Z"
+  },
+  {
+    "id": "p-20260215-008",
+    "title": "Article: Preparing for Your First Oncology Consultation",
+    "slug": "preparing-for-first-oncology-consultation",
+    "type": "article",
+    "excerpt": "A checklist for patients and families to make first consultations more focused and productive.",
+    "content": "<h2>Before Your Visit</h2><ul><li>Bring all relevant reports</li><li>List current medications</li><li>Prepare key questions and priorities</li></ul><p>Structured preparation helps your care team build a clearer plan faster.</p>",
+    "featuredImage": "https://images.unsplash.com/photo-1516549655169-df83a0774514?auto=format&fit=crop&w=1200&q=80",
+    "author": "Patient Education Desk",
+    "tags": [
+      "first-visit",
+      "patient-guide"
+    ],
+    "isPublished": true,
+    "isFeatured": false,
+    "seoTitle": "Preparing for Your First Oncology Consultation",
+    "seoDescription": "A patient-friendly checklist for first oncology appointments.",
+    "createdAt": "2026-01-20T10:05:00.000Z",
+    "updatedAt": "2026-02-15T07:00:00.000Z"
+  },
+  {
+    "id": "p-20260215-009",
+    "title": "Article: Understanding Supportive Care During Active Treatment",
+    "slug": "understanding-supportive-care-during-treatment",
+    "type": "article",
+    "excerpt": "Supportive care is more than symptom relief. It strengthens treatment tolerance, recovery, and quality of life.",
+    "content": "<h2>Supportive Care Scope</h2><p>Supportive care includes symptom management, nutrition, psychological support, and rehabilitation planning during active treatment.</p>",
+    "featuredImage": "https://images.unsplash.com/photo-1584515933487-779824d29309?auto=format&fit=crop&w=1200&q=80",
+    "author": "Supportive Care Unit",
+    "tags": [
+      "supportive-care",
+      "quality-of-life"
+    ],
+    "isPublished": true,
+    "isFeatured": false,
+    "seoTitle": "Understanding Supportive Care During Treatment",
+    "seoDescription": "Learn how supportive care improves treatment tolerance and outcomes.",
+    "createdAt": "2026-01-14T13:25:00.000Z",
+    "updatedAt": "2026-02-15T07:00:00.000Z"
+  },
+  {
+    "id": "p-20260215-003",
+    "title": "Radiation Planning Workflow Updated for Faster Turnaround",
+    "slug": "radiation-planning-workflow-update",
+    "type": "news",
+    "excerpt": "Updated treatment simulation and planning workflows now reduce the average planning cycle for eligible cases.",
+    "content": "<h2>Operational Improvement</h2><p>Radiation planning teams implemented new workflow checkpoints to shorten planning windows while preserving quality controls.</p>",
+    "featuredImage": "https://images.unsplash.com/photo-1530497610245-94d3c16cda28?auto=format&fit=crop&w=1200&q=80",
+    "author": "Radiation Oncology Unit",
+    "tags": [
+      "radiation-oncology",
+      "workflow"
+    ],
+    "isPublished": true,
+    "isFeatured": false,
+    "seoTitle": "Radiation Planning Workflow Update",
+    "seoDescription": "Faster radiation planning workflow now active for eligible patient pathways.",
+    "createdAt": "2026-01-11T09:30:00.000Z",
+    "updatedAt": "2026-02-15T07:00:00.000Z"
+  }
+]

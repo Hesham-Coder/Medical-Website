@@ -240,11 +240,8 @@
     "hero",
     "services",
     "about",
-    "news",
-    "updates",
     "testimonials",
     "team",
-    "articles",
     "cta",
     "contact"
   ],
@@ -255,10 +252,7 @@
     "about": true,
     "contact": true,
     "cta": true,
-    "testimonials": true,
-    "news": false,
-    "updates": true,
-    "articles": true
+    "testimonials": true
   },
   "contactSection": {
     "heading": {

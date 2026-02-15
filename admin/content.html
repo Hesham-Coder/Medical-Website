@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Content - Admin Dashboard</title>
+  <style>
+    :root {
+      --brand-blue-dark: #004A8D;
+      --brand-blue-light: #0096D6;
+      --bg: #f3f6fb;
+      --card: #ffffff;
+      --border: #dbe5f0;
+      --text: #0f172a;
+      --muted: #64748b;
+      --danger: #b91c1c;
+      --success: #0f766e;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+    .layout {
+      display: grid;
+      grid-template-columns: 240px 1fr;
+      min-height: 100vh;
+    }
+    .sidebar {
+      background: linear-gradient(180deg, var(--brand-blue-dark), #03345f);
+      color: #fff;
+      padding: 20px 16px;
+    }
+    .sidebar h1 {
+      font-size: 18px;
+      margin: 0 0 14px;
+    }
+    .nav-link {
+      display: block;
+      padding: 10px 12px;
+      border-radius: 8px;
+      color: rgba(255, 255, 255, 0.95);
+      text-decoration: none;
+      margin-bottom: 8px;
+      background: rgba(255, 255, 255, 0.08);
+    }
+    .nav-link.active { background: rgba(255, 255, 255, 0.2); }
+    .main {
+      padding: 18px;
+    }
+    .topbar {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.05);
+    }
+    .filters {
+      display: grid;
+      grid-template-columns: 160px 1fr auto;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+    input, select, button, textarea {
+      font: inherit;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 9px 10px;
+      background: #fff;
+      color: var(--text);
+    }
+    button {
+      cursor: pointer;
+      background: #fff;
+    }
+    .btn-primary {
+      background: var(--brand-blue-dark);
+      border-color: var(--brand-blue-dark);
+      color: #fff;
+    }
+    .btn-primary:hover { background: #053b70; }
+    .btn-danger {
+      background: #fff1f2;
+      color: var(--danger);
+      border-color: #fecdd3;
+    }
+    .btn-ghost {
+      background: #f8fafc;
+    }
+    .list {
+      display: grid;
+      gap: 10px;
+    }
+    .item {
+      display: grid;
+      grid-template-columns: 120px 1fr auto;
+      gap: 12px;
+      padding: 10px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: #fff;
+    }
+    .thumb {
+      width: 120px;
+      height: 80px;
+      border-radius: 8px;
+      object-fit: cover;
+      background: #e2e8f0;
+    }
+    .meta h3 {
+      margin: 0 0 4px;
+      font-size: 17px;
+      line-height: 1.2;
+    }
+    .meta p {
+      margin: 0 0 8px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+    .chip {
+      display: inline-flex;
+      border-radius: 999px;
+      font-size: 11px;
+      padding: 4px 8px;
+      background: #eff6ff;
+      color: #1e40af;
+    }
+    .actions {
+      display: grid;
+      gap: 8px;
+      align-content: start;
+    }
+    .muted {
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .footer-row {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 12px;
+      align-items: center;
+    }
+    .modal {
+      position: fixed;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      background: rgba(2, 6, 23, 0.55);
+      padding: 16px;
+      z-index: 999;
+    }
+    .modal.open { display: flex; }
+    .modal-box {
+      width: min(980px, 100%);
+      max-height: 90vh;
+      overflow: auto;
+      background: #fff;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      padding: 14px;
+    }
+    .grid-2 {
+      display: grid;
+      gap: 10px;
+      grid-template-columns: 1fr 1fr;
+    }
+    .field label {
+      display: block;
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 8px;
+    }
+    .editor {
+      min-height: 220px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px;
+      outline: none;
+      background: #fff;
+    }
+    .preview-box {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px;
+      min-height: 140px;
+      background: #f8fafc;
+    }
+    .sr {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip: rect(1px, 1px, 1px, 1px);
+      white-space: nowrap;
+    }
+    @media (max-width: 980px) {
+      .layout { grid-template-columns: 1fr; }
+      .sidebar { display: flex; gap: 8px; align-items: center; }
+      .filters { grid-template-columns: 1fr; }
+      .item { grid-template-columns: 1fr; }
+      .thumb { width: 100%; height: 180px; }
+      .grid-2 { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar">
+      <h1>Content</h1>
+      <a href="/dashboard.html" class="nav-link">Main Dashboard</a>
+      <a href="/content.html" class="nav-link active">News & Updates</a>
+      <a href="/" class="nav-link" target="_blank" rel="noopener noreferrer">View Website</a>
+    </aside>
+    <main class="main">
+      <div class="topbar">
+        <div>
+          <h2 style="margin:0 0 4px;">News, What&apos;s New, and Articles</h2>
+          <div class="muted">Dynamic content management with publish/feature controls</div>
+        </div>
+        <button id="createPostBtn" class="btn-primary">Create Post</button>
+      </div>
+      <section class="card">
+        <div class="filters">
+          <select id="typeFilter">
+            <option value="">All Types</option>
+            <option value="news">News</option>
+            <option value="update">What&apos;s New</option>
+            <option value="article">Articles</option>
+          </select>
+          <input id="searchInput" type="search" placeholder="Search by title, excerpt, author, tag">
+          <button id="searchBtn" class="btn-ghost">Search</button>
+        </div>
+        <div id="stateText" class="muted">Loading...</div>
+        <div id="postsList" class="list" style="margin-top:10px;"></div>
+        <div class="footer-row">
+          <button id="loadMoreBtn" class="btn-ghost" style="display:none;">Load More</button>
+          <div id="paginationText" class="muted"></div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div id="editorModal" class="modal" aria-hidden="true">
+    <div class="modal-box">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;">
+        <h3 id="editorTitle" style="margin:0;">Create Post</h3>
+        <button id="closeEditorBtn" class="btn-ghost">Close</button>
+      </div>
+      <div class="grid-2" style="margin-top:10px;">
+        <div class="field">
+          <label for="postTitle">Title</label>
+          <input id="postTitle" type="text">
+        </div>
+        <div class="field">
+          <label for="postType">Type</label>
+          <select id="postType">
+            <option value="news">News</option>
+            <option value="update">What&apos;s New</option>
+            <option value="article">Article</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="postSlug">Slug</label>
+          <input id="postSlug" type="text">
+        </div>
+        <div class="field">
+          <label for="postAuthor">Author</label>
+          <input id="postAuthor" type="text">
+        </div>
+        <div class="field">
+          <label for="postFeaturedImage">Featured Image URL</label>
+          <input id="postFeaturedImage" type="text" placeholder="/uploads/...">
+          <img id="postFeaturedPreview" alt="" style="display:none;margin-top:8px;width:100%;max-height:180px;object-fit:cover;border-radius:8px;border:1px solid var(--border);">
+        </div>
+        <div class="field">
+          <label class="sr" for="postImageFile">Upload image</label>
+          <input id="postImageFile" type="file" accept="image/*">
+        </div>
+        <div class="field">
+          <label for="postVideoUrl">Video URL</label>
+          <input id="postVideoUrl" type="text" placeholder="/uploads/... or https://...">
+          <video id="postVideoPreview" controls style="display:none;margin-top:8px;width:100%;max-height:220px;border-radius:8px;border:1px solid var(--border);background:#000;"></video>
+          <iframe id="postVideoEmbedPreview" title="Video embed preview" style="display:none;margin-top:8px;width:100%;height:220px;border-radius:8px;border:1px solid var(--border);" allowfullscreen></iframe>
+        </div>
+        <div class="field">
+          <label class="sr" for="postVideoFile">Upload video</label>
+          <input id="postVideoFile" type="file" accept="video/mp4,video/webm,video/ogg,video/quicktime,video/x-m4v,.mov,.m4v">
+        </div>
+        <div class="field">
+          <label for="postTags">Tags (comma separated)</label>
+          <input id="postTags" type="text">
+        </div>
+        <div class="field">
+          <label for="postExcerpt">Excerpt</label>
+          <textarea id="postExcerpt" rows="3"></textarea>
+        </div>
+        <div class="field">
+          <label for="postSeoTitle">SEO Title</label>
+          <input id="postSeoTitle" type="text">
+        </div>
+        <div class="field">
+          <label for="postSeoDescription">SEO Description</label>
+          <textarea id="postSeoDescription" rows="2"></textarea>
+        </div>
+      </div>
+      <div class="field" style="margin-top:10px;">
+        <label>Content (Rich Text)</label>
+        <div class="toolbar">
+          <button type="button" data-cmd="bold">Bold</button>
+          <button type="button" data-cmd="italic">Italic</button>
+          <button type="button" data-cmd="insertUnorderedList">Bullets</button>
+          <button type="button" data-cmd="formatBlock" data-value="h2">H2</button>
+          <button type="button" data-cmd="formatBlock" data-value="p">P</button>
+          <button type="button" data-cmd="createLink">Link</button>
+        </div>
+        <div id="postContent" class="editor" contenteditable="true"></div>
+      </div>
+      <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;">
+        <button id="previewBtn" class="btn-ghost">Preview</button>
+        <button id="savePostBtn" class="btn-primary">Save</button>
+      </div>
+      <div id="previewBox" class="preview-box" style="display:none;margin-top:10px;"></div>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      var csrfToken = '';
+      var page = 1;
+      var limit = 8;
+      var hasNext = false;
+      var currentEditingId = '';
+      var listData = [];
+      var qs = {
+        type: '',
+        search: ''
+      };
+
+      var typeFilter = document.getElementById('typeFilter');
+      var searchInput = document.getElementById('searchInput');
+      var searchBtn = document.getElementById('searchBtn');
+      var postsList = document.getElementById('postsList');
+      var stateText = document.getElementById('stateText');
+      var loadMoreBtn = document.getElementById('loadMoreBtn');
+      var paginationText = document.getElementById('paginationText');
+      var editorModal = document.getElementById('editorModal');
+      var editorTitle = document.getElementById('editorTitle');
+      var previewBox = document.getElementById('previewBox');
+
+      function api(path, options) {
+        options = options || {};
+        options.credentials = 'same-origin';
+        return fetch(path, options).then(function (r) {
+          return r.json().then(function (data) {
+            if (!r.ok) throw new Error(data.error || 'Request failed');
+            return data;
+          });
+        });
+      }
+
+      function checkAuth() {
+        return api('/api/auth/check').then(function (res) {
+          if (!res.authenticated) {
+            window.location.href = '/login.html';
+          }
+        });
+      }
+
+      function loadCsrf() {
+        return api('/api/admin/csrf-token').then(function (res) {
+          csrfToken = res.csrfToken || '';
+        });
+      }
+
+      function buildParams() {
+        var params = new URLSearchParams();
+        params.set('page', String(page));
+        params.set('limit', String(limit));
+        if (qs.type) params.set('type', qs.type);
+        if (qs.search) params.set('search', qs.search);
+        return params.toString();
+      }
+
+      function escapeHtml(text) {
+        return String(text || '')
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;');
+      }
+
+      function labelType(type) {
+        if (type === 'update') return "What's New";
+        if (type === 'article') return 'Article';
+        return 'News';
+      }
+
+      function renderList() {
+        postsList.innerHTML = listData.map(function (post) {
+          var chips = [
+            '<span class="chip">' + labelType(post.type) + '</span>',
+            '<span class="chip">' + (post.isPublished ? 'Published' : 'Draft') + '</span>',
+            post.isFeatured ? '<span class="chip">Featured</span>' : ''
+          ].join('');
+          return '<article class="item">' +
+            (post.featuredImage
+              ? '<img class="thumb" src="' + escapeHtml(post.featuredImage) + '" alt="' + escapeHtml(post.title) + '">'
+              : '<div class="thumb"></div>') +
+            '<div class="meta">' +
+            '<h3>' + escapeHtml(post.title) + '</h3>' +
+            '<p>' + escapeHtml(post.excerpt || '') + '</p>' +
+            '<div class="chips">' + chips + '</div>' +
+            '<p class="muted" style="margin-top:8px;">/' + escapeHtml(post.slug) + ' • ' + escapeHtml(post.author || 'Unknown') + '</p>' +
+            '</div>' +
+            '<div class="actions">' +
+            '<button data-action="edit" data-id="' + post.id + '">Edit</button>' +
+            '<button data-action="publish" data-id="' + post.id + '">' + (post.isPublished ? 'Unpublish' : 'Publish') + '</button>' +
+            '<button data-action="feature" data-id="' + post.id + '">' + (post.isFeatured ? 'Unfeature' : 'Feature') + '</button>' +
+            '<button data-action="open" data-id="' + post.id + '" data-slug="' + escapeHtml(post.slug) + '" class="btn-ghost">Open</button>' +
+            '<button data-action="delete" data-id="' + post.id + '" class="btn-danger">Delete</button>' +
+            '</div>' +
+            '</article>';
+        }).join('');
+      }
+
+      function refreshState(pagination) {
+        hasNext = pagination.hasNext;
+        loadMoreBtn.style.display = hasNext ? 'inline-block' : 'none';
+        paginationText.textContent = 'Page ' + pagination.page + ' of ' + pagination.pages + ' • Total ' + pagination.total;
+        stateText.textContent = listData.length ? '' : 'No posts found.';
+      }
+
+      function loadPosts(reset) {
+        if (reset) {
+          page = 1;
+          listData = [];
+        }
+        stateText.textContent = 'Loading...';
+        return api('/api/admin/posts?' + buildParams())
+          .then(function (res) {
+            listData = reset ? res.items : listData.concat(res.items);
+            renderList();
+            refreshState(res.pagination);
+          })
+          .catch(function (err) {
+            stateText.textContent = err.message;
+          });
+      }
+
+      function openEditor(post) {
+        currentEditingId = post && post.id ? post.id : '';
+        editorTitle.textContent = currentEditingId ? 'Edit Post' : 'Create Post';
+        document.getElementById('postTitle').value = post ? post.title : '';
+        document.getElementById('postSlug').value = post ? post.slug : '';
+        document.getElementById('postType').value = post ? post.type : 'news';
+        document.getElementById('postAuthor').value = post ? post.author : '';
+        document.getElementById('postFeaturedImage').value = post ? post.featuredImage : '';
+        syncFeaturedPreview();
+        document.getElementById('postVideoUrl').value = post ? (post.videoUrl || '') : '';
+        syncVideoPreview();
+        document.getElementById('postTags').value = post ? (post.tags || []).join(', ') : '';
+        document.getElementById('postExcerpt').value = post ? post.excerpt : '';
+        document.getElementById('postSeoTitle').value = post ? post.seoTitle : '';
+        document.getElementById('postSeoDescription').value = post ? post.seoDescription : '';
+        document.getElementById('postContent').innerHTML = post ? (post.content || '') : '';
+        previewBox.style.display = 'none';
+        previewBox.innerHTML = '';
+        editorModal.classList.add('open');
+        editorModal.setAttribute('aria-hidden', 'false');
+      }
+
+      function closeEditor() {
+        editorModal.classList.remove('open');
+        editorModal.setAttribute('aria-hidden', 'true');
+      }
+
+      function collectPayload() {
+        return {
+          title: document.getElementById('postTitle').value.trim(),
+          slug: document.getElementById('postSlug').value.trim(),
+          type: document.getElementById('postType').value,
+          author: document.getElementById('postAuthor').value.trim(),
+          featuredImage: document.getElementById('postFeaturedImage').value.trim(),
+          videoUrl: document.getElementById('postVideoUrl').value.trim(),
+          tags: document.getElementById('postTags').value.trim().split(',').map(function (t) { return t.trim(); }).filter(Boolean),
+          excerpt: document.getElementById('postExcerpt').value.trim(),
+          seoTitle: document.getElementById('postSeoTitle').value.trim(),
+          seoDescription: document.getElementById('postSeoDescription').value.trim(),
+          content: document.getElementById('postContent').innerHTML
+        };
+      }
+
+      function savePost() {
+        var payload = collectPayload();
+        var url = currentEditingId ? '/api/admin/posts/' + encodeURIComponent(currentEditingId) : '/api/admin/posts';
+        var method = currentEditingId ? 'PUT' : 'POST';
+        return api(url, {
+          method: method,
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-Token': csrfToken
+          },
+          body: JSON.stringify(payload)
+        }).then(function () {
+          closeEditor();
+          return loadPosts(true);
+        }).catch(function (err) {
+          alert(err.message);
+        });
+      }
+
+      function toggleAction(id, actionPath) {
+        return api('/api/admin/posts/' + encodeURIComponent(id) + '/' + actionPath, {
+          method: 'PATCH',
+          headers: { 'X-CSRF-Token': csrfToken }
+        }).then(function () {
+          return loadPosts(true);
+        }).catch(function (err) {
+          alert(err.message);
+        });
+      }
+
+      function removePost(id) {
+        return api('/api/admin/posts/' + encodeURIComponent(id), {
+          method: 'DELETE',
+          headers: { 'X-CSRF-Token': csrfToken }
+        }).then(function () {
+          return loadPosts(true);
+        }).catch(function (err) {
+          alert(err.message);
+        });
+      }
+
+      function uploadImage(file) {
+        var fd = new FormData();
+        fd.append('file', file);
+        return fetch('/api/admin/upload', {
+          method: 'POST',
+          headers: { 'X-CSRF-Token': csrfToken },
+          body: fd,
+          credentials: 'same-origin'
+        }).then(function (r) {
+          return r.json().then(function (data) {
+            if (!r.ok || !data.success) throw new Error(data.error || 'Upload failed');
+            document.getElementById('postFeaturedImage').value = data.url;
+            syncFeaturedPreview();
+          });
+        }).catch(function (err) {
+          alert(err.message);
+        });
+      }
+
+      function uploadVideo(file) {
+        var fd = new FormData();
+        fd.append('file', file);
+        return fetch('/api/admin/upload-video', {
+          method: 'POST',
+          headers: { 'X-CSRF-Token': csrfToken },
+          body: fd,
+          credentials: 'same-origin'
+        }).then(function (r) {
+          return r.json().then(function (data) {
+            if (!r.ok || !data.success) throw new Error(data.error || 'Upload failed');
+            document.getElementById('postVideoUrl').value = data.url;
+            syncVideoPreview();
+          });
+        }).catch(function (err) {
+          alert(err.message);
+        });
+      }
+
+      function toSlug(value) {
+        return String(value || '')
+          .toLowerCase()
+          .replace(/['"]/g, '')
+          .replace(/[^a-z0-9]+/g, '-')
+          .replace(/^-+|-+$/g, '')
+          .slice(0, 120);
+      }
+
+      function syncFeaturedPreview() {
+        var input = document.getElementById('postFeaturedImage');
+        var preview = document.getElementById('postFeaturedPreview');
+        var url = (input.value || '').trim();
+        if (!url) {
+          preview.removeAttribute('src');
+          preview.style.display = 'none';
+          return;
+        }
+        preview.src = url;
+        preview.alt = 'Featured image preview';
+        preview.style.display = 'block';
+      }
+
+      function syncVideoPreview() {
+        var input = document.getElementById('postVideoUrl');
+        var preview = document.getElementById('postVideoPreview');
+        var embedPreview = document.getElementById('postVideoEmbedPreview');
+        var url = (input.value || '').trim();
+        function isDirectVideo(rawUrl) {
+          return /(\.mp4|\.webm|\.ogv|\.ogg|\.mov|\.m4v)(\?|#|$)/i.test(rawUrl) || /^\/uploads\/vid-/i.test(rawUrl);
+        }
+        function asEmbedUrl(rawUrl) {
+          if (!rawUrl) return '';
+          if (/youtube\.com\/watch\?v=/i.test(rawUrl)) {
+            var videoId = (rawUrl.split('v=')[1] || '').split('&')[0];
+            return videoId ? 'https://www.youtube.com/embed/' + videoId : '';
+          }
+          if (/youtu\.be\//i.test(rawUrl)) {
+            var shortId = rawUrl.split('youtu.be/')[1].split(/[?&]/)[0];
+            return shortId ? 'https://www.youtube.com/embed/' + shortId : '';
+          }
+          if (/facebook\.com\/.*\/videos\//i.test(rawUrl) || /facebook\.com\/reel\//i.test(rawUrl)) {
+            return 'https://www.facebook.com/plugins/video.php?href=' + encodeURIComponent(rawUrl) + '&show_text=false';
+          }
+          if (/vimeo\.com\/\d+/i.test(rawUrl)) {
+            var vmId = (rawUrl.match(/vimeo\.com\/(\d+)/i) || [])[1];
+            return vmId ? 'https://player.vimeo.com/video/' + vmId : '';
+          }
+          if (/youtube\.com\/embed\//i.test(rawUrl) || /youtube-nocookie\.com\/embed\//i.test(rawUrl) || /player\.vimeo\.com\/video\//i.test(rawUrl) || /facebook\.com\/plugins\/video\.php/i.test(rawUrl)) {
+            return rawUrl;
+          }
+          return '';
+        }
+        if (!url) {
+          preview.removeAttribute('src');
+          preview.style.display = 'none';
+          embedPreview.removeAttribute('src');
+          embedPreview.style.display = 'none';
+          return;
+        }
+        if (isDirectVideo(url)) {
+          embedPreview.removeAttribute('src');
+          embedPreview.style.display = 'none';
+          preview.src = url;
+          preview.style.display = 'block';
+          return;
+        }
+        preview.removeAttribute('src');
+        preview.style.display = 'none';
+        var embedUrl = asEmbedUrl(url);
+        if (!embedUrl) {
+          embedPreview.removeAttribute('src');
+          embedPreview.style.display = 'none';
+          return;
+        }
+        embedPreview.src = embedUrl;
+        embedPreview.style.display = 'block';
+      }
+
+      function bindEvents() {
+        document.getElementById('createPostBtn').addEventListener('click', function () { openEditor(null); });
+        document.getElementById('closeEditorBtn').addEventListener('click', closeEditor);
+        document.getElementById('savePostBtn').addEventListener('click', savePost);
+        document.getElementById('previewBtn').addEventListener('click', function () {
+          var payload = collectPayload();
+          var body = '<h2>' + escapeHtml(payload.title || 'Untitled') + '</h2>' +
+            '<p class="muted">' + labelType(payload.type) + ' • ' + escapeHtml(payload.author || 'Unknown') + '</p>' +
+            '<div>' + payload.content + '</div>';
+          previewBox.innerHTML = body;
+          previewBox.style.display = 'block';
+        });
+        loadMoreBtn.addEventListener('click', function () {
+          page += 1;
+          loadPosts(false);
+        });
+        searchBtn.addEventListener('click', function () {
+          qs.search = searchInput.value.trim();
+          qs.type = typeFilter.value;
+          loadPosts(true);
+        });
+        typeFilter.addEventListener('change', function () {
+          qs.type = typeFilter.value;
+          loadPosts(true);
+        });
+        searchInput.addEventListener('keydown', function (e) {
+          if (e.key === 'Enter') {
+            qs.search = searchInput.value.trim();
+            loadPosts(true);
+          }
+        });
+        document.getElementById('postImageFile').addEventListener('change', function (e) {
+          var file = e.target.files && e.target.files[0];
+          if (file) uploadImage(file);
+          e.target.value = '';
+        });
+        document.getElementById('postVideoFile').addEventListener('change', function (e) {
+          var file = e.target.files && e.target.files[0];
+          if (file) uploadVideo(file);
+          e.target.value = '';
+        });
+        document.getElementById('postFeaturedImage').addEventListener('input', syncFeaturedPreview);
+        document.getElementById('postVideoUrl').addEventListener('input', syncVideoPreview);
+        document.getElementById('postTitle').addEventListener('input', function () {
+          if (currentEditingId) return;
+          var slugInput = document.getElementById('postSlug');
+          if (!slugInput.value.trim()) {
+            slugInput.value = toSlug(document.getElementById('postTitle').value);
+          }
+        });
+        postsList.addEventListener('click', function (e) {
+          var btn = e.target.closest('button[data-action]');
+          if (!btn) return;
+          var action = btn.getAttribute('data-action');
+          var id = btn.getAttribute('data-id');
+          var slug = btn.getAttribute('data-slug');
+          if (action === 'edit') {
+            var post = listData.find(function (x) { return x.id === id; });
+            if (post) openEditor(post);
+          } else if (action === 'publish') {
+            toggleAction(id, 'publish');
+          } else if (action === 'feature') {
+            toggleAction(id, 'feature');
+          } else if (action === 'delete') {
+            if (window.confirm('Delete this post?')) removePost(id);
+          } else if (action === 'open') {
+            window.open('/posts/' + encodeURIComponent(slug) + '?preview=1&id=' + encodeURIComponent(id), '_blank');
+          }
+        });
+        document.querySelectorAll('.toolbar button[data-cmd]').forEach(function (btn) {
+          btn.addEventListener('click', function () {
+            var cmd = btn.getAttribute('data-cmd');
+            var value = btn.getAttribute('data-value');
+            if (cmd === 'createLink') {
+              value = window.prompt('Enter URL');
+              if (!value) return;
+            }
+            document.execCommand(cmd, false, value || null);
+            document.getElementById('postContent').focus();
+          });
+        });
+      }
+
+      checkAuth()
+        .then(loadCsrf)
+        .then(function () {
+          bindEvents();
+          return loadPosts(true);
+        })
+        .catch(function () {
+          window.location.href = '/login.html';
+        });
+    })();
+  </script>
+</body>
+</html>

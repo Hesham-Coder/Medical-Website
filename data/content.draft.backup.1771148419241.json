@@ -239,12 +239,12 @@
   "sectionsOrder": [
     "hero",
     "services",
-    "about",
     "news",
     "updates",
+    "articles",
+    "about",
     "testimonials",
     "team",
-    "articles",
     "cta",
     "contact"
   ],

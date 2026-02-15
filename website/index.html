@@ -1160,6 +1160,60 @@
             </div>
         </section>
 
+        <section id="news" data-section-id="news" class="scroll-depth-item py-16 sm:py-24 lg:py-28 bg-white">
+            <div class="mx-auto max-w-7xl px-4 sm:px-6">
+                <div class="flex items-end justify-between gap-4 mb-8">
+                    <div>
+                        <p class="text-xs font-bold uppercase tracking-widest text-brand-blue-light">Latest</p>
+                        <h2 class="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900">News</h2>
+                    </div>
+                    <a href="/#news" class="text-sm font-semibold text-brand-blue-dark">View all</a>
+                </div>
+                <div id="newsFeatured" class="mb-8"></div>
+                <div id="newsState" class="text-sm text-slate-500 mb-4">Loading...</div>
+                <div id="newsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+                <div class="mt-8">
+                    <button id="newsLoadMore" type="button" class="px-5 py-3 rounded-xl bg-brand-blue-dark text-white font-semibold hidden">Load more</button>
+                </div>
+            </div>
+        </section>
+
+        <section id="updates" data-section-id="updates" class="scroll-depth-item py-16 sm:py-24 lg:py-28 bg-slate-50">
+            <div class="mx-auto max-w-7xl px-4 sm:px-6">
+                <div class="flex items-end justify-between gap-4 mb-8">
+                    <div>
+                        <p class="text-xs font-bold uppercase tracking-widest text-brand-blue-light">Fresh</p>
+                        <h2 class="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900">What&apos;s New</h2>
+                    </div>
+                    <a href="/#updates" class="text-sm font-semibold text-brand-blue-dark">View all</a>
+                </div>
+                <div id="updatesFeatured" class="mb-8"></div>
+                <div id="updatesState" class="text-sm text-slate-500 mb-4">Loading...</div>
+                <div id="updatesGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+                <div class="mt-8">
+                    <button id="updatesLoadMore" type="button" class="px-5 py-3 rounded-xl bg-brand-blue-dark text-white font-semibold hidden">Load more</button>
+                </div>
+            </div>
+        </section>
+
+        <section id="articles" data-section-id="articles" class="scroll-depth-item py-16 sm:py-24 lg:py-28 bg-white">
+            <div class="mx-auto max-w-7xl px-4 sm:px-6">
+                <div class="flex items-end justify-between gap-4 mb-8">
+                    <div>
+                        <p class="text-xs font-bold uppercase tracking-widest text-brand-blue-light">Insights</p>
+                        <h2 class="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900">Articles</h2>
+                    </div>
+                    <a href="/#articles" class="text-sm font-semibold text-brand-blue-dark">View all</a>
+                </div>
+                <div id="articlesFeatured" class="mb-8"></div>
+                <div id="articlesState" class="text-sm text-slate-500 mb-4">Loading...</div>
+                <div id="articlesGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+                <div class="mt-8">
+                    <button id="articlesLoadMore" type="button" class="px-5 py-3 rounded-xl bg-brand-blue-dark text-white font-semibold hidden">Load more</button>
+                </div>
+            </div>
+        </section>
+
         <!-- Contact Section -->
         <section id="contact" data-section-id="contact" class="scroll-depth-item py-16 sm:py-24 lg:py-32 bg-white">
             <div class="mx-auto max-w-7xl px-4 sm:px-6">
@@ -2086,6 +2140,9 @@
                 else if (id === 'services') label = pick('servicesSection.heading') || 'Services';
                 else if (id === 'team') label = pick('teamSection.heading') || 'Team';
                 else if (id === 'testimonials') label = pick('testimonialsSection.heading') || 'Testimonials';
+                else if (id === 'news') label = 'News';
+                else if (id === 'updates') label = "What's New";
+                else if (id === 'articles') label = 'Articles';
                 else if (id === 'about') label = pick('aboutSection.heading') || 'About';
                 else if (id === 'contact') label = pick('contactSection.heading') || 'Contact';
                 else if (id === 'cta') label = pick('ctaSection.heading') || 'CTA';
@@ -2573,6 +2630,7 @@
     <script src="/js/accessibility-manager.js"></script>
     <!-- Scroll Depth Effects -->
     <script src="/js/scroll-depth-effects.js"></script>
+    <script src="/js/posts-sections.js"></script>
 
     <!-- Initialize Systems -->
     <script>

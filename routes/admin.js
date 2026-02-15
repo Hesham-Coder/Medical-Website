@@ -5,6 +5,8 @@ const multer = require('multer');
 const { ADMIN_DIR, UPLOADS_DIR } = require('../lib/config');
 const { requireAuth } = require('../middleware/auth');
 const { readContent, writeDraftContent, publishDraftContent } = require('../lib/contentStore');
+const { readPosts, writePosts, syncPublishedPosts } = require('../lib/postStore');
+const { validatePostPayload, validatePostsQuery, slugify } = require('../lib/validation');
 const { audit } = require('../lib/audit');
 const logger = require('../lib/logger');
 
@@ -36,7 +38,15 @@ const videoStorage = multer.diskStorage({
   },
   filename: function (req, file, cb) {
     const mime = (file.mimetype || '').toLowerCase();
-    const ext = mime.includes('webm') ? '.webm' : mime.includes('ogg') ? '.ogv' : '.mp4';
+    const ext = mime.includes('webm')
+      ? '.webm'
+      : mime.includes('ogg')
+        ? '.ogv'
+        : mime.includes('quicktime')
+          ? '.mov'
+          : mime.includes('x-m4v')
+            ? '.m4v'
+            : '.mp4';
     cb(null, 'vid-' + Date.now() + '-' + Math.random().toString(36).slice(2, 8) + ext);
   },
 });
@@ -44,7 +54,7 @@ const videoUpload = multer({
   storage: videoStorage,
   limits: { fileSize: 50 * 1024 * 1024 },
   fileFilter: (req, file, cb) => {
-    const ok = /^video\/(mp4|webm|ogg)$/i.test(file.mimetype);
+    const ok = /^video\/(mp4|webm|ogg|quicktime|x-m4v)$/i.test(file.mimetype);
     cb(null, !!ok);
   },
 });
@@ -55,6 +65,10 @@ router.get('/dashboard.html', requireAuth, (req, res) => {
 
 router.get('/referral.html', requireAuth, (req, res) => {
   res.sendFile(path.join(ADMIN_DIR, 'referral.html'));
+});
+
+router.get('/content.html', requireAuth, (req, res) => {
+  res.sendFile(path.join(ADMIN_DIR, 'content.html'));
 });
 
 router.get('/api/admin/content', requireAuth, async (req, res) => {
@@ -112,6 +126,189 @@ router.post('/api/admin/upload-video', requireAuth, csurf(), videoUpload.single(
   if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
   const url = '/uploads/' + path.basename(req.file.path);
   res.json({ success: true, url });
+});
+
+function ensureUniqueSlug(posts, slug, currentId) {
+  let candidate = slug;
+  let counter = 2;
+  while (posts.some((post) => post.slug === candidate && post.id !== currentId)) {
+    candidate = `${slug}-${counter}`;
+    counter += 1;
+  }
+  return candidate;
+}
+
+function sortPostsByDate(posts) {
+  return posts.slice().sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+}
+
+router.get('/api/admin/posts', requireAuth, async (req, res) => {
+  try {
+    const query = validatePostsQuery(req.query || {});
+    const raw = sortPostsByDate(await readPosts());
+    const filtered = raw.filter((post) => {
+      if (query.type && post.type !== query.type) return false;
+      if (query.search) {
+        const haystack = [post.title, post.excerpt, post.author, (post.tags || []).join(' ')].join(' ').toLowerCase();
+        if (!haystack.includes(query.search.toLowerCase())) return false;
+      }
+      return true;
+    });
+    const total = filtered.length;
+    const pages = Math.max(Math.ceil(total / query.limit), 1);
+    const safePage = Math.min(query.page, pages);
+    const start = (safePage - 1) * query.limit;
+    const items = filtered.slice(start, start + query.limit);
+    res.json({
+      items,
+      pagination: {
+        page: safePage,
+        limit: query.limit,
+        total,
+        pages,
+        hasNext: safePage < pages,
+      },
+    });
+  } catch (error) {
+    logger.error('Error reading admin posts', { error: error.message });
+    res.status(500).json({ error: 'Failed to read posts' });
+  }
+});
+
+router.get('/api/admin/posts/:slug', requireAuth, async (req, res) => {
+  try {
+    const slug = slugify(req.params.slug || '');
+    if (!slug) return res.status(400).json({ error: 'Slug is required' });
+    const posts = await readPosts();
+    const post = posts.find((item) => item.slug === slug);
+    if (!post) return res.status(404).json({ error: 'Post not found' });
+    res.json(post);
+  } catch (error) {
+    logger.error('Error reading admin post by slug', { error: error.message });
+    res.status(500).json({ error: 'Failed to read post' });
+  }
+});
+
+router.get('/api/admin/posts/id/:id', requireAuth, async (req, res) => {
+  try {
+    const id = String(req.params.id || '').trim();
+    if (!id) return res.status(400).json({ error: 'Invalid post id' });
+    const posts = await readPosts();
+    const post = posts.find((item) => item.id === id);
+    if (!post) return res.status(404).json({ error: 'Post not found' });
+    res.json(post);
+  } catch (error) {
+    logger.error('Error reading admin post by id', { error: error.message });
+    res.status(500).json({ error: 'Failed to read post' });
+  }
+});
+
+router.post('/api/admin/posts', requireAuth, csurf(), async (req, res) => {
+  try {
+    const validation = validatePostPayload(req.body || null);
+    if (!validation.success) return res.status(400).json({ error: validation.error });
+    const posts = await readPosts();
+    const now = new Date().toISOString();
+    const payload = validation.data;
+    payload.id = 'p-' + Date.now() + '-' + Math.random().toString(36).slice(2, 9);
+    payload.slug = ensureUniqueSlug(posts, payload.slug, payload.id);
+    payload.createdAt = now;
+    payload.updatedAt = now;
+    posts.push(payload);
+    const sorted = sortPostsByDate(posts);
+    await writePosts(sorted);
+    await syncPublishedPosts(sorted);
+    await audit('post_create', { postId: payload.id, user: req.session.userId || 'unknown' });
+    res.status(201).json(payload);
+  } catch (error) {
+    logger.error('Error creating post', { error: error.message });
+    res.status(500).json({ error: 'Failed to create post' });
+  }
+});
+
+router.put('/api/admin/posts/:id', requireAuth, csurf(), async (req, res) => {
+  try {
+    const id = String(req.params.id || '').trim();
+    if (!id) return res.status(400).json({ error: 'Invalid post id' });
+    const posts = await readPosts();
+    const index = posts.findIndex((post) => post.id === id);
+    if (index < 0) return res.status(404).json({ error: 'Post not found' });
+    const existing = posts[index];
+    const validation = validatePostPayload(req.body || null, existing);
+    if (!validation.success) return res.status(400).json({ error: validation.error });
+    const payload = validation.data;
+    payload.id = existing.id;
+    payload.createdAt = existing.createdAt;
+    payload.updatedAt = new Date().toISOString();
+    payload.slug = ensureUniqueSlug(posts, payload.slug, payload.id);
+    posts[index] = payload;
+    const sorted = sortPostsByDate(posts);
+    await writePosts(sorted);
+    await syncPublishedPosts(sorted);
+    await audit('post_update', { postId: payload.id, user: req.session.userId || 'unknown' });
+    res.json(payload);
+  } catch (error) {
+    logger.error('Error updating post', { error: error.message });
+    res.status(500).json({ error: 'Failed to update post' });
+  }
+});
+
+router.delete('/api/admin/posts/:id', requireAuth, csurf(), async (req, res) => {
+  try {
+    const id = String(req.params.id || '').trim();
+    if (!id) return res.status(400).json({ error: 'Invalid post id' });
+    const posts = await readPosts();
+    const next = posts.filter((post) => post.id !== id);
+    if (next.length === posts.length) return res.status(404).json({ error: 'Post not found' });
+    const sorted = sortPostsByDate(next);
+    await writePosts(sorted);
+    await syncPublishedPosts(sorted);
+    await audit('post_delete', { postId: id, user: req.session.userId || 'unknown' });
+    res.json({ success: true });
+  } catch (error) {
+    logger.error('Error deleting post', { error: error.message });
+    res.status(500).json({ error: 'Failed to delete post' });
+  }
+});
+
+router.patch('/api/admin/posts/:id/publish', requireAuth, csurf(), async (req, res) => {
+  try {
+    const id = String(req.params.id || '').trim();
+    if (!id) return res.status(400).json({ error: 'Invalid post id' });
+    const posts = await readPosts();
+    const index = posts.findIndex((post) => post.id === id);
+    if (index < 0) return res.status(404).json({ error: 'Post not found' });
+    posts[index].isPublished = !posts[index].isPublished;
+    posts[index].updatedAt = new Date().toISOString();
+    const sorted = sortPostsByDate(posts);
+    await writePosts(sorted);
+    await syncPublishedPosts(sorted);
+    await audit('post_toggle_publish', { postId: id, user: req.session.userId || 'unknown' });
+    res.json(posts[index]);
+  } catch (error) {
+    logger.error('Error toggling publish', { error: error.message });
+    res.status(500).json({ error: 'Failed to toggle publish state' });
+  }
+});
+
+router.patch('/api/admin/posts/:id/feature', requireAuth, csurf(), async (req, res) => {
+  try {
+    const id = String(req.params.id || '').trim();
+    if (!id) return res.status(400).json({ error: 'Invalid post id' });
+    const posts = await readPosts();
+    const index = posts.findIndex((post) => post.id === id);
+    if (index < 0) return res.status(404).json({ error: 'Post not found' });
+    posts[index].isFeatured = !posts[index].isFeatured;
+    posts[index].updatedAt = new Date().toISOString();
+    const sorted = sortPostsByDate(posts);
+    await writePosts(sorted);
+    await syncPublishedPosts(sorted);
+    await audit('post_toggle_feature', { postId: id, user: req.session.userId || 'unknown' });
+    res.json(posts[index]);
+  } catch (error) {
+    logger.error('Error toggling feature', { error: error.message });
+    res.status(500).json({ error: 'Failed to toggle feature state' });
+  }
 });
 
 module.exports = router;
