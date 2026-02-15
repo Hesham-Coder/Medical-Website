@@ -589,6 +589,10 @@
                 left: 8px;
             }
         }
+        /* On small phones, hide the timeline nav to avoid covering content. */
+        @media (max-width: 640px) {
+            .timeline-nav { display: none; }
+        }
 
 
         /* Scroll depth effect for existing sections */
@@ -1024,7 +1028,7 @@
 
                     <!-- Stats -->
                     <div
-                        class="grid grid-cols-3 gap-4 sm:gap-6 pt-6 sm:pt-8 border-t border-slate-200 animate-slide-in-up delay-600">
+                        class="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 pt-6 sm:pt-8 border-t border-slate-200 animate-slide-in-up delay-600">
                         <div class="text-center lg:text-left perspective-container">
                             <p class="text-2xl sm:text-3xl font-black text-brand-blue-dark animate-pulse-3d"
                                 data-content="stats.successRate" data-suffix="%">98%</p>
