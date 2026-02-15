@@ -30,7 +30,12 @@ router.get('/login.html', (req, res) => {
 
 router.post('/login', ensureSessionAvailable, loginLimiter, async (req, res) => {
   try {
-    const username = sanitizeCredentialText(req.body && req.body.username, 64);
+    let username = '';
+    try {
+      username = sanitizeCredentialText(req.body && req.body.username, 64);
+    } catch {
+      return res.status(400).json({ error: 'Invalid username' });
+    }
     const password = String((req.body && req.body.password) || '');
     if (!username || !password) {
       return res.status(400).json({ error: 'Username and password required' });
