@@ -50,18 +50,18 @@
     "excerpt": "Contact requests are now routed by care intent to reduce wait time and direct patients faster to the right team.",
     "content": "<p>Routing improvements now classify requests by clinical intent, helping patients connect to the right pathway with fewer handoffs.</p>",
     "featuredImage": "https://images.unsplash.com/photo-1483058712412-4245e9b90334?auto=format&fit=crop&w=1200&q=80",
-    "videoUrl": "",
+    "videoUrl": "https://www.facebook.com/reel/8113161795385494",
     "author": "Operations Team",
     "tags": [
       "contact-center",
       "operations"
     ],
     "isPublished": true,
-    "isFeatured": false,
+    "isFeatured": true,
     "seoTitle": "Updated Contact Center Routing",
     "seoDescription": "New request routing improves first-response direction and lowers delays.",
     "createdAt": "2026-01-31T14:10:00.000Z",
-    "updatedAt": "2026-02-15T07:00:00.000Z"
+    "updatedAt": "2026-02-15T19:16:56.419Z"
   },
   {
     "id": "p-20260215-002",
