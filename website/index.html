@@ -523,13 +523,71 @@
             right: auto;
             left: 2px;
         }
-        @media (max-width: 768px) {
+        @media (max-width: 1024px) {
             .timeline-nav {
-                right: 10px;
-                padding: 8px 6px;
+                right: 8px;
+                padding: 12px 4px;
+                background: rgba(255, 255, 255, 0.4);
+                backdrop-filter: blur(8px);
+                border-radius: 20px;
+                border: 1px solid rgba(0, 74, 141, 0.1);
+                width: 32px;
+                height: 120px;
+                justify-content: center;
+                align-items: center;
+                overflow: hidden;
             }
-            .timeline-item { font-size: 11px; padding: 6px 8px; }
-            .timeline-dot { width: 9px; height: 9px; }
+            .timeline-nav::before {
+                content: "";
+                width: 4px;
+                height: 40px;
+                background: rgba(0, 74, 141, 0.2);
+                border-radius: 999px;
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+            }
+            .timeline-nav::after {
+                content: "drag_handle";
+                font-family: 'Material Symbols Outlined';
+                font-size: 20px;
+                color: var(--brand-blue-dark);
+                opacity: 0.8;
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background: white;
+                padding: 4px;
+                border-radius: 50%;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+                z-index: 2;
+            }
+            .timeline-nav.is-dragging {
+                background: rgba(255, 255, 255, 0.8);
+                width: 40px;
+                border-color: var(--brand-blue-light);
+            }
+            .timeline-item { 
+                display: none !important; 
+            }
+            /* Visual indicator for the scroll track on mobile */
+            .timeline-nav .scroll-track {
+                position: absolute;
+                top: 10px;
+                bottom: 10px;
+                left: 50%;
+                transform: translateX(-50%);
+                width: 4px;
+                background: linear-gradient(180deg, var(--brand-blue-light), var(--brand-blue-dark));
+                border-radius: 999px;
+                opacity: 0.3;
+            }
+            html[dir="rtl"] .timeline-nav {
+                right: auto;
+                left: 8px;
+            }
         }
 
 
@@ -711,7 +769,9 @@
             </div>
         </div>
     </div>
-    <nav id="timelineNav" class="timeline-nav" aria-label="Section timeline navigation"></nav>
+    <nav id="timelineNav" class="timeline-nav" aria-label="Section timeline navigation">
+        <div class="scroll-track lg:hidden"></div>
+    </nav>
     <div class="global-particles force-particles" aria-hidden="true">
         <span class="particle" style="top: 6%; left: 6%; width: 6px; height: 6px; background:#22D3EE;"></span>
         <span class="particle" style="top: 10%; left: 18%; width: 4px; height: 4px; background:#F97316; animation-delay: 2s;"></span>
@@ -1820,6 +1880,19 @@
 
             function hideLoader() {
                 if (done) return;
+                
+                // For mobile and tablets, we ensure extra checks if needed
+                var isMobileOrTablet = window.innerWidth <= 1024;
+                if (isMobileOrTablet) {
+                    // Check if critical data systems are ready
+                    var systemsReady = !!(window.websiteContent && window.attentionNav && window.languageManager);
+                    if (!systemsReady && performance.now() - t0 < 10000) {
+                        // If not ready and under 10s, wait a bit more
+                        setTimeout(hideLoader, 200);
+                        return;
+                    }
+                }
+
                 done = true;
                 loader.setAttribute('aria-busy', 'false');
                 setProgress(1);
@@ -1828,8 +1901,13 @@
             }
 
             // Hide on full load, but also add a safety timeout so it never gets stuck.
-            window.addEventListener('load', hideLoader, { once: true });
-            setTimeout(hideLoader, 7000);
+            window.addEventListener('load', function() {
+                // Small delay to ensure any post-load JS execution completes
+                setTimeout(hideLoader, 100);
+            }, { once: true });
+            
+            // Safety timeout
+            setTimeout(hideLoader, 12000);
         })();
 
 
@@ -2156,7 +2234,8 @@
     <script>
         (function () {
             var currentLang = localStorage.getItem('lang') || 'en';
-            var websiteContent = null;
+            window.websiteContent = null;
+            var websiteContent = null; // Local reference for existing code
             var coverageModalTimeout = null;
 
             function get(obj, path) {
@@ -2296,12 +2375,22 @@
                 if (!nav || !main) return;
                 var sections = Array.prototype.slice.call(main.querySelectorAll('[data-section-id]'))
                     .filter(function (el) { return el.style.display !== 'none'; });
-                nav.innerHTML = sections.map(function (sectionEl) {
+                var itemsHtml = sections.map(function (sectionEl) {
                     var id = sectionEl.getAttribute('data-section-id');
                     var label = getSectionLabel(c, id, lang, sectionEl);
                     return '<button type="button" class="timeline-item" data-target="' + id + '">' +
                         '<span class="timeline-dot"></span><span class="timeline-label">' + escapeHtml(label) + '</span></button>';
                 }).join('');
+                
+                // Keep the scroll-track if it exists
+                var track = nav.querySelector('.scroll-track');
+                nav.innerHTML = '';
+                if (track) nav.appendChild(track);
+                var container = document.createElement('div');
+                container.innerHTML = itemsHtml;
+                while (container.firstChild) {
+                    nav.appendChild(container.firstChild);
+                }
 
                 if (!nav.dataset.bound) {
                     nav.addEventListener('click', function (e) {
@@ -2781,6 +2870,7 @@
             var isPreview = window.location.search.indexOf('preview=1') !== -1;
             var contentEndpoint = isPreview ? '/api/admin/content' : '/api/public/content';
             fetch(contentEndpoint).then(function (r) { return r.json(); }).then(function (c) {
+                window.websiteContent = c;
                 websiteContent = c;
                 applySections(c);
                 applyExperts(c);
