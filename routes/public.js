@@ -18,11 +18,27 @@ router.get('/', (req, res) => {
 });
 
 router.get('/posts/:slug', (req, res) => {
-  res.sendFile(path.join(WEBSITE_DIR, 'post.html'));
+  // SPA route (client renders the post view)
+  res.sendFile(path.join(WEBSITE_DIR, 'index.html'));
 });
 
 router.get('/posts', (req, res) => {
-  res.redirect('/#news');
+  // Legacy path -> new navigation-driven route (no anchor scrolling)
+  res.redirect('/news');
+});
+
+// Navigation-driven routes (SPA). Keep server-side routing stable on refresh/deep links.
+[
+  '/services',
+  '/team',
+  '/stories',
+  '/news',
+  '/updates',
+  '/articles',
+  '/about',
+  '/contact',
+].forEach((p) => {
+  router.get(p, (req, res) => res.sendFile(path.join(WEBSITE_DIR, 'index.html')));
 });
 
 router.get('/robots.txt', (req, res) => {
