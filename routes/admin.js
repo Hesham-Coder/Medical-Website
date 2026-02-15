@@ -56,10 +56,16 @@ const videoStorage = multer.diskStorage({
 });
 const videoUpload = multer({
   storage: videoStorage,
-  limits: { fileSize: 50 * 1024 * 1024 },
+  // About/dashboard videos can be larger. Keep a reasonable cap to avoid OOM on small instances.
+  // Override via env if needed (value in MB).
+  limits: { fileSize: (parseInt(process.env.MAX_VIDEO_UPLOAD_MB, 10) || 120) * 1024 * 1024 },
   fileFilter: (req, file, cb) => {
-    const ok = /^video\/(mp4|webm|ogg|quicktime|x-m4v)$/i.test(file.mimetype);
-    cb(null, !!ok);
+    const mime = String(file.mimetype || '').toLowerCase();
+    const name = String(file.originalname || '').toLowerCase();
+    const extOk = /\.(mp4|webm|ogv|ogg|mov|m4v)$/.test(name);
+    const mimeOk = /^video\/(mp4|webm|ogg|quicktime|x-m4v)$/i.test(mime);
+    // Some browsers (especially on mobile) may send an empty/incorrect mimetype for MP4.
+    cb(null, Boolean(mimeOk || extOk));
   },
 });
 

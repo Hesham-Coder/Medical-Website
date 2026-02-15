@@ -544,6 +544,7 @@
                     <div class="drop-label">Drag & drop or click to upload</div>
                     <video class="drop-preview" id="previewAboutVideo" src="" controls style="display: none; width: 100%; border-radius: 8px;"></video>
                     <input type="file" id="fileAboutVideo" accept="video/*">
+                    <div class="muted" id="aboutVideoUploadStatus" style="margin-top:8px; font-size:13px; color:#64748b; min-height:18px;"></div>
                 </div>
             </div>
         </div>
@@ -1955,6 +1956,7 @@
                 var fileInput = document.getElementById(fileId);
                 var preview = document.getElementById(previewId);
                 if (!drop || !fileInput || !preview) return;
+                var statusEl = (dropId === 'dropAboutVideo') ? document.getElementById('aboutVideoUploadStatus') : null;
                 function setPreview(url) {
                     if (url) {
                         preview.src = url;
@@ -1964,33 +1966,80 @@
                         preview.style.display = 'none';
                     }
                 }
+
+                function xhrUploadJson(url, formData, headers, onProgress) {
+                    headers = headers || {};
+                    // Default 60 minutes (large uploads / slow networks)
+                    var timeoutMs = 60 * 60 * 1000;
+                    return new Promise(function(resolve, reject) {
+                        var xhr = new XMLHttpRequest();
+                        xhr.open('POST', url, true);
+                        xhr.withCredentials = true;
+                        Object.keys(headers).forEach(function(k) { xhr.setRequestHeader(k, headers[k]); });
+
+                        xhr.upload.onprogress = function(e) {
+                            if (!onProgress) return;
+                            if (e.lengthComputable) onProgress(Math.round((e.loaded / e.total) * 100));
+                            else onProgress(null);
+                        };
+
+                        xhr.onload = function() {
+                            var text = xhr.responseText || '';
+                            var data = null;
+                            try { data = text ? JSON.parse(text) : {}; } catch { data = {}; }
+                            if (xhr.status >= 200 && xhr.status < 300) return resolve(data);
+                            reject(new Error((data && data.error) || ('Upload failed (' + xhr.status + ')')));
+                        };
+                        xhr.onerror = function() { reject(new Error('Network error')); };
+                        xhr.ontimeout = function() { reject(new Error('Request timeout after ' + Math.round(timeoutMs / 60000) + ' minutes')); };
+                        xhr.timeout = timeoutMs;
+                        xhr.send(formData);
+                    });
+                }
+
+                function looksLikeVideoFile(file) {
+                    if (!file) return false;
+                    var name = String(file.name || '').toLowerCase();
+                    var type = String(file.type || '').toLowerCase();
+                    if (type.indexOf('video/') === 0) return true;
+                    // Some browsers send empty/incorrect type for mp4.
+                    return /\.(mp4|webm|ogv|ogg|mov|m4v)$/.test(name);
+                }
+
                 function uploadFile(file) {
-                    if (!file || !file.type.match(/^video\//)) { showToast('Please choose a video file', 'error'); return; }
+                    if (!looksLikeVideoFile(file)) { showToast('Please choose an MP4/WebM/OGG video file', 'error'); return; }
                     var fd = new FormData();
                     fd.append('file', file);
                     setSaveStatus('Uploading...', 'saving');
-                    fetch('/api/admin/upload-video', {
-                        method: 'POST',
-                        headers: csrfToken ? { 'X-CSRF-Token': csrfToken } : {},
-                        body: fd
-                    })
-                        .then(function(r) { return r.json(); })
-                        .then(function(data) {
-                            if (data.success && data.url) {
-                                var keys = contentKey.split('.');
-                                var obj = content;
-                                for (var i = 0; i < keys.length - 1; i++) {
-                                    if (!obj[keys[i]]) obj[keys[i]] = {};
-                                    obj = obj[keys[i]];
-                                }
-                                obj[keys[keys.length - 1]] = data.url;
-                                setPreview(data.url);
-                                scheduleSave();
-                                showToast('Video saved', 'success');
-                            } else showToast(data.error || 'Upload failed', 'error');
-                            setSaveStatus('Ready', '');
-                        })
-                        .catch(function() { showToast('Upload failed', 'error'); setSaveStatus('Ready', ''); });
+                    if (statusEl) statusEl.textContent = 'Uploading... 0%';
+                    xhrUploadJson('/api/admin/upload-video', fd, csrfToken ? { 'X-CSRF-Token': csrfToken } : {}, function(pct) {
+                        if (!statusEl) return;
+                        statusEl.textContent = pct == null ? 'Uploading...' : ('Uploading... ' + pct + '%');
+                    }).then(function(data) {
+                        if (data.success && data.url) {
+                            var keys = contentKey.split('.');
+                            var obj = content;
+                            for (var i = 0; i < keys.length - 1; i++) {
+                                if (!obj[keys[i]]) obj[keys[i]] = {};
+                                obj = obj[keys[i]];
+                            }
+                            obj[keys[keys.length - 1]] = data.url;
+                            setPreview(data.url);
+                            scheduleSave();
+                            showToast('Video saved', 'success');
+                            if (statusEl) statusEl.textContent = 'Uploaded. 100%';
+                        } else {
+                            var msg = (data && data.error) ? data.error : 'Upload failed';
+                            showToast(msg, 'error');
+                            if (statusEl) statusEl.textContent = 'Error: ' + msg;
+                        }
+                        setSaveStatus('Ready', '');
+                    }).catch(function(err) {
+                        var msg = err && err.message ? err.message : 'Upload failed';
+                        showToast(msg, 'error');
+                        if (statusEl) statusEl.textContent = 'Error: ' + msg;
+                        setSaveStatus('Ready', '');
+                    });
                 }
                 drop.addEventListener('click', function(e) { if (e.target !== fileInput) fileInput.click(); });
                 fileInput.addEventListener('change', function() {
