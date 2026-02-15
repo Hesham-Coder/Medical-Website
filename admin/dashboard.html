@@ -302,8 +302,12 @@
                 <label>Backup zip file</label>
                 <input type="file" id="restoreZipFile" accept=".zip,application/zip">
             </div>
-            <div style="display:flex; gap:10px; align-items:center;">
+            <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
                 <button type="button" class="btn-danger" id="restoreBtn">Restore backup</button>
+                <label for="restoreTimeoutMinutes" class="muted" style="display:flex; gap:8px; align-items:center; font-size:13px; color:#64748b;">
+                    Timeout (minutes)
+                    <input id="restoreTimeoutMinutes" type="number" min="1" max="1440" step="1" value="60" style="width:92px;">
+                </label>
                 <span style="font-size:13px; color:#64748b;" id="restoreStatus"></span>
             </div>
         </div>
@@ -1611,12 +1615,20 @@
                 var btn = document.getElementById('restoreBtn');
                 var fileInput = document.getElementById('restoreZipFile');
                 var statusEl = document.getElementById('restoreStatus');
+                var timeoutInput = document.getElementById('restoreTimeoutMinutes');
                 if (!btn || !fileInput || !statusEl) return;
 
                 function setStatus(text) { statusEl.textContent = text || ''; }
 
                 function xhrUploadJson(url, formData, headers, onProgress) {
                     headers = headers || {};
+                    var timeoutMs = 60 * 60 * 1000; // 60 minutes default
+                    if (timeoutInput) {
+                        var minutes = parseInt(timeoutInput.value, 10);
+                        if (!Number.isNaN(minutes) && minutes > 0) {
+                            timeoutMs = Math.min(minutes, 1440) * 60 * 1000;
+                        }
+                    }
                     return new Promise(function(resolve, reject) {
                         var xhr = new XMLHttpRequest();
                         xhr.open('POST', url, true);
@@ -1637,11 +1649,24 @@
                             reject(new Error((data && data.error) || ('Restore failed (' + xhr.status + ')')));
                         };
                         xhr.onerror = function() { reject(new Error('Network error')); };
-                        xhr.ontimeout = function() { reject(new Error('Request timeout')); };
-                        xhr.timeout = 180000;
+                        xhr.ontimeout = function() {
+                            reject(new Error('Request timeout after ' + Math.round(timeoutMs / 60000) + ' minutes'));
+                        };
+                        xhr.timeout = timeoutMs;
                         xhr.send(formData);
                     });
                 }
+
+                // Persist timeout minutes (browser localStorage)
+                try {
+                    if (timeoutInput && window.localStorage) {
+                        var saved = window.localStorage.getItem('restoreTimeoutMinutes');
+                        if (saved) timeoutInput.value = saved;
+                        timeoutInput.addEventListener('change', function() {
+                            window.localStorage.setItem('restoreTimeoutMinutes', String(timeoutInput.value || '').trim());
+                        });
+                    }
+                } catch (e) {}
 
                 btn.addEventListener('click', function() {
                     if (!csrfToken) {
