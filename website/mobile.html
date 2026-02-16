@@ -629,6 +629,18 @@
             logo.setAttribute("src", String(logoUrl));
             logo.setAttribute("alt", title + " logo");
           }
+          if (logoUrl) {
+            document
+              .querySelectorAll('link[rel="icon"], link[rel="shortcut icon"], link[rel="apple-touch-icon"]')
+              .forEach(function (linkEl) { linkEl.setAttribute("href", String(logoUrl)); });
+            if (!document.querySelector('link[rel="icon"]')) {
+              var iconLink = document.createElement("link");
+              iconLink.setAttribute("rel", "icon");
+              iconLink.setAttribute("type", "image/png");
+              iconLink.setAttribute("href", String(logoUrl));
+              document.head.appendChild(iconLink);
+            }
+          }
 
           var heroImg = document.getElementById("heroImage");
           var heroUrl = c.siteInfo ? i18n(c.siteInfo.heroImageUrl) : "";

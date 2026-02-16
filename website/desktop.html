@@ -2560,6 +2560,20 @@
                     var url = get(c, el.getAttribute('data-content-src'));
                     if (url && typeof url === 'string') el.src = url;
                 });
+                var logoUrl = get(c, 'siteInfo.logoUrl');
+                if (logoUrl && typeof logoUrl === 'object') logoUrl = getLocalized(logoUrl, lang);
+                if (logoUrl && typeof logoUrl === 'string') {
+                    document.querySelectorAll('link[rel="icon"], link[rel="shortcut icon"], link[rel="apple-touch-icon"]').forEach(function (linkEl) {
+                        linkEl.setAttribute('href', logoUrl);
+                    });
+                    if (!document.querySelector('link[rel="icon"]')) {
+                        var iconLink = document.createElement('link');
+                        iconLink.setAttribute('rel', 'icon');
+                        iconLink.setAttribute('type', 'image/png');
+                        iconLink.setAttribute('href', logoUrl);
+                        document.head.appendChild(iconLink);
+                    }
+                }
                 document.querySelectorAll('[data-content-attr]').forEach(function (el) {
                     var attrSpec = el.getAttribute('data-content-attr') || '';
                     var parts = attrSpec.split(':');
