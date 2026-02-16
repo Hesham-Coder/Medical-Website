@@ -21,7 +21,8 @@
       <div class="mx-auto flex h-14 max-w-xl items-center justify-between px-4 sm:h-16 sm:px-5">
         <a href="/" class="flex items-center gap-2" aria-label="Go to homepage">
           <img
-            src="/assets/logo.svg"
+            id="siteLogo"
+            src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw=="
             alt="Clinic logo"
             class="h-8 w-8 rounded-lg bg-slate-100 object-contain"
             loading="eager"
@@ -126,8 +127,8 @@
             <div class="overflow-hidden rounded-2xl border border-slate-200 bg-slate-100">
               <img
                 id="heroImage"
-                src="/uploads/hero-doctor.jpg"
-                alt="Doctor smiling in clinic"
+                src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw=="
+                alt="Hero image"
                 class="h-44 w-full object-cover sm:h-40 sm:w-44"
                 loading="lazy"
               />
@@ -478,6 +479,14 @@
         }
         setDebug("JS loaded. Fetching content...");
 
+        // Hide broken images to avoid ugly broken icons.
+        (function () {
+          var logo = document.getElementById("siteLogo");
+          if (logo) logo.addEventListener("error", function () { logo.style.display = "none"; });
+          var hero = document.getElementById("heroImage");
+          if (hero) hero.addEventListener("error", function () { hero.style.display = "none"; });
+        })();
+
         function pickLang() {
           try {
             return (localStorage.getItem("lang") || "en") === "ar" ? "ar" : "en";
@@ -613,6 +622,20 @@
           // Title + tagline
           var title = i18n(c.siteInfo && c.siteInfo.title) || "Comprehensive Cancer Center";
           document.title = title;
+
+          var logo = document.getElementById("siteLogo");
+          var logoUrl = c.siteInfo ? i18n(c.siteInfo.logoUrl) : "";
+          if (logo && logoUrl) {
+            logo.setAttribute("src", String(logoUrl));
+            logo.setAttribute("alt", title + " logo");
+          }
+
+          var heroImg = document.getElementById("heroImage");
+          var heroUrl = c.siteInfo ? i18n(c.siteInfo.heroImageUrl) : "";
+          if (heroImg && heroUrl) {
+            heroImg.setAttribute("src", String(heroUrl));
+            heroImg.setAttribute("alt", title + " hero image");
+          }
 
           var heroKicker = document.getElementById("heroKicker");
           if (heroKicker) {
