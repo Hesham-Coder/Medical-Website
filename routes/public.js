@@ -45,9 +45,9 @@ router.get('/desktop/posts/:slug', (req, res) => {
 });
 
 router.get('/posts/:slug', (req, res) => {
-  // Mobile/tablet: SPA bootstrap page. Desktop: legacy post page.
-  const file = isMobileOrTablet(req) ? 'post.html' : 'post-desktop.html';
-  res.sendFile(path.join(WEBSITE_DIR, file));
+  // Serve the stable standalone post page on all devices.
+  // The mobile SPA post bootstrap currently depends on missing modules.
+  res.sendFile(path.join(WEBSITE_DIR, 'post-desktop.html'));
 });
 
 router.get('/posts', (req, res) => {
