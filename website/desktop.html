@@ -1358,6 +1358,25 @@
             </div>
         </section>
 
+        <!-- Certificates Section -->
+        <section id="certificates" data-section-id="certificates"
+            class="scroll-depth-item py-16 sm:py-24 lg:py-28 bg-slate-50 relative overflow-hidden">
+            <div
+                class="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-brand-blue-light to-blue-100 rounded-full blur-3xl opacity-10 -mr-48 -mt-48 animate-pulse-3d">
+            </div>
+            <div class="mx-auto max-w-7xl px-4 sm:px-6 relative z-10">
+                <div class="text-center max-w-3xl mx-auto mb-12 sm:mb-16 animate-slide-in-up">
+                    <h2 class="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 mb-4 sm:mb-6"
+                        data-content="certificatesSection.heading">Our Certifications</h2>
+                    <p class="text-base sm:text-lg text-slate-600"
+                        data-content="certificatesSection.subheading">Accreditations and quality standards we are proud to maintain.</p>
+                </div>
+                <div id="certificatesGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+                    <!-- Certificate cards injected by JS -->
+                </div>
+            </div>
+        </section>
+
         <!-- Testimonials Section -->
         <section id="testimonials" data-section-id="testimonials"
             class="scroll-depth-item py-16 sm:py-24 lg:py-32 bg-slate-50 relative overflow-hidden">
@@ -2436,6 +2455,7 @@
                 else if (id === 'updates') label = "What's New";
                 else if (id === 'articles') label = 'Articles';
                 else if (id === 'about') label = pick('aboutSection.heading') || 'About';
+                else if (id === 'certificates') label = pick('certificatesSection.heading') || 'Certificates';
                 else if (id === 'contact') label = pick('contactSection.heading') || 'Contact';
                 else if (id === 'cta') label = pick('ctaSection.heading') || 'CTA';
                 if (!label && sectionEl) {
@@ -2931,6 +2951,23 @@
                         '</div></article>';
                 }).join('');
             }
+            function applyCertificates(c) {
+                var grid = document.getElementById('certificatesGrid');
+                if (!grid) return;
+                var list = Array.isArray(c.certificates) ? c.certificates.filter(function (item) { return item && item.visible !== false; }) : [];
+                grid.innerHTML = list.map(function (item, i) {
+                    var desc = getLocalized(item.description || '', currentLang);
+                    var image = item.imageUrl
+                        ? '<img src="' + escapeHtml(item.imageUrl) + '" alt="Certificate ' + (i + 1) + '" class="w-full h-48 sm:h-56 object-cover">'
+                        : '<div class="w-full h-48 sm:h-56 bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center text-slate-500 text-sm font-semibold">No image</div>';
+                    return '<article class="bg-white rounded-2xl sm:rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 animate-scale-in">' +
+                        image +
+                        '<div class="p-5 sm:p-6 border-t border-slate-100">' +
+                        '<p class="text-sm sm:text-base text-slate-700 leading-relaxed">' + escapeHtml(desc || '') + '</p>' +
+                        '</div>' +
+                        '</article>';
+                }).join('');
+            }
 
             function applyServices(c) {
                 var grid = document.getElementById('servicesGrid');
@@ -2979,6 +3016,7 @@
                 applyExperts(c);
                 applyServices(c);
                 applyTestimonials(c);
+                applyCertificates(c);
                 setupCoverageModal();
                 setLanguage(currentLang);
                 document.querySelectorAll('.lang-toggle').forEach(function (btn) {

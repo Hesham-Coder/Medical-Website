@@ -511,6 +511,42 @@
         </div>
 
         <div class="card">
+            <h2>Certificates</h2>
+            <p style="font-size: 13px; color: #666; margin-bottom: 12px;">Manage certificates shown under About. Add image + description, reorder, or hide items.</p>
+            <ul class="experts-list" id="certificatesList"></ul>
+            <button type="button" class="btn-primary" id="addCertificateBtn" style="margin-top: 12px;">Add certificate</button>
+            <div class="expert-form" id="certificateForm">
+                <h3 style="font-size: 16px; margin-bottom: 12px;" id="certificateFormTitle">Edit certificate</h3>
+                <div class="form-group">
+                    <label>Certificate image</label>
+                    <div class="drop-zone" id="dropCertificateImage">
+                        <div class="drop-label">Drag & drop or click to upload</div>
+                        <img class="drop-preview" id="previewCertificateImage" src="" alt="" style="display: none;">
+                        <input type="file" id="fileCertificateImage" accept="image/*">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Description (English)</label>
+                    <textarea id="certificateDescriptionEn" rows="3" placeholder="Description shown below the image"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Description (Arabic)</label>
+                    <textarea id="certificateDescriptionAr" rows="3" placeholder="الوصف الظاهر أسفل الصورة"></textarea>
+                </div>
+                <div class="form-group">
+                    <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                        <div class="toggle" id="certificateVisibleToggle" role="button" tabindex="0"></div>
+                        <span>Visible on website</span>
+                    </label>
+                </div>
+                <div style="display: flex; gap: 10px; margin-top: 16px;">
+                    <button type="button" class="btn-primary" id="certificateFormSave">Save</button>
+                    <button type="button" class="btn-secondary" id="certificateFormCancel">Cancel</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
             <h2>Edit content</h2>
             <p style="font-size: 13px; color: #666; margin-bottom: 12px;">Use <strong>English</strong> / <strong>Arabic</strong> tabs in each section to edit both languages. Changes save automatically.</p>
             <div class="tabs" id="editorTabs"></div>
@@ -626,6 +662,7 @@
                 services: 'Services',
                 team: 'Team',
                 testimonials: 'Testimonials',
+                certificates: 'Certificates',
                 news: 'News',
                 updates: "What's New",
                 articles: 'Articles',
@@ -655,7 +692,7 @@
                 { name: 'Dr. James Wilson', title: 'Surgical Oncologist', imageUrl: '', bio: 'Pioneer in minimally invasive surgical techniques.', icon: 'surgical', visible: true }
             ];
             function applyDefaults(c) {
-                if (!c.sectionsOrder) c.sectionsOrder = ['hero', 'services', 'team', 'testimonials', 'news', 'updates', 'articles', 'about', 'contact', 'cta'];
+                if (!c.sectionsOrder) c.sectionsOrder = ['hero', 'services', 'team', 'testimonials', 'news', 'updates', 'articles', 'about', 'certificates', 'contact', 'cta'];
                 if (!c.sectionVisibility) {
                     c.sectionVisibility = {};
                     c.sectionsOrder.forEach(function(id) { c.sectionVisibility[id] = true; });
@@ -674,6 +711,17 @@
                     }
                     if (c.sectionVisibility[id] === undefined) c.sectionVisibility[id] = true;
                 });
+                if (!c.sectionsOrder.includes('certificates')) {
+                    var aboutIndex2 = c.sectionsOrder.indexOf('about');
+                    if (aboutIndex2 >= 0) c.sectionsOrder.splice(aboutIndex2 + 1, 0, 'certificates');
+                    else c.sectionsOrder.push('certificates');
+                }
+                if (c.sectionVisibility.certificates === undefined) c.sectionVisibility.certificates = true;
+                if (!c.certificatesSection) c.certificatesSection = {
+                    heading: { en: 'Our Certifications', ar: 'شهاداتنا' },
+                    subheading: { en: 'Accreditations and quality standards we are proud to maintain.', ar: 'الاعتمادات ومعايير الجودة التي نحرص على الالتزام بها.' }
+                };
+                if (!Array.isArray(c.certificates)) c.certificates = [];
 
                 if (!c.teamSection) c.teamSection = { heading: 'World-Class Specialists', subheading: 'Our team combines decades of experience with cutting-edge research and compassionate care.' };
                 if (!Array.isArray(c.experts) || c.experts.length === 0) c.experts = DEFAULT_EXPERTS.slice();
@@ -1319,6 +1367,180 @@
                 document.getElementById('testimonialVisibleToggle').onclick = function() { this.classList.toggle('on'); };
             }
 
+            // ----- Certificates management -----
+            var editingCertificateIndex = -1;
+            var certificateImageUploadBound = false;
+            function ensureCertificatesArray() {
+                if (!Array.isArray(content.certificates)) content.certificates = [];
+            }
+            function renderCertificatesList() {
+                ensureCertificatesArray();
+                var list = document.getElementById('certificatesList');
+                if (!list) return;
+                list.innerHTML = content.certificates.map(function(cer, i) {
+                    var desc = (cer.description && (cer.description.en || cer.description.ar)) || '';
+                    var thumb = cer.imageUrl
+                        ? '<img class="expert-thumb" src="' + cer.imageUrl + '" alt="">'
+                        : '<div class="expert-thumb-icon">CERT</div>';
+                    return '<li class="expert-row" data-index="' + i + '">' +
+                        '<span class="drag-handle" aria-hidden="true">⋮⋮</span>' +
+                        thumb +
+                        '<div class="expert-info"><span class="expert-name">Certificate ' + (i + 1) + '</span><br><span class="expert-title">' + desc + '</span></div>' +
+                        '<div class="expert-actions">' +
+                        '<div class="toggle' + (cer.visible !== false ? ' on' : '') + '" data-certificate-index="' + i + '" role="button" tabindex="0" aria-label="Toggle visibility"></div>' +
+                        '<button type="button" class="btn-icon" title="Edit" data-certificate-edit="' + i + '">✎</button>' +
+                        '<button type="button" class="btn-icon" title="Delete" data-certificate-delete="' + i + '">🗑</button>' +
+                        '</div></li>';
+                }).join('');
+                if (window.Sortable) {
+                    if (list._certificateSortable) list._certificateSortable.destroy();
+                    list._certificateSortable = new Sortable(list, {
+                        animation: 150,
+                        handle: '.drag-handle',
+                        onEnd: function() {
+                            var indices = [];
+                            list.querySelectorAll('.expert-row').forEach(function(row) { indices.push(parseInt(row.dataset.index, 10)); });
+                            content.certificates = indices.map(function(i) { return content.certificates[i]; });
+                            scheduleSave();
+                            renderCertificatesList();
+                        }
+                    });
+                } else {
+                    enableNativeDrag(list, function() {
+                        var indices = [];
+                        list.querySelectorAll('.expert-row').forEach(function(row) { indices.push(parseInt(row.dataset.index, 10)); });
+                        content.certificates = indices.map(function(i) { return content.certificates[i]; });
+                        scheduleSave();
+                        renderCertificatesList();
+                    });
+                }
+                list.querySelectorAll('[data-certificate-index]').forEach(function(tog) {
+                    tog.onclick = function() {
+                        var i = parseInt(tog.getAttribute('data-certificate-index'), 10);
+                        content.certificates[i].visible = !content.certificates[i].visible;
+                        tog.classList.toggle('on', content.certificates[i].visible);
+                        scheduleSave();
+                    };
+                });
+                list.querySelectorAll('[data-certificate-edit]').forEach(function(btn) {
+                    btn.onclick = function() { openCertificateForm(parseInt(btn.getAttribute('data-certificate-edit'), 10)); };
+                });
+                list.querySelectorAll('[data-certificate-delete]').forEach(function(btn) {
+                    btn.onclick = function() { confirmDeleteCertificate(parseInt(btn.getAttribute('data-certificate-delete'), 10)); };
+                });
+            }
+            function openCertificateForm(index) {
+                ensureCertificatesArray();
+                editingCertificateIndex = index;
+                var cer = content.certificates[index] || {};
+                document.getElementById('certificateFormTitle').textContent = index >= 0 ? 'Edit certificate' : 'Add certificate';
+                document.getElementById('certificateDescriptionEn').value = (cer.description && cer.description.en) || '';
+                document.getElementById('certificateDescriptionAr').value = (cer.description && cer.description.ar) || '';
+                document.getElementById('certificateVisibleToggle').classList.toggle('on', cer.visible !== false);
+                setupCertificateImageUpload();
+                setCertificateImagePreview(cer.imageUrl || '');
+                document.getElementById('certificateForm').classList.add('show');
+            }
+            function closeCertificateForm() {
+                editingCertificateIndex = -1;
+                document.getElementById('certificateForm').classList.remove('show');
+            }
+            function confirmDeleteCertificate(index) {
+                document.getElementById('confirmDeleteMessage').textContent = 'Remove this certificate from the website? This cannot be undone.';
+                var modal = document.getElementById('confirmDeleteModal');
+                document.getElementById('confirmDeleteConfirm').onclick = function() {
+                    content.certificates.splice(index, 1);
+                    scheduleSave();
+                    renderCertificatesList();
+                    modal.style.display = 'none';
+                    showToast('Certificate removed', 'success');
+                };
+                document.getElementById('confirmDeleteCancel').onclick = function() { modal.style.display = 'none'; };
+                modal.style.display = 'flex';
+            }
+            function setupCertificatesUI() {
+                ensureCertificatesArray();
+                document.getElementById('addCertificateBtn').onclick = function() {
+                    content.certificates.push({
+                        imageUrl: '',
+                        description: { en: '', ar: '' },
+                        visible: true
+                    });
+                    editingCertificateIndex = content.certificates.length - 1;
+                    openCertificateForm(editingCertificateIndex);
+                    document.getElementById('certificateFormTitle').textContent = 'Add certificate';
+                };
+                document.getElementById('certificateFormSave').onclick = function() {
+                    if (editingCertificateIndex < 0) return;
+                    var cer = content.certificates[editingCertificateIndex];
+                    cer.description = {
+                        en: document.getElementById('certificateDescriptionEn').value.trim(),
+                        ar: document.getElementById('certificateDescriptionAr').value.trim()
+                    };
+                    cer.visible = document.getElementById('certificateVisibleToggle').classList.contains('on');
+                    scheduleSave();
+                    closeCertificateForm();
+                    renderCertificatesList();
+                    showToast('Certificate saved', 'success');
+                };
+                document.getElementById('certificateFormCancel').onclick = closeCertificateForm;
+                document.getElementById('certificateVisibleToggle').onclick = function() { this.classList.toggle('on'); };
+            }
+            function setCertificateImagePreview(url) {
+                var preview = document.getElementById('previewCertificateImage');
+                if (!preview) return;
+                if (url) {
+                    preview.src = url;
+                    preview.style.display = 'block';
+                } else {
+                    preview.src = '';
+                    preview.style.display = 'none';
+                }
+            }
+            function setupCertificateImageUpload() {
+                if (certificateImageUploadBound) return;
+                certificateImageUploadBound = true;
+                var drop = document.getElementById('dropCertificateImage');
+                var fileInput = document.getElementById('fileCertificateImage');
+                if (!drop || !fileInput) return;
+                function uploadFile(file) {
+                    if (!file || !file.type.match(/^image\//)) { showToast('Please choose an image file', 'error'); return; }
+                    var fd = new FormData();
+                    fd.append('file', file);
+                    setSaveStatus('Uploading...', 'saving');
+                    fetch('/api/admin/upload', {
+                        method: 'POST',
+                        headers: csrfToken ? { 'X-CSRF-Token': csrfToken } : {},
+                        body: fd
+                    })
+                        .then(function(r) { return r.json(); })
+                        .then(function(data) {
+                            if (data.success && data.url) {
+                                if (editingCertificateIndex >= 0 && content.certificates[editingCertificateIndex]) {
+                                    content.certificates[editingCertificateIndex].imageUrl = data.url;
+                                    setCertificateImagePreview(data.url);
+                                    scheduleSave();
+                                    showToast('Image saved', 'success');
+                                }
+                            } else showToast(data.error || 'Upload failed', 'error');
+                            setSaveStatus('Ready', '');
+                        })
+                        .catch(function() { showToast('Upload failed', 'error'); setSaveStatus('Ready', ''); });
+                }
+                drop.addEventListener('click', function(e) { if (e.target !== fileInput) fileInput.click(); });
+                fileInput.addEventListener('change', function() {
+                    if (fileInput.files && fileInput.files[0]) uploadFile(fileInput.files[0]);
+                    fileInput.value = '';
+                });
+                drop.addEventListener('dragover', function(e) { e.preventDefault(); drop.classList.add('dragover'); });
+                drop.addEventListener('dragleave', function() { drop.classList.remove('dragover'); });
+                drop.addEventListener('drop', function(e) {
+                    e.preventDefault();
+                    drop.classList.remove('dragover');
+                    if (e.dataTransfer.files && e.dataTransfer.files[0]) uploadFile(e.dataTransfer.files[0]);
+                });
+            }
+
             function bindEditorFields(panelId, getSet) {
                 var panel = document.getElementById(panelId);
                 if (!panel) return;
@@ -1423,6 +1645,10 @@
                     { id: 'testimonials', label: 'Testimonials heading', fields: [
                         { key: 'testimonialsSection.heading', label: 'Section heading', bilingual: true },
                         { key: 'testimonialsSection.subheading', label: 'Subheading', bilingual: true }
+                    ]},
+                    { id: 'certificatesSection', label: 'Certificates heading', fields: [
+                        { key: 'certificatesSection.heading', label: 'Section heading', bilingual: true },
+                        { key: 'certificatesSection.subheading', label: 'Subheading', bilingual: true }
                     ]},
                     { id: 'about', label: 'About', fields: [
                         { key: 'aboutSection.heading', label: 'Heading', bilingual: true },
@@ -2121,6 +2347,8 @@
                 setupServicesUI();
                 renderTestimonialsList();
                 setupTestimonialsUI();
+                renderCertificatesList();
+                setupCertificatesUI();
                 renderEditors();
                 setupImageUpload('dropLogo', 'fileLogo', 'previewLogo', 'siteInfo.logoUrl');
                 setupImageUpload('dropHero', 'fileHero', 'previewHero', 'siteInfo.heroImageUrl');
