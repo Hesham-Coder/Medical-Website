@@ -393,7 +393,75 @@
     </main>
 
     <script>
+      // Keep navigation working even if data fetch/render fails.
       (function () {
+        try {
+          var btn = document.getElementById("menuBtn");
+          var menu = document.getElementById("mobileMenu");
+          if (!btn || !menu) return;
+
+          function setOpen(open) {
+            menu.classList.toggle("hidden", !open);
+            btn.setAttribute("aria-expanded", open ? "true" : "false");
+          }
+
+          btn.addEventListener("click", function () {
+            var open = btn.getAttribute("aria-expanded") === "true";
+            setOpen(!open);
+          });
+
+          // Close on Escape
+          document.addEventListener("keydown", function (e) {
+            if (e.key === "Escape") setOpen(false);
+          });
+
+          // Close when clicking a nav link
+          menu.addEventListener("click", function (e) {
+            var a = e.target && e.target.closest ? e.target.closest("a") : null;
+            if (a) setOpen(false);
+          });
+        } catch (e) {
+          // no-op
+        }
+      })();
+
+      // Tabs (News / Articles) - minimal JS
+      (function () {
+        try {
+          var tabs = Array.prototype.slice.call(document.querySelectorAll(".tab-btn"));
+          var panels = {
+            news: document.getElementById("tabPanelNews"),
+            articles: document.getElementById("tabPanelArticles"),
+          };
+
+          function activate(name) {
+            tabs.forEach(function (t) {
+              var isActive = t.getAttribute("data-tab") === name;
+              t.setAttribute("aria-selected", isActive ? "true" : "false");
+              t.className =
+                "tab-btn min-h-[44px] rounded-xl border border-slate-200 px-3 text-sm font-extrabold focus:outline-none focus:ring-2 focus:ring-sky-500 " +
+                (isActive ? "bg-slate-900 text-white" : "bg-white text-slate-900");
+            });
+            Object.keys(panels).forEach(function (k) {
+              if (!panels[k]) return;
+              panels[k].classList.toggle("hidden", k !== name);
+            });
+          }
+
+          tabs.forEach(function (t) {
+            t.addEventListener("click", function () {
+              activate(t.getAttribute("data-tab"));
+            });
+          });
+
+          activate("news");
+        } catch (e) {
+          // no-op
+        }
+      })();
+
+      (function () {
+        try {
         function pickLang() {
           try {
             return (localStorage.getItem("lang") || "en") === "ar" ? "ar" : "en";
@@ -439,6 +507,13 @@
 
         function fetchJson(url, timeoutMs) {
           timeoutMs = timeoutMs || 12000;
+          if (typeof AbortController === "undefined") {
+            // Older browsers: no timeout support, but keep the page functional.
+            return fetch(url, { headers: { Accept: "application/json" } }).then(function (r) {
+              if (!r.ok) throw new Error("Request failed (" + r.status + ")");
+              return r.json();
+            });
+          }
           var ctrl = new AbortController();
           var t = setTimeout(function () { ctrl.abort(); }, timeoutMs);
           return fetch(url, { headers: { Accept: "application/json" }, signal: ctrl.signal })
@@ -524,7 +599,15 @@
           document.title = title;
 
           var heroKicker = document.getElementById("heroKicker");
-          if (heroKicker) heroKicker.childNodes[1].nodeValue = " " + (i18n(c.siteInfo && c.siteInfo.tagline) || heroKicker.textContent.trim());
+          if (heroKicker) {
+            var tagline = i18n(c.siteInfo && c.siteInfo.tagline);
+            if (tagline) {
+              // Safer than mutating text nodes (whitespace can vary).
+              heroKicker.innerHTML =
+                '<span class="h-2 w-2 rounded-full bg-sky-500" aria-hidden="true"></span> ' +
+                escapeHtml(tagline);
+            }
+          }
 
           var h = document.getElementById("heroHeading");
           if (h) h.textContent = i18n(c.siteInfo && c.siteInfo.heroHeading) || h.textContent;
@@ -635,58 +718,9 @@
         })();
 
         loadAll();
-      })();
-
-      // Mobile menu toggle (accessible)
-      (function () {
-        var btn = document.getElementById("menuBtn");
-        var menu = document.getElementById("mobileMenu");
-        if (!btn || !menu) return;
-
-        function setOpen(open) {
-          menu.classList.toggle("hidden", !open);
-          btn.setAttribute("aria-expanded", open ? "true" : "false");
+        } catch (e) {
+          // If anything fails here, keep navbar + tabs working.
         }
-
-        btn.addEventListener("click", function () {
-          var open = btn.getAttribute("aria-expanded") === "true";
-          setOpen(!open);
-        });
-
-        document.addEventListener("keydown", function (e) {
-          if (e.key === "Escape") setOpen(false);
-        });
-      })();
-
-      // Tabs (News / Articles) - minimal JS
-      (function () {
-        var tabs = Array.prototype.slice.call(document.querySelectorAll(".tab-btn"));
-        var panels = {
-          news: document.getElementById("tabPanelNews"),
-          articles: document.getElementById("tabPanelArticles"),
-        };
-
-        function activate(name) {
-          tabs.forEach(function (t) {
-            var isActive = t.getAttribute("data-tab") === name;
-            t.setAttribute("aria-selected", isActive ? "true" : "false");
-            t.className =
-              "tab-btn min-h-[44px] rounded-xl border border-slate-200 px-3 text-sm font-extrabold focus:outline-none focus:ring-2 focus:ring-sky-500 " +
-              (isActive ? "bg-slate-900 text-white" : "bg-white text-slate-900");
-          });
-          Object.keys(panels).forEach(function (k) {
-            if (!panels[k]) return;
-            panels[k].classList.toggle("hidden", k !== name);
-          });
-        }
-
-        tabs.forEach(function (t) {
-          t.addEventListener("click", function () {
-            activate(t.getAttribute("data-tab"));
-          });
-        });
-
-        activate("news");
       })();
     </script>
   </body>
