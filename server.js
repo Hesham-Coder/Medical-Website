@@ -180,7 +180,10 @@ async function startServer() {
   await configureSession();
   // Session middleware must be registered before the routes that use req.session.
   mountAppRoutes();
-  app.listen(PORT, () => {
+  // Bind explicitly to all interfaces for PaaS environments (Railway/Render/etc).
+  // Some platforms won't route traffic if the app binds only to localhost.
+  const HOST = process.env.HOST || '0.0.0.0';
+  app.listen(PORT, HOST, () => {
     logger.info('Server started', {
       port: PORT,
       website: `http://localhost:${PORT}/`,
