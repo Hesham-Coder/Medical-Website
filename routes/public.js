@@ -30,7 +30,8 @@ function isMobileOrTablet(req) {
 router.get('/', (req, res) => {
   // Mobile/tablet: navigation-driven SPA
   // Desktop: legacy long-scroll experience
-  const file = isMobileOrTablet(req) ? 'index.html' : 'desktop.html';
+  // Mobile/tablet uses Tailwind mobile page.
+  const file = isMobileOrTablet(req) ? 'mobile.html' : 'desktop.html';
   res.sendFile(path.join(WEBSITE_DIR, file));
 });
 
@@ -65,7 +66,16 @@ router.get('/posts', (req, res) => {
   '/about',
   '/contact',
 ].forEach((p) => {
-  router.get(p, (req, res) => res.sendFile(path.join(WEBSITE_DIR, 'index.html')));
+  router.get(p, (req, res) => {
+    if (isMobileOrTablet(req)) {
+      // Mobile page uses in-page anchors.
+      const anchor = p === '/services' ? '#services' : p === '/team' ? '#doctors' : p === '/stories' ? '#news' : p === '/news' ? '#news' : p === '/articles' ? '#news' : p === '/updates' ? '#news' : p === '/about' ? '#video' : '#contact';
+      return res.redirect('/' + anchor);
+    }
+    // Desktop legacy: keep it on /desktop
+    const desktopAnchor = p === '/services' ? '#services' : p === '/team' ? '#team' : p === '/stories' ? '#testimonials' : p === '/news' ? '#news' : p === '/updates' ? '#news' : p === '/articles' ? '#articles' : p === '/about' ? '#about' : '#contact';
+    return res.redirect('/desktop' + desktopAnchor);
+  });
 });
 
 router.get('/robots.txt', (req, res) => {

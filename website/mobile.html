@@ -1,0 +1,543 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Medical Website</title>
+    <meta name="description" content="Evidence-based care with a modern, mobile-first experience." />
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+
+  <body class="bg-slate-50 text-slate-900">
+    <a
+      href="#main"
+      class="sr-only focus:not-sr-only focus:fixed focus:left-3 focus:top-3 focus:z-50 focus:rounded-lg focus:bg-slate-900 focus:px-3 focus:py-2 focus:text-white"
+    >
+      Skip to content
+    </a>
+
+    <!-- Top Bar -->
+    <header class="sticky top-0 z-40 border-b border-slate-200 bg-white/90 backdrop-blur">
+      <div class="mx-auto flex h-14 max-w-xl items-center justify-between px-4 sm:h-16 sm:px-5">
+        <a href="/" class="flex items-center gap-2" aria-label="Go to homepage">
+          <img
+            src="/assets/logo.svg"
+            alt="Clinic logo"
+            class="h-8 w-8 rounded-lg bg-slate-100 object-contain"
+            loading="eager"
+          />
+          <span class="text-sm font-extrabold tracking-tight sm:text-base">Comprehensive Cancer Center</span>
+        </a>
+
+        <button
+          id="menuBtn"
+          type="button"
+          class="inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-500"
+          aria-label="Open menu"
+          aria-controls="mobileMenu"
+          aria-expanded="false"
+        >
+          <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+          </svg>
+        </button>
+      </div>
+
+      <!-- Mobile Menu Drawer -->
+      <div id="mobileMenu" class="hidden border-t border-slate-200 bg-white">
+        <nav class="mx-auto max-w-xl px-4 py-3 sm:px-5" aria-label="Primary">
+          <ul class="grid gap-2">
+            <li>
+              <a
+                class="flex min-h-[44px] items-center justify-between rounded-xl px-3 text-sm font-semibold text-slate-900 hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-sky-500"
+                href="#services"
+              >
+                Services <span class="text-slate-400" aria-hidden="true">›</span>
+              </a>
+            </li>
+            <li>
+              <a
+                class="flex min-h-[44px] items-center justify-between rounded-xl px-3 text-sm font-semibold text-slate-900 hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-sky-500"
+                href="#doctors"
+              >
+                Doctors <span class="text-slate-400" aria-hidden="true">›</span>
+              </a>
+            </li>
+            <li>
+              <a
+                class="flex min-h-[44px] items-center justify-between rounded-xl px-3 text-sm font-semibold text-slate-900 hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-sky-500"
+                href="#news"
+              >
+                News & Articles <span class="text-slate-400" aria-hidden="true">›</span>
+              </a>
+            </li>
+            <li>
+              <a
+                class="flex min-h-[44px] items-center justify-between rounded-xl px-3 text-sm font-semibold text-slate-900 hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-sky-500"
+                href="#contact"
+              >
+                Contact <span class="text-slate-400" aria-hidden="true">›</span>
+              </a>
+            </li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main" class="mx-auto max-w-xl px-4 pb-12 pt-5 sm:px-5 sm:pt-6">
+      <!-- 1) Hero -->
+      <section class="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm sm:p-6" aria-label="Hero">
+        <div class="grid gap-4 sm:gap-5">
+          <div class="grid gap-2">
+            <p class="inline-flex w-fit items-center gap-2 rounded-full bg-sky-50 px-3 py-1 text-xs font-semibold text-sky-800">
+              <span class="h-2 w-2 rounded-full bg-sky-500" aria-hidden="true"></span>
+              Evidence-based cancer care
+            </p>
+            <h1 class="text-2xl font-extrabold tracking-tight text-slate-900 sm:text-3xl">
+              Science That Heals. Care That Connects.
+            </h1>
+            <p class="text-sm leading-6 text-slate-600 sm:text-base">
+              Multidisciplinary specialists, coordinated plans, and supportive care designed around you.
+            </p>
+          </div>
+
+          <div class="grid gap-4 sm:grid-cols-[1fr,auto] sm:items-center">
+            <div class="flex flex-wrap gap-3">
+              <a
+                href="#contact"
+                class="inline-flex min-h-[44px] items-center justify-center rounded-xl bg-rose-600 px-4 text-sm font-bold text-white shadow-sm focus:outline-none focus:ring-2 focus:ring-rose-400"
+                aria-label="Schedule a consultation"
+              >
+                Schedule a Consultation
+              </a>
+              <a
+                href="#services"
+                class="inline-flex min-h-[44px] items-center justify-center rounded-xl border border-slate-200 bg-white px-4 text-sm font-bold text-slate-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-500"
+                aria-label="Learn more about services"
+              >
+                Learn More
+              </a>
+            </div>
+
+            <div class="overflow-hidden rounded-2xl border border-slate-200 bg-slate-100">
+              <img
+                src="/uploads/hero-doctor.jpg"
+                alt="Doctor smiling in clinic"
+                class="h-44 w-full object-cover sm:h-40 sm:w-44"
+                loading="lazy"
+              />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 2) Stats row -->
+      <section class="mt-4 grid grid-cols-3 gap-3 sm:mt-5 sm:gap-4" aria-label="Key stats">
+        <div class="rounded-2xl border border-slate-200 bg-white p-3 text-center shadow-sm">
+          <p class="text-lg font-extrabold text-slate-900 sm:text-xl">5000+</p>
+          <p class="mt-1 text-xs font-semibold text-slate-600 sm:text-sm">Patients served</p>
+        </div>
+        <div class="rounded-2xl border border-slate-200 bg-white p-3 text-center shadow-sm">
+          <p class="text-lg font-extrabold text-slate-900 sm:text-xl">95%</p>
+          <p class="mt-1 text-xs font-semibold text-slate-600 sm:text-sm">Success rate</p>
+        </div>
+        <div class="rounded-2xl border border-slate-200 bg-white p-3 text-center shadow-sm">
+          <p class="text-lg font-extrabold text-slate-900 sm:text-xl">50+</p>
+          <p class="mt-1 text-xs font-semibold text-slate-600 sm:text-sm">Specialists</p>
+        </div>
+      </section>
+
+      <!-- 3) Services: horizontally scrollable cards -->
+      <section id="services" class="mt-6 sm:mt-7" aria-label="Services">
+        <div class="flex items-end justify-between gap-3">
+          <div>
+            <h2 class="text-lg font-extrabold tracking-tight text-slate-900 sm:text-xl">Services</h2>
+            <p class="mt-1 text-sm text-slate-600">Swipe to explore what we offer.</p>
+          </div>
+          <span class="text-xs font-semibold text-slate-500" aria-hidden="true">Swipe →</span>
+        </div>
+
+        <div
+          class="mt-3 flex snap-x snap-mandatory gap-3 overflow-x-auto pb-2 [-webkit-overflow-scrolling:touch]"
+          role="list"
+          aria-label="Service cards"
+        >
+          <article class="min-w-[78%] snap-start rounded-3xl border border-slate-200 bg-white p-4 shadow-sm sm:min-w-[55%]" role="listitem">
+            <h3 class="text-base font-extrabold text-slate-900">Advanced Diagnostics</h3>
+            <p class="mt-2 text-sm leading-6 text-slate-600">State-of-the-art imaging and molecular testing.</p>
+            <div class="mt-3 text-xs font-semibold text-slate-500">Imaging • Lab • Molecular</div>
+          </article>
+
+          <article class="min-w-[78%] snap-start rounded-3xl border border-slate-200 bg-white p-4 shadow-sm sm:min-w-[55%]" role="listitem">
+            <h3 class="text-base font-extrabold text-slate-900">Precision Medicine</h3>
+            <p class="mt-2 text-sm leading-6 text-slate-600">Targeted therapies tailored to your profile.</p>
+            <div class="mt-3 text-xs font-semibold text-slate-500">Targeted • Immunotherapy</div>
+          </article>
+
+          <article class="min-w-[78%] snap-start rounded-3xl border border-slate-200 bg-white p-4 shadow-sm sm:min-w-[55%]" role="listitem">
+            <h3 class="text-base font-extrabold text-slate-900">Holistic Support</h3>
+            <p class="mt-2 text-sm leading-6 text-slate-600">Nutrition, mental health, survivorship programs.</p>
+            <div class="mt-3 text-xs font-semibold text-slate-500">Nutrition • Mental health</div>
+          </article>
+        </div>
+      </section>
+
+      <!-- 4) Video embed with title -->
+      <section id="video" class="mt-6 sm:mt-7" aria-label="Video">
+        <div class="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm sm:p-6">
+          <div class="flex items-start justify-between gap-3">
+            <div>
+              <h2 class="text-lg font-extrabold tracking-tight text-slate-900 sm:text-xl">Center Overview</h2>
+              <p class="mt-1 text-sm text-slate-600">Watch a short introduction.</p>
+            </div>
+          </div>
+
+          <div class="mt-4 overflow-hidden rounded-2xl border border-slate-200 bg-slate-100">
+            <div class="aspect-video w-full">
+              <iframe
+                class="h-full w-full"
+                src="https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ"
+                title="Center Overview Video"
+                frameborder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                allowfullscreen
+                loading="lazy"
+              ></iframe>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 5) Doctors carousel (mobile-friendly) -->
+      <section id="doctors" class="mt-6 sm:mt-7" aria-label="Doctors">
+        <div class="flex items-end justify-between gap-3">
+          <div>
+            <h2 class="text-lg font-extrabold tracking-tight text-slate-900 sm:text-xl">Doctors</h2>
+            <p class="mt-1 text-sm text-slate-600">Swipe to meet our specialists.</p>
+          </div>
+          <span class="text-xs font-semibold text-slate-500" aria-hidden="true">Swipe →</span>
+        </div>
+
+        <div
+          class="mt-3 flex snap-x snap-mandatory gap-3 overflow-x-auto pb-2 [-webkit-overflow-scrolling:touch]"
+          role="region"
+          aria-label="Doctors carousel"
+        >
+          <article class="min-w-[86%] snap-start rounded-3xl border border-slate-200 bg-white p-4 shadow-sm sm:min-w-[60%]">
+            <div class="flex items-center gap-3">
+              <img
+                src="/uploads/doctor-1.jpg"
+                alt="Dr. Sarah Chen"
+                class="h-14 w-14 rounded-2xl border border-slate-200 bg-slate-100 object-cover"
+                loading="lazy"
+              />
+              <div class="min-w-0">
+                <h3 class="truncate text-base font-extrabold text-slate-900">Dr. Sarah Chen</h3>
+                <p class="truncate text-sm font-semibold text-sky-700">Chief Oncologist</p>
+              </div>
+            </div>
+            <p class="mt-3 text-sm leading-6 text-slate-600">
+              25+ years specializing in precision oncology and immunotherapy.
+            </p>
+          </article>
+
+          <article class="min-w-[86%] snap-start rounded-3xl border border-slate-200 bg-white p-4 shadow-sm sm:min-w-[60%]">
+            <div class="flex items-center gap-3">
+              <img
+                src="/uploads/doctor-2.jpg"
+                alt="Dr. Michael Torres"
+                class="h-14 w-14 rounded-2xl border border-slate-200 bg-slate-100 object-cover"
+                loading="lazy"
+              />
+              <div class="min-w-0">
+                <h3 class="truncate text-base font-extrabold text-slate-900">Dr. Michael Torres</h3>
+                <p class="truncate text-sm font-semibold text-sky-700">Radiation Specialist</p>
+              </div>
+            </div>
+            <p class="mt-3 text-sm leading-6 text-slate-600">
+              Expert in advanced radiation therapy and treatment planning.
+            </p>
+          </article>
+
+          <article class="min-w-[86%] snap-start rounded-3xl border border-slate-200 bg-white p-4 shadow-sm sm:min-w-[60%]">
+            <div class="flex items-center gap-3">
+              <img
+                src="/uploads/doctor-3.jpg"
+                alt="Dr. Priya Patel"
+                class="h-14 w-14 rounded-2xl border border-slate-200 bg-slate-100 object-cover"
+                loading="lazy"
+              />
+              <div class="min-w-0">
+                <h3 class="truncate text-base font-extrabold text-slate-900">Dr. Priya Patel</h3>
+                <p class="truncate text-sm font-semibold text-sky-700">Genetic Counselor</p>
+              </div>
+            </div>
+            <p class="mt-3 text-sm leading-6 text-slate-600">
+              Leading researcher in cancer genetics and hereditary screening.
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <!-- 6) News & Articles with tabs -->
+      <section id="news" class="mt-6 sm:mt-7" aria-label="News and articles">
+        <div class="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm sm:p-6">
+          <h2 class="text-lg font-extrabold tracking-tight text-slate-900 sm:text-xl">News & Articles</h2>
+          <p class="mt-1 text-sm text-slate-600">Switch tabs to explore updates and long-form content.</p>
+
+          <div class="mt-4" role="tablist" aria-label="News and Articles tabs">
+            <div class="grid grid-cols-2 gap-2">
+              <button
+                type="button"
+                class="tab-btn min-h-[44px] rounded-xl border border-slate-200 bg-slate-900 px-3 text-sm font-extrabold text-white focus:outline-none focus:ring-2 focus:ring-sky-500"
+                role="tab"
+                aria-selected="true"
+                aria-controls="tabPanelNews"
+                id="tabNews"
+                data-tab="news"
+              >
+                News
+              </button>
+              <button
+                type="button"
+                class="tab-btn min-h-[44px] rounded-xl border border-slate-200 bg-white px-3 text-sm font-extrabold text-slate-900 focus:outline-none focus:ring-2 focus:ring-sky-500"
+                role="tab"
+                aria-selected="false"
+                aria-controls="tabPanelArticles"
+                id="tabArticles"
+                data-tab="articles"
+              >
+                Articles
+              </button>
+            </div>
+          </div>
+
+          <div class="mt-4">
+            <!-- News Panel -->
+            <div id="tabPanelNews" role="tabpanel" aria-labelledby="tabNews" class="tab-panel grid gap-3">
+              <article class="rounded-2xl border border-slate-200 p-4">
+                <h3 class="text-base font-extrabold text-slate-900">New clinic hours</h3>
+                <p class="mt-2 text-sm leading-6 text-slate-600">We are now open Mon–Fri 8:00 AM to 6:00 PM.</p>
+                <a
+                  href="/posts/sample-news-1"
+                  class="mt-3 inline-flex min-h-[44px] items-center justify-center rounded-xl border border-slate-200 px-4 text-sm font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-sky-500"
+                >
+                  Read
+                </a>
+              </article>
+
+              <article class="rounded-2xl border border-slate-200 p-4">
+                <h3 class="text-base font-extrabold text-slate-900">New imaging technology</h3>
+                <p class="mt-2 text-sm leading-6 text-slate-600">Faster scans with improved clarity and comfort.</p>
+                <a
+                  href="/posts/sample-news-2"
+                  class="mt-3 inline-flex min-h-[44px] items-center justify-center rounded-xl border border-slate-200 px-4 text-sm font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-sky-500"
+                >
+                  Read
+                </a>
+              </article>
+            </div>
+
+            <!-- Articles Panel -->
+            <div id="tabPanelArticles" role="tabpanel" aria-labelledby="tabArticles" class="tab-panel hidden grid gap-3">
+              <article class="rounded-2xl border border-slate-200 p-4">
+                <h3 class="text-base font-extrabold text-slate-900">Understanding treatment plans</h3>
+                <p class="mt-2 text-sm leading-6 text-slate-600">A guide to what to expect and how to prepare.</p>
+                <a
+                  href="/posts/sample-article-1"
+                  class="mt-3 inline-flex min-h-[44px] items-center justify-center rounded-xl border border-slate-200 px-4 text-sm font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-sky-500"
+                >
+                  Read
+                </a>
+              </article>
+
+              <article class="rounded-2xl border border-slate-200 p-4">
+                <h3 class="text-base font-extrabold text-slate-900">Nutrition during care</h3>
+                <p class="mt-2 text-sm leading-6 text-slate-600">Practical tips for energy, hydration, and recovery.</p>
+                <a
+                  href="/posts/sample-article-2"
+                  class="mt-3 inline-flex min-h-[44px] items-center justify-center rounded-xl border border-slate-200 px-4 text-sm font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-sky-500"
+                >
+                  Read
+                </a>
+              </article>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 7) Large CTA section with gradient background and button -->
+      <section class="mt-6 sm:mt-7" aria-label="Call to action">
+        <div class="rounded-3xl bg-gradient-to-br from-sky-600 to-indigo-700 p-5 text-white shadow-sm sm:p-6">
+          <h2 class="text-xl font-extrabold tracking-tight sm:text-2xl">Start a confidential conversation</h2>
+          <p class="mt-2 text-sm leading-6 text-white/90 sm:text-base">
+            Share a few details and our patient coordination team will call you back.
+          </p>
+          <div class="mt-4">
+            <a
+              href="#contact"
+              class="inline-flex min-h-[44px] items-center justify-center rounded-xl bg-white px-4 text-sm font-extrabold text-slate-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-white/60"
+            >
+              Get a Call Back
+            </a>
+          </div>
+        </div>
+      </section>
+
+      <!-- 8) Contact form -->
+      <section id="contact" class="mt-6 sm:mt-7" aria-label="Contact form">
+        <div class="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm sm:p-6">
+          <h2 class="text-lg font-extrabold tracking-tight text-slate-900 sm:text-xl">Contact</h2>
+          <p class="mt-1 text-sm text-slate-600">This form is not for emergencies.</p>
+
+          <form class="mt-4 grid gap-3" action="/api/contacts" method="post">
+            <div class="grid gap-3 sm:grid-cols-2">
+              <div>
+                <label for="firstName" class="block text-sm font-bold text-slate-900">First name</label>
+                <input
+                  id="firstName"
+                  name="firstName"
+                  type="text"
+                  autocomplete="given-name"
+                  required
+                  class="mt-2 w-full min-h-[44px] rounded-xl border border-slate-200 bg-white px-3 text-sm text-slate-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-500"
+                />
+              </div>
+
+              <div>
+                <label for="lastName" class="block text-sm font-bold text-slate-900">Last name</label>
+                <input
+                  id="lastName"
+                  name="lastName"
+                  type="text"
+                  autocomplete="family-name"
+                  required
+                  class="mt-2 w-full min-h-[44px] rounded-xl border border-slate-200 bg-white px-3 text-sm text-slate-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-500"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label for="email" class="block text-sm font-bold text-slate-900">Email</label>
+              <input
+                id="email"
+                name="email"
+                type="email"
+                autocomplete="email"
+                required
+                class="mt-2 w-full min-h-[44px] rounded-xl border border-slate-200 bg-white px-3 text-sm text-slate-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-500"
+              />
+            </div>
+
+            <div>
+              <label for="phone" class="block text-sm font-bold text-slate-900">Phone</label>
+              <input
+                id="phone"
+                name="phone"
+                type="tel"
+                inputmode="tel"
+                autocomplete="tel"
+                required
+                class="mt-2 w-full min-h-[44px] rounded-xl border border-slate-200 bg-white px-3 text-sm text-slate-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-500"
+              />
+            </div>
+
+            <div>
+              <label for="concern" class="block text-sm font-bold text-slate-900">Primary concern</label>
+              <select
+                id="concern"
+                name="concern"
+                required
+                class="mt-2 w-full min-h-[44px] rounded-xl border border-slate-200 bg-white px-3 text-sm text-slate-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-500"
+              >
+                <option value="">Select</option>
+                <option value="diagnosis">Diagnosis</option>
+                <option value="treatment">Treatment</option>
+                <option value="genetic">Genetic counseling</option>
+                <option value="support">Support</option>
+              </select>
+            </div>
+
+            <div>
+              <label for="message" class="block text-sm font-bold text-slate-900">Message</label>
+              <textarea
+                id="message"
+                name="message"
+                rows="4"
+                class="mt-2 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-500"
+                placeholder="Tell us how we can help (optional)"
+              ></textarea>
+            </div>
+
+            <div class="pt-1">
+              <button
+                type="submit"
+                class="inline-flex w-full min-h-[44px] items-center justify-center rounded-xl bg-rose-600 px-4 text-sm font-extrabold text-white shadow-sm focus:outline-none focus:ring-2 focus:ring-rose-400"
+              >
+                Submit
+              </button>
+            </div>
+
+            <p class="text-xs leading-5 text-slate-500">
+              Please do not include full medical records or highly sensitive identifiers.
+            </p>
+          </form>
+        </div>
+      </section>
+    </main>
+
+    <script>
+      // Mobile menu toggle (accessible)
+      (function () {
+        var btn = document.getElementById("menuBtn");
+        var menu = document.getElementById("mobileMenu");
+        if (!btn || !menu) return;
+
+        function setOpen(open) {
+          menu.classList.toggle("hidden", !open);
+          btn.setAttribute("aria-expanded", open ? "true" : "false");
+        }
+
+        btn.addEventListener("click", function () {
+          var open = btn.getAttribute("aria-expanded") === "true";
+          setOpen(!open);
+        });
+
+        document.addEventListener("keydown", function (e) {
+          if (e.key === "Escape") setOpen(false);
+        });
+      })();
+
+      // Tabs (News / Articles) - minimal JS
+      (function () {
+        var tabs = Array.prototype.slice.call(document.querySelectorAll(".tab-btn"));
+        var panels = {
+          news: document.getElementById("tabPanelNews"),
+          articles: document.getElementById("tabPanelArticles"),
+        };
+
+        function activate(name) {
+          tabs.forEach(function (t) {
+            var isActive = t.getAttribute("data-tab") === name;
+            t.setAttribute("aria-selected", isActive ? "true" : "false");
+            t.className =
+              "tab-btn min-h-[44px] rounded-xl border border-slate-200 px-3 text-sm font-extrabold focus:outline-none focus:ring-2 focus:ring-sky-500 " +
+              (isActive ? "bg-slate-900 text-white" : "bg-white text-slate-900");
+          });
+          Object.keys(panels).forEach(function (k) {
+            if (!panels[k]) return;
+            panels[k].classList.toggle("hidden", k !== name);
+          });
+        }
+
+        tabs.forEach(function (t) {
+          t.addEventListener("click", function () {
+            activate(t.getAttribute("data-tab"));
+          });
+        });
+
+        activate("news");
+      })();
+    </script>
+  </body>
+</html>
