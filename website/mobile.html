@@ -85,6 +85,8 @@
     </header>
 
     <main id="main" class="mx-auto max-w-xl px-4 pb-12 pt-5 sm:px-5 sm:pt-6">
+      <div id="mobileDebug" class="mb-4 hidden rounded-2xl border border-slate-200 bg-white p-3 text-xs text-slate-700" role="status" aria-live="polite"></div>
+
       <!-- 1) Hero -->
       <section class="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm sm:p-6" aria-label="Hero">
         <div class="grid gap-4 sm:gap-5">
@@ -401,9 +403,15 @@
           if (!btn || !menu) return;
 
           function setOpen(open) {
+            // Don't rely on Tailwind being loaded for show/hide.
+            menu.hidden = !open;
+            menu.style.display = open ? "" : "none";
             menu.classList.toggle("hidden", !open);
             btn.setAttribute("aria-expanded", open ? "true" : "false");
           }
+
+          // Ensure closed by default.
+          setOpen(false);
 
           btn.addEventListener("click", function () {
             var open = btn.getAttribute("aria-expanded") === "true";
@@ -462,6 +470,14 @@
 
       (function () {
         try {
+        var debug = document.getElementById("mobileDebug");
+        function setDebug(text) {
+          if (!debug) return;
+          debug.textContent = text;
+          debug.classList.remove("hidden");
+        }
+        setDebug("JS loaded. Fetching content...");
+
         function pickLang() {
           try {
             return (localStorage.getItem("lang") || "en") === "ar" ? "ar" : "en";
@@ -494,12 +510,12 @@
             var id2 = (raw.split("youtu.be/")[1] || "").split(/[?&]/)[0];
             return id2 ? "https://www.youtube-nocookie.com/embed/" + id2 : "";
           }
-          var vm = (raw.match(/vimeo\.com\/(\\d+)/i) || [])[1];
+          var vm = (raw.match(/vimeo\.com\/(\d+)/i) || [])[1];
           if (vm) return "https://player.vimeo.com/video/" + vm;
-          if (/facebook\.com\\//i.test(raw)) {
+          if (/facebook\.com\//i.test(raw)) {
             return "https://www.facebook.com/plugins/video.php?href=" + encodeURIComponent(raw) + "&show_text=false";
           }
-          if (/youtube\\.com\\/embed\\//i.test(raw) || /youtube-nocookie\\.com\\/embed\\//i.test(raw) || /player\\.vimeo\\.com\\/video\\//i.test(raw) || /facebook\\.com\\/plugins\\/video\\.php/i.test(raw)) {
+          if (/youtube\.com\/embed\//i.test(raw) || /youtube-nocookie\.com\/embed\//i.test(raw) || /player\.vimeo\.com\/video\//i.test(raw) || /facebook\.com\/plugins\/video\.php/i.test(raw)) {
             return raw;
           }
           return "";
@@ -648,9 +664,10 @@
           fetchJson("/api/public/content", 12000)
             .then(function (content) {
               applyContent(content);
+              setDebug("Content loaded.");
             })
-            .catch(function () {
-              // keep static defaults
+            .catch(function (e) {
+              setDebug("Content load failed: " + (e && e.message ? e.message : "unknown error"));
             });
 
           // Posts
