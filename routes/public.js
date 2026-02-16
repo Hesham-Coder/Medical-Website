@@ -13,8 +13,25 @@ const logger = require('../lib/logger');
 
 const router = express.Router();
 
+function isMobileOrTablet(req) {
+  const ua = String(req.headers['user-agent'] || '').toLowerCase();
+  // Keep this simple and inclusive: iPad/tablets should get the SPA.
+  return (
+    ua.includes('mobi') ||
+    ua.includes('android') ||
+    ua.includes('iphone') ||
+    ua.includes('ipad') ||
+    ua.includes('ipod') ||
+    ua.includes('tablet') ||
+    ua.includes('windows phone')
+  );
+}
+
 router.get('/', (req, res) => {
-  res.sendFile(path.join(WEBSITE_DIR, 'index.html'));
+  // Mobile/tablet: navigation-driven SPA
+  // Desktop: legacy long-scroll experience
+  const file = isMobileOrTablet(req) ? 'index.html' : 'desktop.html';
+  res.sendFile(path.join(WEBSITE_DIR, file));
 });
 
 // Desktop-only legacy experience (keeps old desktop UI).
@@ -27,7 +44,9 @@ router.get('/desktop/posts/:slug', (req, res) => {
 });
 
 router.get('/posts/:slug', (req, res) => {
-  res.sendFile(path.join(WEBSITE_DIR, 'post.html'));
+  // Mobile/tablet: SPA bootstrap page. Desktop: legacy post page.
+  const file = isMobileOrTablet(req) ? 'post.html' : 'post-desktop.html';
+  res.sendFile(path.join(WEBSITE_DIR, file));
 });
 
 router.get('/posts', (req, res) => {

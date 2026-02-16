@@ -32,16 +32,6 @@
         } catch (e) {}
       })();
     </script>
-    <script>
-      // Desktop uses the legacy post page (keeps old desktop experience intact).
-      (function () {
-        try {
-          if (window.matchMedia && window.matchMedia("(pointer: fine) and (min-width: 1024px)").matches) {
-            window.location.replace("/desktop" + window.location.pathname);
-          }
-        } catch (e) {}
-      })();
-    </script>
   </head>
   <body>
     <a class="skip-link" href="#app-main">Skip to content</a>
