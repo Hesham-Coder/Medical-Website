@@ -1264,7 +1264,7 @@
 
                         <!-- Highlights -->
                         <div class="pt-4 sm:pt-6 border-t border-slate-200">
-                            <h3 class="text-sm font-bold text-slate-400 uppercase tracking-wider mb-4 sm:mb-6">Why
+                            <h3 class="text-sm font-bold text-slate-400 uppercase tracking-wider mb-4 sm:mb-6" data-content="aboutSection.highlightsHeading">Why
                                 Choose Us</h3>
                             <ul class="space-y-3 sm:space-y-4" id="aboutHighlights">
                                 <li class="flex items-start gap-3 sm:gap-4 group">
@@ -2673,6 +2673,18 @@
                         aboutVideo.removeAttribute('src');
                         if (aboutControls) aboutControls.classList.add('hidden');
                     }
+                }
+                var aboutHighlights = get(c, 'aboutSection.highlights');
+                if (Array.isArray(aboutHighlights)) {
+                    document.querySelectorAll('[data-highlight]').forEach(function (el) {
+                        var idx = parseInt(el.getAttribute('data-highlight'), 10);
+                        if (Number.isNaN(idx)) return;
+                        var item = aboutHighlights[idx];
+                        var text = getLocalized(item, lang);
+                        if (text != null && String(text).trim() !== '') {
+                            el.textContent = String(text);
+                        }
+                    });
                 }
                 var contactForm = document.getElementById('contactForm');
                 if (contactForm) {

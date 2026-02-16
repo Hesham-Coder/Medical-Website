@@ -1485,7 +1485,10 @@
                             label.textContent = f.label + (f.bilingual ? ' (' + (lang === 'en' ? 'English' : 'Arabic') + ')' : '');
                             var isMultiline = f.multiline || f.key.indexOf('paragraphs') !== -1;
                             var input = document.createElement(isMultiline ? 'textarea' : 'input');
-                            if (!isMultiline) input.type = !f.bilingual ? 'number' : 'text';
+                            if (!isMultiline) {
+                                var numericField = /^stats\.(patientsServed|successRate|specialists)$/.test(f.key);
+                                input.type = numericField ? 'number' : 'text';
+                            }
                             input.dataset.key = f.key;
                             input.dataset.lang = lang;
                             input.value = getVal(f.key, f.bilingual ? lang : 'en');
