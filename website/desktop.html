@@ -1,5 +1,5 @@
 ﻿<!DOCTYPE html>
-<html lang="en" dir="ltr" class="light">
+<html lang="ar" dir="rtl" class="light">
 
 <head>
     <meta charset="UTF-8">
@@ -24,7 +24,7 @@
     <meta name="twitter:description"
         content="Coordinated, evidence‑based cancer care in Alexandria with multidisciplinary specialists and supportive services.">
     <script>
-        (function () { var lang = localStorage.getItem('lang') || 'en'; var d = document.documentElement; d.setAttribute('dir', lang === 'ar' ? 'rtl' : 'ltr'); d.setAttribute('lang', lang === 'ar' ? 'ar' : 'en'); d.classList.add('lang-' + lang); })();
+        (function () { var lang = localStorage.getItem('lang') || 'ar'; var d = document.documentElement; d.setAttribute('dir', lang === 'ar' ? 'rtl' : 'ltr'); d.setAttribute('lang', lang === 'ar' ? 'ar' : 'en'); d.classList.add('lang-' + lang); })();
         
     </script>
 
@@ -2329,7 +2329,7 @@
     <!-- Dynamic content from dashboard + i18n (single source of truth: /api/public/content) -->
     <script>
         (function () {
-            var currentLang = localStorage.getItem('lang') || 'en';
+            var currentLang = localStorage.getItem('lang') || 'ar';
             window.websiteContent = null;
             var websiteContent = null; // Local reference for existing code
             var coverageModalTimeout = null;
@@ -3062,7 +3062,7 @@
 
             // Initialize Language Manager
             window.languageManager = new LanguageManager({
-                defaultLanguage: 'en',
+                defaultLanguage: 'ar',
                 supportedLanguages: ['en', 'ar'],
                 contentAPI: '/api/public/content',
                 enableAutoDetect: true,
@@ -3086,3 +3086,4 @@
 </body>
 
 </html>
+
