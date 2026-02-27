@@ -863,14 +863,14 @@
 
             <!-- Desktop Navigation -->
             <nav class="hidden items-center gap-6 lg:gap-10 lg:flex">
-                <a href="#home"
+                <a href="#home" data-nav-label="home"
                     class="text-sm font-semibold text-slate-600 hover:text-brand-blue-light transition-colors">Home</a>
-                <a href="#services"
+                <a href="#services" data-nav-label="services"
                     class="text-sm font-semibold text-slate-600 hover:text-brand-blue-light transition-colors">Services</a>
-                <a href="#team"
+                <a href="#team" data-nav-label="team"
                     class="text-sm font-semibold text-slate-600 hover:text-brand-blue-light transition-colors">The
                     Team</a>
-                <a href="#contact"
+                <a href="#contact" data-nav-label="contact"
                     class="text-sm font-semibold text-slate-600 hover:text-brand-blue-light transition-colors">Contact</a>
             </nav>
 
@@ -889,7 +889,7 @@
                 <a href="#" data-content="contact.phone" data-content-attr="href:tel"
                     class="hidden xl:flex items-center gap-2 text-sm font-bold text-brand-blue-dark hover:text-brand-blue-light transition-colors">
                     <span class="material-symbols-outlined text-lg">call</span>
-                    <span data-content="contact.phone">+20 11 2080 0011</span>
+                    <span data-content="contact.phone" dir="ltr" style="unicode-bidi: isolate;">+20 11 2080 0011</span>
                 </a>
                 <a href="#contact" onclick="scrollToSection('contact')"
                     class="hidden sm:block bg-brand-red-cta hover:bg-red-700 text-white px-4 lg:px-6 py-2 lg:py-2.5 rounded-lg lg:rounded-xl text-xs lg:text-sm font-bold shadow-md shadow-red-200 transition-all hover:scale-105 active:scale-95">
@@ -914,16 +914,16 @@
             <span class="material-symbols-outlined text-2xl">close</span>
         </button>
         <nav class="flex flex-col gap-5 sm:gap-6 mt-12 sm:mt-16">
-            <a href="#home" onclick="toggleMobileMenu()"
+            <a href="#home" data-nav-label="home" onclick="toggleMobileMenu()"
                 class="text-base sm:text-lg font-semibold text-slate-700 hover:text-brand-blue-light transition-colors py-2">Home</a>
-            <a href="#services" onclick="toggleMobileMenu()"
+            <a href="#services" data-nav-label="services" onclick="toggleMobileMenu()"
                 class="text-base sm:text-lg font-semibold text-slate-700 hover:text-brand-blue-light transition-colors py-2">Services</a>
-            <a href="#team" onclick="toggleMobileMenu()"
+            <a href="#team" data-nav-label="team" onclick="toggleMobileMenu()"
                 class="text-base sm:text-lg font-semibold text-slate-700 hover:text-brand-blue-light transition-colors py-2">The
                 Team</a>
-            <a href="#resources" onclick="toggleMobileMenu()"
+            <a href="#resources" data-nav-label="resources" onclick="toggleMobileMenu()"
                 class="text-base sm:text-lg font-semibold text-slate-700 hover:text-brand-blue-light transition-colors py-2">Resources</a>
-            <a href="#contact" onclick="toggleMobileMenu()"
+            <a href="#contact" data-nav-label="contact" onclick="toggleMobileMenu()"
                 class="text-base sm:text-lg font-semibold text-slate-700 hover:text-brand-blue-light transition-colors py-2">Contact</a>
 
             <!-- Mobile Language Toggle -->
@@ -946,7 +946,7 @@
                 <a href="#" data-content="contact.phone" data-content-attr="href:tel"
                     class="flex items-center gap-3 text-sm font-bold text-brand-blue-dark hover:text-brand-blue-light transition-colors">
                     <span class="material-symbols-outlined">call</span>
-                    <span data-content="contact.phone">+20 11 2080 0011</span>
+                    <span data-content="contact.phone" dir="ltr" style="unicode-bidi: isolate;">+20 11 2080 0011</span>
                 </a>
             </div>
         </nav>
@@ -2875,6 +2875,15 @@
                 html.setAttribute('lang', lang === 'ar' ? 'ar' : 'en');
                 html.classList.remove('lang-en', 'lang-ar');
                 html.classList.add('lang-' + lang);
+                var navLabels = {
+                    en: { home: 'Home', services: 'Services', team: 'The Team', resources: 'Resources', contact: 'Contact' },
+                    ar: { home: 'الرئيسية', services: 'الخدمات', team: 'الفريق', resources: 'الموارد', contact: 'اتصل بنا' }
+                };
+                document.querySelectorAll('[data-nav-label]').forEach(function (el) {
+                    var key = el.getAttribute('data-nav-label');
+                    var labels = navLabels[lang] || navLabels.en;
+                    if (labels[key]) el.textContent = labels[key];
+                });
                 document.querySelectorAll('.lang-toggle').forEach(function (btn) {
                     var isActive = btn.getAttribute('data-lang') === lang;
                     btn.classList.toggle('bg-brand-blue-dark', isActive);
