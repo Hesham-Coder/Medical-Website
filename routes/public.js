@@ -1,6 +1,6 @@
 const express = require('express');
 const path = require('path');
-const { WEBSITE_DIR, SITE_URL } = require('../lib/config');
+const { WEBSITE_DIR } = require('../lib/config');
 const { readPublishedContent } = require('../lib/contentStore');
 const { readPublishedPosts } = require('../lib/postStore');
 const { routeContact } = require('../lib/contactRouter');
@@ -12,6 +12,57 @@ const { appendContact } = require('../lib/contentStore');
 const logger = require('../lib/logger');
 
 const router = express.Router();
+const SITEMAP_BASE_URL = 'https://www.waleedarafat.org';
+
+function escapeXml(value) {
+  return String(value || '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&apos;');
+}
+
+function toDateOnly(value) {
+  const parsed = new Date(value);
+  if (Number.isNaN(parsed.getTime())) return new Date().toISOString().slice(0, 10);
+  return parsed.toISOString().slice(0, 10);
+}
+
+function buildImageXml(imageLoc, imageTitle, imageCaption) {
+  return (
+    '    <image:image>\n' +
+    '      <image:loc>' + escapeXml(imageLoc) + '</image:loc>\n' +
+    '      <image:title>' + escapeXml(imageTitle) + '</image:title>\n' +
+    '      <image:caption>' + escapeXml(imageCaption) + '</image:caption>\n' +
+    '    </image:image>\n'
+  );
+}
+
+function buildVideoXml(videoUrl, title, description, thumbnailLoc) {
+  if (!videoUrl) return '';
+  return (
+    '    <video:video>\n' +
+    '      <video:thumbnail_loc>' + escapeXml(thumbnailLoc) + '</video:thumbnail_loc>\n' +
+    '      <video:title>' + escapeXml(title) + '</video:title>\n' +
+    '      <video:description>' + escapeXml(description) + '</video:description>\n' +
+    '      <video:player_loc>' + escapeXml(videoUrl) + '</video:player_loc>\n' +
+    '    </video:video>\n'
+  );
+}
+
+function buildUrlXml(item) {
+  return (
+    '  <url>\n' +
+    '    <loc>' + escapeXml(item.loc) + '</loc>\n' +
+    '    <lastmod>' + escapeXml(item.lastmod) + '</lastmod>\n' +
+    '    <changefreq>' + escapeXml(item.changefreq) + '</changefreq>\n' +
+    '    <priority>' + escapeXml(item.priority) + '</priority>\n' +
+    item.imageXml +
+    item.videoXml +
+    '  </url>\n'
+  );
+}
 
 function isMobileOrTablet(req) {
   const ua = String(req.headers['user-agent'] || '').toLowerCase();
@@ -82,33 +133,100 @@ router.get('/robots.txt', (req, res) => {
   res.type('text/plain');
   res.send(
     'User-agent: *\nAllow: /\nDisallow: /admin/\nDisallow: /login.html\nDisallow: /dashboard.html\nDisallow: /referral.html\nDisallow: /api/\n\nSitemap: ' +
-    SITE_URL.replace(/\/$/, '') +
+    SITEMAP_BASE_URL +
     '/sitemap.xml\n'
   );
 });
 
-router.get('/sitemap.xml', (req, res) => {
-  const base = SITE_URL.replace(/\/$/, '');
-  readPublishedPosts().then((posts) => {
-    const postUrls = posts.map((post) => {
-      const safeSlug = encodeURIComponent(post.slug);
-      return '  <url><loc>' + base + '/posts/' + safeSlug + '</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>\n';
+router.get('/sitemap.xml', async (req, res) => {
+  const base = SITEMAP_BASE_URL.replace(/\/$/, '');
+  const today = new Date().toISOString().slice(0, 10);
+  const routeTemplates = [
+    { path: '/', changefreq: 'daily', priority: '1.0', imageKey: 'home' },
+    { path: '/desktop', changefreq: 'monthly', priority: '0.5', imageKey: 'desktop' },
+    { path: '/news', changefreq: 'weekly', priority: '0.8', imageKey: 'news' },
+    { path: '/services', changefreq: 'weekly', priority: '0.7', imageKey: 'services' },
+    { path: '/team', changefreq: 'monthly', priority: '0.6', imageKey: 'team' },
+    { path: '/stories', changefreq: 'weekly', priority: '0.7', imageKey: 'stories' },
+    { path: '/updates', changefreq: 'weekly', priority: '0.7', imageKey: 'updates' },
+    { path: '/articles', changefreq: 'weekly', priority: '0.7', imageKey: 'articles' },
+    { path: '/about', changefreq: 'monthly', priority: '0.5', imageKey: 'about' },
+    { path: '/contact', changefreq: 'monthly', priority: '0.5', imageKey: 'contact' },
+  ];
+
+  try {
+    const posts = await readPublishedPosts();
+    const coreUrls = routeTemplates.map((route) => {
+      const pagePath = route.path === '/' ? '' : route.path;
+      return buildUrlXml({
+        loc: base + pagePath,
+        lastmod: today,
+        changefreq: route.changefreq,
+        priority: route.priority,
+        imageXml: buildImageXml(
+          base + '/uploads/seo-' + route.imageKey + '-image.jpg',
+          route.imageKey.toUpperCase() + '_IMAGE_TITLE_PLACEHOLDER',
+          route.imageKey.toUpperCase() + '_IMAGE_CAPTION_PLACEHOLDER'
+        ),
+        videoXml: '',
+      });
     }).join('');
+
+    const postUrls = posts
+      .filter((post) => post && post.slug)
+      .map((post) => {
+        const safeSlug = encodeURIComponent(String(post.slug));
+        const postLoc = base + '/posts/' + safeSlug;
+        const imageLoc = post.featuredImage || (base + '/uploads/posts/' + safeSlug + '.jpg');
+        const imageTitle = post.seoTitle || post.title || 'POST_IMAGE_TITLE_PLACEHOLDER';
+        const imageCaption = post.seoDescription || post.excerpt || 'POST_IMAGE_CAPTION_PLACEHOLDER';
+        const videoXml = buildVideoXml(
+          post.videoUrl,
+          (post.title || 'POST_VIDEO_TITLE_PLACEHOLDER') + ' Video',
+          post.seoDescription || post.excerpt || 'POST_VIDEO_DESCRIPTION_PLACEHOLDER',
+          post.featuredImage || (base + '/uploads/posts/' + safeSlug + '-video-thumbnail.jpg')
+        );
+
+        return buildUrlXml({
+          loc: postLoc,
+          lastmod: toDateOnly(post.updatedAt || post.createdAt || today),
+          changefreq: 'weekly',
+          priority: '0.8',
+          imageXml: buildImageXml(imageLoc, imageTitle, imageCaption),
+          videoXml,
+        });
+      })
+      .join('');
+
     res.type('application/xml');
     res.send(
-      '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' +
-      '  <url><loc>' + base + '/</loc><changefreq>weekly</changefreq><priority>1.0</priority></url>\n' +
+      '<?xml version="1.0" encoding="UTF-8"?>\n' +
+      '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1" xmlns:video="http://www.google.com/schemas/sitemap-video/1.1">\n' +
+      coreUrls +
       postUrls +
       '</urlset>\n'
     );
-  }).catch(() => {
+  } catch (error) {
+    logger.error('Sitemap generation failed', { error: error.message });
     res.type('application/xml');
     res.send(
-      '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' +
-      '  <url><loc>' + base + '/</loc><changefreq>weekly</changefreq><priority>1.0</priority></url>\n' +
+      '<?xml version="1.0" encoding="UTF-8"?>\n' +
+      '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1" xmlns:video="http://www.google.com/schemas/sitemap-video/1.1">\n' +
+      buildUrlXml({
+        loc: base + '/',
+        lastmod: today,
+        changefreq: 'daily',
+        priority: '1.0',
+        imageXml: buildImageXml(
+          base + '/uploads/seo-home-image.jpg',
+          'HOME_IMAGE_TITLE_PLACEHOLDER',
+          'HOME_IMAGE_CAPTION_PLACEHOLDER'
+        ),
+        videoXml: '',
+      }) +
       '</urlset>\n'
     );
-  });
+  }
 });
 
 router.get('/api/public/content', async (req, res) => {
