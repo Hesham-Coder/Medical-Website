@@ -1,0 +1,114 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<urlset
+  xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+  xmlns:image="http://www.google.com/schemas/sitemap-image/1.1"
+  xmlns:video="http://www.google.com/schemas/sitemap-video/1.1">
+
+  <!-- =========================
+       CORE PAGES
+       ========================= -->
+
+  <!-- Home -->
+  <url>
+    <loc>https://www.waleedarafat.org/</loc>
+    <lastmod>2026-02-27</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+    <image:image>
+      <image:loc>https://www.waleedarafat.org/path-to-home-image.jpg</image:loc>
+      <image:title>HOME_IMAGE_TITLE_PLACEHOLDER</image:title>
+      <image:caption>HOME_IMAGE_CAPTION_PLACEHOLDER</image:caption>
+    </image:image>
+  </url>
+
+  <!-- Portfolio -->
+  <url>
+    <loc>https://www.waleedarafat.org/portfolio/</loc>
+    <lastmod>2026-02-27</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://www.waleedarafat.org/path-to-portfolio-image.jpg</image:loc>
+      <image:title>PORTFOLIO_IMAGE_TITLE_PLACEHOLDER</image:title>
+      <image:caption>PORTFOLIO_IMAGE_CAPTION_PLACEHOLDER</image:caption>
+    </image:image>
+  </url>
+
+  <!-- Projects Listing -->
+  <url>
+    <loc>https://www.waleedarafat.org/projects/</loc>
+    <lastmod>2026-02-27</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://www.waleedarafat.org/path-to-projects-image.jpg</image:loc>
+      <image:title>PROJECTS_IMAGE_TITLE_PLACEHOLDER</image:title>
+      <image:caption>PROJECTS_IMAGE_CAPTION_PLACEHOLDER</image:caption>
+    </image:image>
+  </url>
+
+  <!-- About -->
+  <url>
+    <loc>https://www.waleedarafat.org/about/</loc>
+    <lastmod>2026-02-27</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+    <image:image>
+      <image:loc>https://www.waleedarafat.org/path-to-about-image.jpg</image:loc>
+      <image:title>ABOUT_IMAGE_TITLE_PLACEHOLDER</image:title>
+      <image:caption>ABOUT_IMAGE_CAPTION_PLACEHOLDER</image:caption>
+    </image:image>
+  </url>
+
+  <!-- Contact -->
+  <url>
+    <loc>https://www.waleedarafat.org/contact/</loc>
+    <lastmod>2026-02-27</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+    <image:image>
+      <image:loc>https://www.waleedarafat.org/path-to-contact-image.jpg</image:loc>
+      <image:title>CONTACT_IMAGE_TITLE_PLACEHOLDER</image:title>
+      <image:caption>CONTACT_IMAGE_CAPTION_PLACEHOLDER</image:caption>
+    </image:image>
+  </url>
+
+  <!-- =========================
+       SCALABLE TEMPLATES
+       Duplicate these blocks for each new project/blog post
+       ========================= -->
+
+  <!-- Project Page Template -->
+  <url>
+    <loc>https://www.waleedarafat.org/projects/project-slug/</loc>
+    <lastmod>2026-02-27</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://www.waleedarafat.org/path-to-project-cover.jpg</image:loc>
+      <image:title>PROJECT_IMAGE_TITLE_PLACEHOLDER</image:title>
+      <image:caption>PROJECT_IMAGE_CAPTION_PLACEHOLDER</image:caption>
+    </image:image>
+    <!-- Optional video metadata for project demos -->
+    <video:video>
+      <video:thumbnail_loc>https://www.waleedarafat.org/path-to-video-thumbnail.jpg</video:thumbnail_loc>
+      <video:title>PROJECT_VIDEO_TITLE_PLACEHOLDER</video:title>
+      <video:description>PROJECT_VIDEO_DESCRIPTION_PLACEHOLDER</video:description>
+      <video:content_loc>https://www.waleedarafat.org/path-to-video-file.mp4</video:content_loc>
+    </video:video>
+  </url>
+
+  <!-- Blog Post Template -->
+  <url>
+    <loc>https://www.waleedarafat.org/blog/post-slug/</loc>
+    <lastmod>2026-02-27</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+    <image:image>
+      <image:loc>https://www.waleedarafat.org/path-to-blog-image.jpg</image:loc>
+      <image:title>BLOG_IMAGE_TITLE_PLACEHOLDER</image:title>
+      <image:caption>BLOG_IMAGE_CAPTION_PLACEHOLDER</image:caption>
+    </image:image>
+  </url>
+
+</urlset>
