@@ -70,7 +70,7 @@
             class="h-8 w-8 rounded-lg bg-slate-100 object-contain"
             loading="eager"
           />
-          <span class="text-sm font-extrabold tracking-tight sm:text-base">Comprehensive Cancer Center</span>
+          <span id="siteLogoName" class="text-sm font-extrabold tracking-tight sm:text-base">Comprehensive Cancer Center</span>
         </a>
 
         <button
@@ -702,11 +702,15 @@
           document.title = title;
 
           var logo = document.getElementById("siteLogo");
+          var logoName = document.getElementById("siteLogoName");
           var logoUrl = c.siteInfo ? i18n(c.siteInfo.logoUrl) : "";
+          var siteTitle = i18n(c.siteInfo && c.siteInfo.title) || "Comprehensive Cancer Center";
+          var logoLabel = i18n(c.siteInfo && c.siteInfo.logoName) || siteTitle;
           if (logo && logoUrl) {
             logo.setAttribute("src", String(logoUrl));
-            logo.setAttribute("alt", title + " logo");
+            logo.setAttribute("alt", logoLabel + " logo");
           }
+          if (logoName) logoName.textContent = logoLabel;
           if (logoUrl) {
             document
               .querySelectorAll('link[rel="icon"], link[rel="shortcut icon"], link[rel="apple-touch-icon"]')
@@ -771,6 +775,10 @@
           var vurl = i18n(c.aboutSection && c.aboutSection.videoUrl);
           var embed = toEmbedUrl(vurl);
           if (v && embed) v.setAttribute("src", embed);
+          var videoTitle = document.getElementById("videoTitle");
+          var overviewTitle = i18n(c.aboutSection && c.aboutSection.videoTitle) || i18n(c.aboutSection && c.aboutSection.heading) || "Center Overview";
+          if (videoTitle) videoTitle.textContent = overviewTitle;
+          if (v) v.setAttribute("title", overviewTitle + " Video");
           applyContactSettings(c);
         }
 

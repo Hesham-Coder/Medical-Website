@@ -737,6 +737,8 @@
             function applyDefaults(c) {
                 if (!c.contactSettings || typeof c.contactSettings !== 'object') c.contactSettings = {};
                 if (!c.contact || typeof c.contact !== 'object') c.contact = {};
+                if (!c.siteInfo || typeof c.siteInfo !== 'object') c.siteInfo = {};
+                if (!c.siteInfo.logoName) c.siteInfo.logoName = c.siteInfo.title || 'Comprehensive Cancer Center';
                 if (!c.contactSettings.primaryNavbarNumber) c.contactSettings.primaryNavbarNumber = c.contact.phone || '+201120800011';
                 if (!c.contactSettings.immediateSupportNumber) c.contactSettings.immediateSupportNumber = c.contact.emergencyPhone || c.contactSettings.primaryNavbarNumber;
                 if (!c.contactSettings.footerGeneralContact) c.contactSettings.footerGeneralContact = c.contact.phone || c.contactSettings.primaryNavbarNumber;
@@ -773,6 +775,8 @@
                     subheading: { en: 'Accreditations and quality standards we are proud to maintain.', ar: 'الاعتمادات ومعايير الجودة التي نحرص على الالتزام بها.' }
                 };
                 if (!Array.isArray(c.certificates)) c.certificates = [];
+                if (!c.aboutSection) c.aboutSection = {};
+                if (!c.aboutSection.videoTitle) c.aboutSection.videoTitle = { en: 'Center Overview', ar: 'Center Overview' };
 
                 if (!c.teamSection) c.teamSection = { heading: 'World-Class Specialists', subheading: 'Our team combines decades of experience with cutting-edge research and compassionate care.' };
                 if (!Array.isArray(c.experts) || c.experts.length === 0) c.experts = DEFAULT_EXPERTS.slice();
@@ -1791,6 +1795,7 @@
                     ]},
                     { id: 'siteInfo', label: 'Site & stats', fields: [
                         { key: 'siteInfo.title', label: 'Site title', bilingual: true },
+                        { key: 'siteInfo.logoName', label: 'Logo name', bilingual: true },
                         { key: 'siteInfo.tagline', label: 'Tagline', bilingual: true },
                         { key: 'stats.patientsServed', label: 'Stats: Patients (number)', bilingual: false },
                         { key: 'stats.successRate', label: 'Stats: Success rate (number)', bilingual: false },
@@ -1827,6 +1832,7 @@
                     ]},
                     { id: 'about', label: 'About', fields: [
                         { key: 'aboutSection.heading', label: 'Heading', bilingual: true },
+                        { key: 'aboutSection.videoTitle', label: 'Center overview title', bilingual: true },
                         { key: 'aboutSection.highlightsHeading', label: 'Why choose us heading', bilingual: true },
                         { key: 'aboutSection.paragraphs.0', label: 'Paragraph 1', bilingual: true },
                         { key: 'aboutSection.paragraphs.1', label: 'Paragraph 2', bilingual: true },

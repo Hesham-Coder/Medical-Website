@@ -1056,8 +1056,8 @@
                         style="border-radius: 15px; transform: scale(1.6);">
                 </div>
                 <h2 class="text-sm sm:text-lg lg:text-xl font-extrabold tracking-tight text-brand-blue-dark">
-                    <span class="hidden sm:inline">Comprehensive Cancer Center</span>
-                    <span class="sm:hidden">Cancer Center</span>
+                    <span class="hidden sm:inline" data-content="siteInfo.logoName">Comprehensive Cancer Center</span>
+                    <span class="sm:hidden" data-content="siteInfo.logoName">Cancer Center</span>
                 </h2>
             </div>
 
@@ -2851,8 +2851,12 @@
                     var url = get(c, el.getAttribute('data-content-src'));
                     if (url && typeof url === 'string') el.src = url;
                 });
+                var logoLabel = getLocalized(get(c, 'siteInfo.logoName'), lang) || getLocalized(get(c, 'siteInfo.title'), lang) || 'Comprehensive Cancer Center';
                 var logoUrl = get(c, 'siteInfo.logoUrl');
                 if (logoUrl && typeof logoUrl === 'object') logoUrl = getLocalized(logoUrl, lang);
+                document.querySelectorAll('img[data-content-src="siteInfo.logoUrl"]').forEach(function (img) {
+                    img.setAttribute('alt', logoLabel + ' Logo');
+                });
                 if (logoUrl && typeof logoUrl === 'string') {
                     document.querySelectorAll('link[rel="icon"], link[rel="shortcut icon"], link[rel="apple-touch-icon"]').forEach(function (linkEl) {
                         linkEl.setAttribute('href', logoUrl);
