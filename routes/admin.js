@@ -7,10 +7,24 @@ const multer = require('multer');
 const AdmZip = require('adm-zip');
 const { ADMIN_DIR, UPLOADS_DIR, DATA_DIR } = require('../lib/config');
 const { requireAuth } = require('../middleware/auth');
-const { readContent, readContacts, writeDraftContent, publishDraftContent } = require('../lib/contentStore');
-const { readPosts, writePosts, syncPublishedPosts } = require('../lib/postStore');
+const {
+  readContent,
+  writeDraftContent,
+  publishDraftContent,
+  queryContacts,
+  invalidateContentCaches,
+} = require('../lib/contentStore');
+const {
+  readPosts,
+  queryPosts,
+  getDraftPostBySlug,
+  getDraftPostById,
+  persistPosts,
+  invalidatePostsCache,
+} = require('../lib/postStore');
 const { validatePostPayload, validatePostsQuery, slugify } = require('../lib/validation');
 const { audit } = require('../lib/audit');
+const { invalidateUsersCache } = require('../lib/userStore');
 const logger = require('../lib/logger');
 const { restoreLimiter } = require('../lib/security');
 
@@ -124,40 +138,10 @@ router.get('/api/admin/content', requireAuth, async (req, res) => {
 
 router.get('/api/admin/contacts', requireAuth, async (req, res) => {
   try {
-    const page = Math.max(parseInt(req.query.page, 10) || 1, 1);
-    const limit = Math.min(Math.max(parseInt(req.query.limit, 10) || 25, 5), 100);
-    const search = (req.query.search ? String(req.query.search) : '').trim().toLowerCase().slice(0, 120);
-
-    const raw = await readContacts();
-    const list = Array.isArray(raw) ? raw : [];
-    const sorted = list.slice().sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
-    const filtered = !search ? sorted : sorted.filter((c) => {
-      const hay = [
-        c && c.firstName,
-        c && c.lastName,
-        c && c.email,
-        c && c.phone,
-        c && c.concern,
-        c && c.message,
-      ].filter(Boolean).join(' ').toLowerCase();
-      return hay.includes(search);
-    });
-
-    const total = filtered.length;
-    const pages = Math.max(Math.ceil(total / limit), 1);
-    const safePage = Math.min(page, pages);
-    const start = (safePage - 1) * limit;
-    const items = filtered.slice(start, start + limit);
-
+    const result = await queryContacts(req.query || {});
     res.json({
-      items,
-      pagination: {
-        page: safePage,
-        limit,
-        total,
-        pages,
-        hasNext: safePage < pages,
-      },
+      items: result.items,
+      pagination: result.pagination,
     });
   } catch (error) {
     logger.error('Error reading contacts (admin)', { error: error.message });
@@ -250,6 +234,9 @@ router.post('/api/admin/restore', requireAuth, restoreLimiter, csurf(), restoreU
       restoredData,
       restoredUploads,
     });
+    invalidateContentCaches();
+    invalidatePostsCache();
+    invalidateUsersCache();
 
     res.json({
       success: true,
@@ -274,36 +261,13 @@ function ensureUniqueSlug(posts, slug, currentId) {
   return candidate;
 }
 
-function sortPostsByDate(posts) {
-  return posts.slice().sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-}
-
 router.get('/api/admin/posts', requireAuth, async (req, res) => {
   try {
     const query = validatePostsQuery(req.query || {});
-    const raw = sortPostsByDate(await readPosts());
-    const filtered = raw.filter((post) => {
-      if (query.type && post.type !== query.type) return false;
-      if (query.search) {
-        const haystack = [post.title, post.excerpt, post.author, (post.tags || []).join(' ')].join(' ').toLowerCase();
-        if (!haystack.includes(query.search.toLowerCase())) return false;
-      }
-      return true;
-    });
-    const total = filtered.length;
-    const pages = Math.max(Math.ceil(total / query.limit), 1);
-    const safePage = Math.min(query.page, pages);
-    const start = (safePage - 1) * query.limit;
-    const items = filtered.slice(start, start + query.limit);
+    const result = await queryPosts(query);
     res.json({
-      items,
-      pagination: {
-        page: safePage,
-        limit: query.limit,
-        total,
-        pages,
-        hasNext: safePage < pages,
-      },
+      items: result.items,
+      pagination: result.pagination,
     });
   } catch (error) {
     logger.error('Error reading admin posts', { error: error.message });
@@ -315,8 +279,7 @@ router.get('/api/admin/posts/:slug', requireAuth, async (req, res) => {
   try {
     const slug = slugify(req.params.slug || '');
     if (!slug) return res.status(400).json({ error: 'Slug is required' });
-    const posts = await readPosts();
-    const post = posts.find((item) => item.slug === slug);
+    const post = await getDraftPostBySlug(slug);
     if (!post) return res.status(404).json({ error: 'Post not found' });
     res.json(post);
   } catch (error) {
@@ -329,8 +292,7 @@ router.get('/api/admin/posts/id/:id', requireAuth, async (req, res) => {
   try {
     const id = String(req.params.id || '').trim();
     if (!id) return res.status(400).json({ error: 'Invalid post id' });
-    const posts = await readPosts();
-    const post = posts.find((item) => item.id === id);
+    const post = await getDraftPostById(id);
     if (!post) return res.status(404).json({ error: 'Post not found' });
     res.json(post);
   } catch (error) {
@@ -351,9 +313,7 @@ router.post('/api/admin/posts', requireAuth, csurf(), async (req, res) => {
     payload.createdAt = now;
     payload.updatedAt = now;
     posts.push(payload);
-    const sorted = sortPostsByDate(posts);
-    await writePosts(sorted);
-    await syncPublishedPosts(sorted);
+    await persistPosts(posts);
     await audit('post_create', { postId: payload.id, user: req.session.userId || 'unknown' });
     res.status(201).json(payload);
   } catch (error) {
@@ -378,9 +338,7 @@ router.put('/api/admin/posts/:id', requireAuth, csurf(), async (req, res) => {
     payload.updatedAt = new Date().toISOString();
     payload.slug = ensureUniqueSlug(posts, payload.slug, payload.id);
     posts[index] = payload;
-    const sorted = sortPostsByDate(posts);
-    await writePosts(sorted);
-    await syncPublishedPosts(sorted);
+    await persistPosts(posts);
     await audit('post_update', { postId: payload.id, user: req.session.userId || 'unknown' });
     res.json(payload);
   } catch (error) {
@@ -396,9 +354,7 @@ router.delete('/api/admin/posts/:id', requireAuth, csurf(), async (req, res) => 
     const posts = await readPosts();
     const next = posts.filter((post) => post.id !== id);
     if (next.length === posts.length) return res.status(404).json({ error: 'Post not found' });
-    const sorted = sortPostsByDate(next);
-    await writePosts(sorted);
-    await syncPublishedPosts(sorted);
+    await persistPosts(next);
     await audit('post_delete', { postId: id, user: req.session.userId || 'unknown' });
     res.json({ success: true });
   } catch (error) {
@@ -416,9 +372,7 @@ router.patch('/api/admin/posts/:id/publish', requireAuth, csurf(), async (req, r
     if (index < 0) return res.status(404).json({ error: 'Post not found' });
     posts[index].isPublished = !posts[index].isPublished;
     posts[index].updatedAt = new Date().toISOString();
-    const sorted = sortPostsByDate(posts);
-    await writePosts(sorted);
-    await syncPublishedPosts(sorted);
+    await persistPosts(posts);
     await audit('post_toggle_publish', { postId: id, user: req.session.userId || 'unknown' });
     res.json(posts[index]);
   } catch (error) {
@@ -436,9 +390,7 @@ router.patch('/api/admin/posts/:id/feature', requireAuth, csurf(), async (req, r
     if (index < 0) return res.status(404).json({ error: 'Post not found' });
     posts[index].isFeatured = !posts[index].isFeatured;
     posts[index].updatedAt = new Date().toISOString();
-    const sorted = sortPostsByDate(posts);
-    await writePosts(sorted);
-    await syncPublishedPosts(sorted);
+    await persistPosts(posts);
     await audit('post_toggle_feature', { postId: id, user: req.session.userId || 'unknown' });
     res.json(posts[index]);
   } catch (error) {

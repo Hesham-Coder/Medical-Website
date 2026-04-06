@@ -91,7 +91,8 @@
       hasNext: false,
       loading: false,
       items: [],
-      featuredSlug: ''
+      featuredSlug: '',
+      loadedSlugs: new Set()
     };
 
     var grid = document.getElementById(config.gridId);
@@ -104,12 +105,16 @@
       status.textContent = text;
     }
 
-    function render() {
+    function render(reset, nextItems) {
       if (!state.items.length) {
         grid.innerHTML = '';
         if (!state.loading) setState('No items yet.');
       } else {
-        grid.innerHTML = state.items.map(renderCard).join('');
+        if (reset) {
+          grid.innerHTML = state.items.map(renderCard).join('');
+        } else if (nextItems && nextItems.length) {
+          grid.insertAdjacentHTML('beforeend', nextItems.map(renderCard).join(''));
+        }
         setState('');
       }
       loadMore.classList.toggle('hidden', !state.hasNext);
@@ -131,23 +136,28 @@
         state.page = 1;
         state.items = [];
         state.hasNext = false;
+        state.loadedSlugs = new Set();
       }
       setState('Loading...');
-      var listUrl = '/api/posts?type=' + encodeURIComponent(config.type) + '&page=' + state.page + '&limit=' + state.limit;
-      var featuredUrl = '/api/posts?type=' + encodeURIComponent(config.type) + '&page=1&limit=24';
-      return Promise.all([
-        request(listUrl),
-        request(featuredUrl)
-      ]).then(function (results) {
-        var listRes = results[0];
-        var featuredRes = results[1];
-        var featuredPost = (featuredRes.items || []).find(function (p) { return p.isFeatured; }) || featuredRes.items[0];
-        featured.innerHTML = renderFeatured(featuredPost);
-        state.featuredSlug = featuredPost ? featuredPost.slug : '';
-        var nextItems = (listRes.items || []).filter(function (item) { return item.slug !== state.featuredSlug; });
+      var listUrl = '/api/posts?type=' + encodeURIComponent(config.type) + '&page=' + state.page + '&limit=' + state.limit + (reset ? '&includeFeatured=1' : '');
+      return request(listUrl).then(function (listRes) {
+        if (reset) {
+          var featuredPost = listRes.featuredItem || null;
+          featured.innerHTML = renderFeatured(featuredPost);
+          state.featuredSlug = featuredPost ? featuredPost.slug : '';
+        }
+        var nextItems = (listRes.items || []).filter(function (item) {
+          if (!item || !item.slug) return false;
+          if (item.slug === state.featuredSlug) return false;
+          if (state.loadedSlugs.has(item.slug)) return false;
+          return true;
+        });
+        nextItems.forEach(function (item) {
+          state.loadedSlugs.add(item.slug);
+        });
         state.items = reset ? nextItems : state.items.concat(nextItems);
         state.hasNext = Boolean(listRes.pagination && listRes.pagination.hasNext);
-        render();
+        render(reset, nextItems);
       }).catch(function (err) {
         setState(err.message || 'Failed to load items.');
       }).finally(function () {

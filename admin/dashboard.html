@@ -1962,6 +1962,7 @@
             }
 
             var contactsState = { page: 1, pages: 1, search: '', limit: 25 };
+            var contactsRequestState = { controller: null, requestId: 0 };
 
             function formatDateTime(value) {
                 if (!value) return '-';
@@ -2021,14 +2022,24 @@
                 if (tbody) tbody.innerHTML = '<tr><td colspan="6" class="muted">Loading...</td></tr>';
                 if (meta) meta.textContent = 'Loading...';
 
+                if (contactsRequestState.controller) {
+                    contactsRequestState.controller.abort();
+                }
+
+                var controller = typeof AbortController === 'function' ? new AbortController() : null;
+                contactsRequestState.controller = controller;
+                contactsRequestState.requestId += 1;
+                var requestId = contactsRequestState.requestId;
+
                 var qs = new URLSearchParams();
                 qs.set('page', String(contactsState.page));
                 qs.set('limit', String(contactsState.limit));
                 if (contactsState.search) qs.set('search', contactsState.search);
 
-                return fetch('/api/admin/contacts?' + qs.toString())
+                return fetch('/api/admin/contacts?' + qs.toString(), controller ? { signal: controller.signal } : undefined)
                     .then(function(r) {
                         return r.json().then(function(data) {
+                            if (requestId !== contactsRequestState.requestId) return;
                             if (r.status === 401) {
                                 window.location.href = '/login.html';
                                 return;
@@ -2043,9 +2054,18 @@
                         });
                     })
                     .catch(function(err) {
+                        if (err && err.name === 'AbortError') {
+                            return;
+                        }
+                        if (requestId !== contactsRequestState.requestId) return;
                         showToast('Failed to load submissions: ' + (err && err.message ? err.message : 'unknown error'), 'error');
                         if (tbody) tbody.innerHTML = '<tr><td colspan="6" class="muted">Failed to load.</td></tr>';
                         if (meta) meta.textContent = 'Failed to load.';
+                    })
+                    .finally(function() {
+                        if (requestId === contactsRequestState.requestId) {
+                            contactsRequestState.controller = null;
+                        }
                     });
             }
 
