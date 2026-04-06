@@ -269,6 +269,15 @@
         .contacts-controls { display:flex; gap:10px; align-items:center; margin-bottom: 12px; flex-wrap: wrap; }
         .contacts-controls input { flex: 1; min-width: 220px; padding: 10px 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; }
         .muted { color: #64748b; font-size: 13px; }
+        .contact-settings-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+        .contact-settings-actions { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-top: 14px; }
+        .inline-note { font-size: 12px; color: #64748b; }
+        .field-error { font-size: 12px; color: #b91c1c; min-height: 18px; margin-top: 4px; }
+        .contact-status { font-size: 13px; color: #166534; min-height: 18px; }
+        .phone-input.invalid, .message-input.invalid {
+            border-color: #dc2626;
+            box-shadow: 0 0 0 2px rgba(220,38,38,0.12);
+        }
     </style>
 </head>
 <body>
@@ -314,6 +323,40 @@
                 </div>
             </div>
             <button type="button" class="btn-primary" id="openAccountSettingsBtn">Edit</button>
+        </div>
+        <div class="card">
+            <h2>Contact Settings</h2>
+            <p style="font-size: 13px; color: #666; margin-bottom: 12px;">Manage the live phone numbers used across the website. These values sync instantly to the navbar, WhatsApp widget, support CTAs, and footer contact links.</p>
+            <div class="contact-settings-grid">
+                <div class="form-group">
+                    <label for="primaryNavbarNumber">Primary Navbar Number</label>
+                    <input type="tel" id="primaryNavbarNumber" class="phone-input" inputmode="tel" placeholder="+201120800011">
+                    <div class="inline-note">Shown in the website header and primary call links.</div>
+                    <div class="field-error" id="primaryNavbarNumberError"></div>
+                </div>
+                <div class="form-group">
+                    <label for="immediateSupportNumber">Immediate Support Number</label>
+                    <input type="tel" id="immediateSupportNumber" class="phone-input" inputmode="tel" placeholder="+201120800011">
+                    <div class="inline-note">Used for the floating WhatsApp widget and urgent support CTAs.</div>
+                    <div class="field-error" id="immediateSupportNumberError"></div>
+                </div>
+                <div class="form-group">
+                    <label for="footerGeneralContact">Footer / General Contact</label>
+                    <input type="tel" id="footerGeneralContact" class="phone-input" inputmode="tel" placeholder="+201120800011">
+                    <div class="inline-note">Displayed in the footer and general contact placeholders.</div>
+                    <div class="field-error" id="footerGeneralContactError"></div>
+                </div>
+            </div>
+            <div class="form-group" style="margin-top: 8px;">
+                <label for="whatsappWelcomeMessage">WhatsApp Welcome Message</label>
+                <textarea id="whatsappWelcomeMessage" class="message-input" rows="3" maxlength="240" placeholder="Hello, I would like to speak with your support team."></textarea>
+                <div class="inline-note">This message is pre-filled when someone opens the floating WhatsApp chat.</div>
+                <div class="field-error" id="whatsappWelcomeMessageError"></div>
+            </div>
+            <div class="contact-settings-actions">
+                <button type="button" class="btn-primary" id="saveContactSettingsBtn">Save contact settings</button>
+                <span class="contact-status" id="contactSettingsStatus"></span>
+            </div>
         </div>
         <div class="card">
             <h2>Backup & Restore</h2>
@@ -692,6 +735,14 @@
                 { name: 'Dr. James Wilson', title: 'Surgical Oncologist', imageUrl: '', bio: 'Pioneer in minimally invasive surgical techniques.', icon: 'surgical', visible: true }
             ];
             function applyDefaults(c) {
+                if (!c.contactSettings || typeof c.contactSettings !== 'object') c.contactSettings = {};
+                if (!c.contact || typeof c.contact !== 'object') c.contact = {};
+                if (!c.contactSettings.primaryNavbarNumber) c.contactSettings.primaryNavbarNumber = c.contact.phone || '+201120800011';
+                if (!c.contactSettings.immediateSupportNumber) c.contactSettings.immediateSupportNumber = c.contact.emergencyPhone || c.contactSettings.primaryNavbarNumber;
+                if (!c.contactSettings.footerGeneralContact) c.contactSettings.footerGeneralContact = c.contact.phone || c.contactSettings.primaryNavbarNumber;
+                if (!c.contactSettings.whatsappWelcomeMessage) c.contactSettings.whatsappWelcomeMessage = 'Hello, I would like to speak with your support team.';
+                c.contact.phone = c.contactSettings.primaryNavbarNumber;
+                c.contact.emergencyPhone = c.contactSettings.immediateSupportNumber;
                 if (!c.sectionsOrder) c.sectionsOrder = ['hero', 'services', 'team', 'testimonials', 'news', 'updates', 'articles', 'about', 'certificates', 'contact', 'cta'];
                 if (!c.sectionVisibility) {
                     c.sectionVisibility = {};
@@ -736,6 +787,129 @@
                 }
 
                 return c;
+            }
+
+            function validatePhoneValue(value, label) {
+                var text = String(value || '').trim();
+                if (!text) return label + ' is required.';
+                if (!/^\+?[0-9()\-\s]{7,32}$/.test(text)) {
+                    return label + ' can only contain numbers, spaces, parentheses, or hyphens.';
+                }
+                var digits = text.replace(/\D/g, '');
+                if (digits.length < 7 || digits.length > 15) {
+                    return label + ' must contain 7 to 15 digits.';
+                }
+                return '';
+            }
+
+            function setContactFieldError(id, message) {
+                var input = document.getElementById(id);
+                var error = document.getElementById(id + 'Error');
+                if (input) input.classList.toggle('invalid', !!message);
+                if (error) error.textContent = message || '';
+            }
+
+            function setContactSettingsStatus(message, isError) {
+                var el = document.getElementById('contactSettingsStatus');
+                if (!el) return;
+                el.textContent = message || '';
+                el.style.color = isError ? '#b91c1c' : '#166534';
+            }
+
+            function renderContactSettings() {
+                if (!content || !content.contactSettings) return;
+                document.getElementById('primaryNavbarNumber').value = content.contactSettings.primaryNavbarNumber || '';
+                document.getElementById('immediateSupportNumber').value = content.contactSettings.immediateSupportNumber || '';
+                document.getElementById('footerGeneralContact').value = content.contactSettings.footerGeneralContact || '';
+                document.getElementById('whatsappWelcomeMessage').value = content.contactSettings.whatsappWelcomeMessage || '';
+                ['primaryNavbarNumber', 'immediateSupportNumber', 'footerGeneralContact', 'whatsappWelcomeMessage'].forEach(function(id) {
+                    setContactFieldError(id, '');
+                });
+                setContactSettingsStatus('', false);
+            }
+
+            function readContactSettingsForm() {
+                return {
+                    primaryNavbarNumber: (document.getElementById('primaryNavbarNumber').value || '').trim(),
+                    immediateSupportNumber: (document.getElementById('immediateSupportNumber').value || '').trim(),
+                    footerGeneralContact: (document.getElementById('footerGeneralContact').value || '').trim(),
+                    whatsappWelcomeMessage: (document.getElementById('whatsappWelcomeMessage').value || '').trim(),
+                };
+            }
+
+            function validateContactSettingsForm(payload) {
+                var errors = {
+                    primaryNavbarNumber: validatePhoneValue(payload.primaryNavbarNumber, 'Primary navbar number'),
+                    immediateSupportNumber: validatePhoneValue(payload.immediateSupportNumber, 'Immediate support number'),
+                    footerGeneralContact: validatePhoneValue(payload.footerGeneralContact, 'Footer/general contact number'),
+                    whatsappWelcomeMessage: payload.whatsappWelcomeMessage.length > 240 ? 'WhatsApp welcome message must be 240 characters or fewer.' : '',
+                };
+                Object.keys(errors).forEach(function(key) {
+                    setContactFieldError(key, errors[key]);
+                });
+                return !errors.primaryNavbarNumber && !errors.immediateSupportNumber && !errors.footerGeneralContact && !errors.whatsappWelcomeMessage;
+            }
+
+            function syncLocalContactSettings(nextSettings) {
+                if (!content) return;
+                content.contactSettings = {
+                    primaryNavbarNumber: nextSettings.primaryNavbarNumber,
+                    immediateSupportNumber: nextSettings.immediateSupportNumber,
+                    footerGeneralContact: nextSettings.footerGeneralContact,
+                    whatsappWelcomeMessage: nextSettings.whatsappWelcomeMessage,
+                };
+                if (!content.contact || typeof content.contact !== 'object') content.contact = {};
+                content.contact.phone = nextSettings.primaryNavbarNumber;
+                content.contact.emergencyPhone = nextSettings.immediateSupportNumber;
+            }
+
+            function saveContactSettings() {
+                if (!csrfToken) {
+                    setContactSettingsStatus('Missing security token. Refresh and try again.', true);
+                    return;
+                }
+                var payload = readContactSettingsForm();
+                if (!validateContactSettingsForm(payload)) {
+                    setContactSettingsStatus('Please fix the highlighted fields and try again.', true);
+                    return;
+                }
+
+                setContactSettingsStatus('Saving...', false);
+                fetch('/api/admin/contact-settings', {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-Token': csrfToken
+                    },
+                    body: JSON.stringify(payload)
+                }).then(function(r) {
+                    return r.json().then(function(data) {
+                        if (!r.ok) {
+                            setContactSettingsStatus(data.error || 'Unable to save contact settings.', true);
+                            return;
+                        }
+                        syncLocalContactSettings(data.contactSettings || payload);
+                        renderContactSettings();
+                        setContactSettingsStatus('Live contact settings updated.', false);
+                        showToast('Contact settings updated', 'success');
+                    });
+                }).catch(function(err) {
+                    setContactSettingsStatus(err && err.message ? err.message : 'Unable to save contact settings.', true);
+                });
+            }
+
+            function setupContactSettings() {
+                var saveBtn = document.getElementById('saveContactSettingsBtn');
+                if (!saveBtn) return;
+                saveBtn.addEventListener('click', saveContactSettings);
+                ['primaryNavbarNumber', 'immediateSupportNumber', 'footerGeneralContact', 'whatsappWelcomeMessage'].forEach(function(id) {
+                    var el = document.getElementById(id);
+                    if (!el) return;
+                    el.addEventListener('input', function() {
+                        setContactFieldError(id, '');
+                        setContactSettingsStatus('', false);
+                    });
+                });
             }
 
             function loadContent() {
@@ -1623,8 +1797,9 @@
                         { key: 'stats.specialists', label: 'Stats: Specialists (number)', bilingual: false }
                     ]},
                     { id: 'contact', label: 'Contact', fields: [
-                        { key: 'contact.phone', label: 'Phone', bilingual: true },
-                        { key: 'contact.emergencyPhone', label: 'Emergency phone', bilingual: true },
+                        { key: 'contactSettings.primaryNavbarNumber', label: 'Primary navbar number', bilingual: false },
+                        { key: 'contactSettings.immediateSupportNumber', label: 'Immediate support number', bilingual: false },
+                        { key: 'contactSettings.footerGeneralContact', label: 'Footer / general contact number', bilingual: false },
                         { key: 'contact.email', label: 'Email', bilingual: true },
                         { key: 'contact.address', label: 'Address', bilingual: true }
                     ]},
@@ -1757,6 +1932,12 @@
                     input.addEventListener('input', function() {
                         var f = sections.reduce(function(acc, s) { return acc || s.fields.filter(function(x) { return x.key === key; })[0]; }, null);
                         setVal(key, f && f.bilingual ? lang : 'en', input.value);
+                        if (key === 'contactSettings.primaryNavbarNumber') {
+                            content.contact.phone = input.value;
+                        }
+                        if (key === 'contactSettings.immediateSupportNumber') {
+                            content.contact.emergencyPhone = input.value;
+                        }
                         scheduleSave();
                     });
                 });
@@ -2360,6 +2541,8 @@
             }).then(function() {
                 if (!content) return;
                 setSaveStatus('Ready', '');
+                renderContactSettings();
+                setupContactSettings();
                 renderSectionList();
                 renderExpertsList();
                 setupExpertsUI();

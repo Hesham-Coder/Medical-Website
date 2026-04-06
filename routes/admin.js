@@ -13,6 +13,7 @@ const {
   publishDraftContent,
   queryContacts,
   invalidateContentCaches,
+  updateContactSettings,
 } = require('../lib/contentStore');
 const {
   readPosts,
@@ -22,7 +23,12 @@ const {
   persistPosts,
   invalidatePostsCache,
 } = require('../lib/postStore');
-const { validatePostPayload, validatePostsQuery, slugify } = require('../lib/validation');
+const {
+  validatePostPayload,
+  validatePostsQuery,
+  validateContactSettingsPayload,
+  slugify,
+} = require('../lib/validation');
 const { audit } = require('../lib/audit');
 const { invalidateUsersCache } = require('../lib/userStore');
 const logger = require('../lib/logger');
@@ -136,6 +142,16 @@ router.get('/api/admin/content', requireAuth, async (req, res) => {
   }
 });
 
+router.get('/api/admin/contact-settings', requireAuth, async (req, res) => {
+  try {
+    const content = await readContent();
+    res.json((content && content.contactSettings) || {});
+  } catch (error) {
+    logger.error('Error reading contact settings (admin)', { error: error.message });
+    res.status(500).json({ error: 'Failed to read contact settings' });
+  }
+});
+
 router.get('/api/admin/contacts', requireAuth, async (req, res) => {
   try {
     const result = await queryContacts(req.query || {});
@@ -155,12 +171,42 @@ router.post('/api/admin/content', requireAuth, csurf(), async (req, res) => {
     if (!content || typeof content !== 'object') {
       return res.status(400).json({ error: 'Invalid content format' });
     }
+    if (content.contactSettings) {
+      const validation = validateContactSettingsPayload(content.contactSettings);
+      if (!validation.success) {
+        return res.status(400).json({ error: validation.error });
+      }
+      content.contactSettings = validation.data;
+    }
     await writeDraftContent(content);
     logger.info('Draft content updated');
     res.json({ success: true, message: 'Content updated successfully' });
   } catch (error) {
     logger.error('Error updating content', { error: error.message });
     res.status(500).json({ error: 'Failed to update content' });
+  }
+});
+
+router.put('/api/admin/contact-settings', requireAuth, csurf(), async (req, res) => {
+  try {
+    const validation = validateContactSettingsPayload(req.body || {});
+    if (!validation.success) {
+      return res.status(400).json({ error: validation.error });
+    }
+
+    await updateContactSettings(validation.data);
+    await audit('update_contact_settings', {
+      user: req.session.userId || 'unknown',
+    });
+
+    res.json({
+      success: true,
+      message: 'Contact settings updated successfully.',
+      contactSettings: validation.data,
+    });
+  } catch (error) {
+    logger.error('Error updating contact settings', { error: error.message });
+    res.status(500).json({ error: 'Failed to update contact settings' });
   }
 });
 
