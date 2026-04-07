@@ -325,40 +325,6 @@
             <button type="button" class="btn-primary" id="openAccountSettingsBtn">Edit</button>
         </div>
         <div class="card">
-            <h2>Contact Settings</h2>
-            <p style="font-size: 13px; color: #666; margin-bottom: 12px;">Manage the live phone numbers used across the website. These values sync instantly to the navbar, WhatsApp widget, support CTAs, and footer contact links.</p>
-            <div class="contact-settings-grid">
-                <div class="form-group">
-                    <label for="primaryNavbarNumber">Primary Navbar Number</label>
-                    <input type="tel" id="primaryNavbarNumber" class="phone-input" inputmode="tel" placeholder="+201120800011">
-                    <div class="inline-note">Shown in the website header and primary call links.</div>
-                    <div class="field-error" id="primaryNavbarNumberError"></div>
-                </div>
-                <div class="form-group">
-                    <label for="immediateSupportNumber">Immediate Support Number</label>
-                    <input type="tel" id="immediateSupportNumber" class="phone-input" inputmode="tel" placeholder="+201120800011">
-                    <div class="inline-note">Used for the floating WhatsApp widget and urgent support CTAs.</div>
-                    <div class="field-error" id="immediateSupportNumberError"></div>
-                </div>
-                <div class="form-group">
-                    <label for="footerGeneralContact">Footer / General Contact</label>
-                    <input type="tel" id="footerGeneralContact" class="phone-input" inputmode="tel" placeholder="+201120800011">
-                    <div class="inline-note">Displayed in the footer and general contact placeholders.</div>
-                    <div class="field-error" id="footerGeneralContactError"></div>
-                </div>
-            </div>
-            <div class="form-group" style="margin-top: 8px;">
-                <label for="whatsappWelcomeMessage">WhatsApp Welcome Message</label>
-                <textarea id="whatsappWelcomeMessage" class="message-input" rows="3" maxlength="240" placeholder="Hello, I would like to speak with your support team."></textarea>
-                <div class="inline-note">This message is pre-filled when someone opens the floating WhatsApp chat.</div>
-                <div class="field-error" id="whatsappWelcomeMessageError"></div>
-            </div>
-            <div class="contact-settings-actions">
-                <button type="button" class="btn-primary" id="saveContactSettingsBtn">Save contact settings</button>
-                <span class="contact-status" id="contactSettingsStatus"></span>
-            </div>
-        </div>
-        <div class="card">
             <h2>Backup & Restore</h2>
             <p style="font-size: 13px; color: #666; margin-bottom: 12px;">
                 Restore a previously created backup zip (contains <code>data/</code> and <code>uploads/</code>). This will overwrite existing files.
@@ -378,25 +344,31 @@
         </div>
         <div class="card">
             <h2>Contact Form Submissions</h2>
-            <div class="contacts-controls">
-                <input type="text" id="contactsSearch" placeholder="Search name, email, phone, message...">
-                <button type="button" class="btn-secondary" id="contactsRefreshBtn">Refresh</button>
+            <div class="contacts-actions" style="display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-bottom: 12px;">
+                <button type="button" class="btn-danger" id="contactsDeleteSelectedBtn" disabled>Delete selected</button>
+                <button type="button" class="btn-danger" id="contactsDeleteAllBtn">Delete all</button>
+                <div style="flex:1 1 240px; display:flex; gap:10px; align-items:center;">
+                    <input type="text" id="contactsSearch" placeholder="Search name, email, phone, message..." style="flex:1;">
+                    <button type="button" class="btn-secondary" id="contactsRefreshBtn">Refresh</button>
+                </div>
             </div>
             <div class="muted" id="contactsMeta">Loading...</div>
             <div class="table-wrap" style="margin-top: 12px;">
                 <table class="data-table" id="contactsTable">
                     <thead>
                         <tr>
+                            <th style="width: 40px;"><input type="checkbox" id="contactsSelectAllCheckbox" aria-label="Select all"></th>
                             <th style="min-width: 160px;">Date</th>
                             <th style="min-width: 140px;">Name</th>
                             <th style="min-width: 200px;">Email</th>
                             <th style="min-width: 140px;">Phone</th>
                             <th style="min-width: 120px;">Concern</th>
-                            <th style="min-width: 280px;">Message</th>
+                            <th style="min-width: 240px;">Message</th>
+                            <th style="min-width: 100px;">Actions</th>
                         </tr>
                     </thead>
                     <tbody id="contactsTbody">
-                        <tr><td colspan="6" class="muted">Loading...</td></tr>
+                        <tr><td colspan="8" class="muted">Loading...</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -649,6 +621,35 @@
                 </div>
             </div>
         </div>
+
+        <div class="card">
+            <h2>Backup & Restore</h2>
+            <p style="font-size: 13px; color: #666; margin-bottom: 16px;">Create backups of all your website content, data, and uploaded files. You can restore from a backup anytime.</p>
+            
+            <div style="display: flex; gap: 12px; margin-bottom: 24px;">
+                <button type="button" class="btn-primary" id="createBackupBtn" style="flex: 0 0 auto;">Create Backup Now</button>
+                <button type="button" class="btn-secondary" id="refreshBackupsBtn" style="flex: 0 0 auto;">Refresh List</button>
+            </div>
+
+            <div id="backupStatus" style="font-size: 13px; color: #666; margin-bottom: 16px; min-height: 18px;"></div>
+
+            <div style="margin-bottom: 24px;">
+                <h3 style="font-size: 14px; font-weight: 600; margin-bottom: 12px; color: #1a1a1a;">Available Backups</h3>
+                <div id="backupsList" style="max-height: 400px; overflow-y: auto; border: 1px solid #eee; border-radius: 8px; background: #f9fafb;">
+                    <div style="padding: 16px; text-align: center; color: #999; font-size: 13px;">Loading backups...</div>
+                </div>
+            </div>
+
+            <div style="margin-top: 24px; padding-top: 24px; border-top: 1px solid #eee;">
+                <h3 style="font-size: 14px; font-weight: 600; margin-bottom: 12px; color: #1a1a1a;">Restore from Backup</h3>
+                <p style="font-size: 12px; color: #666; margin-bottom: 12px;">Upload a backup ZIP file to restore your website content.</p>
+                <div class="drop-zone" id="restoreDropZone">
+                    <div class="drop-label">Drag & drop backup ZIP or click to select</div>
+                    <input type="file" id="restoreFileInput" accept=".zip">
+                    <div id="restoreStatus" style="margin-top: 8px; font-size: 12px; color: #64748b; min-height: 18px;"></div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <div id="toast" class="toast" style="display: none;"></div>
@@ -739,9 +740,17 @@
                 if (!c.contact || typeof c.contact !== 'object') c.contact = {};
                 if (!c.siteInfo || typeof c.siteInfo !== 'object') c.siteInfo = {};
                 if (!c.siteInfo.logoName) c.siteInfo.logoName = c.siteInfo.title || 'Comprehensive Cancer Center';
-                if (!c.contactSettings.primaryNavbarNumber) c.contactSettings.primaryNavbarNumber = c.contact.phone || '+201120800011';
-                if (!c.contactSettings.immediateSupportNumber) c.contactSettings.immediateSupportNumber = c.contact.emergencyPhone || c.contactSettings.primaryNavbarNumber;
-                if (!c.contactSettings.footerGeneralContact) c.contactSettings.footerGeneralContact = c.contact.phone || c.contactSettings.primaryNavbarNumber;
+                // Helper to extract string from bilingual object or return as-is
+                function getPhoneString(val) {
+                    if (!val) return '+201120800011';
+                    if (typeof val === 'string') return val;
+                    if (typeof val === 'object' && val.en) return val.en;
+                    if (typeof val === 'object' && val.ar) return val.ar;
+                    return String(val).replace(/\[object Object\]/g, '+201120800011');
+                }
+                if (!c.contactSettings.primaryNavbarNumber) c.contactSettings.primaryNavbarNumber = getPhoneString(c.contact.phone) || '+201120800011';
+                if (!c.contactSettings.immediateSupportNumber) c.contactSettings.immediateSupportNumber = getPhoneString(c.contact.emergencyPhone) || c.contactSettings.primaryNavbarNumber;
+                if (!c.contactSettings.footerGeneralContact) c.contactSettings.footerGeneralContact = getPhoneString(c.contact.phone) || c.contactSettings.primaryNavbarNumber;
                 if (!c.contactSettings.whatsappWelcomeMessage) c.contactSettings.whatsappWelcomeMessage = 'Hello, I would like to speak with your support team.';
                 c.contact.phone = c.contactSettings.primaryNavbarNumber;
                 c.contact.emergencyPhone = c.contactSettings.immediateSupportNumber;
@@ -793,129 +802,6 @@
                 return c;
             }
 
-            function validatePhoneValue(value, label) {
-                var text = String(value || '').trim();
-                if (!text) return label + ' is required.';
-                if (!/^\+?[0-9()\-\s]{7,32}$/.test(text)) {
-                    return label + ' can only contain numbers, spaces, parentheses, or hyphens.';
-                }
-                var digits = text.replace(/\D/g, '');
-                if (digits.length < 7 || digits.length > 15) {
-                    return label + ' must contain 7 to 15 digits.';
-                }
-                return '';
-            }
-
-            function setContactFieldError(id, message) {
-                var input = document.getElementById(id);
-                var error = document.getElementById(id + 'Error');
-                if (input) input.classList.toggle('invalid', !!message);
-                if (error) error.textContent = message || '';
-            }
-
-            function setContactSettingsStatus(message, isError) {
-                var el = document.getElementById('contactSettingsStatus');
-                if (!el) return;
-                el.textContent = message || '';
-                el.style.color = isError ? '#b91c1c' : '#166534';
-            }
-
-            function renderContactSettings() {
-                if (!content || !content.contactSettings) return;
-                document.getElementById('primaryNavbarNumber').value = content.contactSettings.primaryNavbarNumber || '';
-                document.getElementById('immediateSupportNumber').value = content.contactSettings.immediateSupportNumber || '';
-                document.getElementById('footerGeneralContact').value = content.contactSettings.footerGeneralContact || '';
-                document.getElementById('whatsappWelcomeMessage').value = content.contactSettings.whatsappWelcomeMessage || '';
-                ['primaryNavbarNumber', 'immediateSupportNumber', 'footerGeneralContact', 'whatsappWelcomeMessage'].forEach(function(id) {
-                    setContactFieldError(id, '');
-                });
-                setContactSettingsStatus('', false);
-            }
-
-            function readContactSettingsForm() {
-                return {
-                    primaryNavbarNumber: (document.getElementById('primaryNavbarNumber').value || '').trim(),
-                    immediateSupportNumber: (document.getElementById('immediateSupportNumber').value || '').trim(),
-                    footerGeneralContact: (document.getElementById('footerGeneralContact').value || '').trim(),
-                    whatsappWelcomeMessage: (document.getElementById('whatsappWelcomeMessage').value || '').trim(),
-                };
-            }
-
-            function validateContactSettingsForm(payload) {
-                var errors = {
-                    primaryNavbarNumber: validatePhoneValue(payload.primaryNavbarNumber, 'Primary navbar number'),
-                    immediateSupportNumber: validatePhoneValue(payload.immediateSupportNumber, 'Immediate support number'),
-                    footerGeneralContact: validatePhoneValue(payload.footerGeneralContact, 'Footer/general contact number'),
-                    whatsappWelcomeMessage: payload.whatsappWelcomeMessage.length > 240 ? 'WhatsApp welcome message must be 240 characters or fewer.' : '',
-                };
-                Object.keys(errors).forEach(function(key) {
-                    setContactFieldError(key, errors[key]);
-                });
-                return !errors.primaryNavbarNumber && !errors.immediateSupportNumber && !errors.footerGeneralContact && !errors.whatsappWelcomeMessage;
-            }
-
-            function syncLocalContactSettings(nextSettings) {
-                if (!content) return;
-                content.contactSettings = {
-                    primaryNavbarNumber: nextSettings.primaryNavbarNumber,
-                    immediateSupportNumber: nextSettings.immediateSupportNumber,
-                    footerGeneralContact: nextSettings.footerGeneralContact,
-                    whatsappWelcomeMessage: nextSettings.whatsappWelcomeMessage,
-                };
-                if (!content.contact || typeof content.contact !== 'object') content.contact = {};
-                content.contact.phone = nextSettings.primaryNavbarNumber;
-                content.contact.emergencyPhone = nextSettings.immediateSupportNumber;
-            }
-
-            function saveContactSettings() {
-                if (!csrfToken) {
-                    setContactSettingsStatus('Missing security token. Refresh and try again.', true);
-                    return;
-                }
-                var payload = readContactSettingsForm();
-                if (!validateContactSettingsForm(payload)) {
-                    setContactSettingsStatus('Please fix the highlighted fields and try again.', true);
-                    return;
-                }
-
-                setContactSettingsStatus('Saving...', false);
-                fetch('/api/admin/contact-settings', {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-Token': csrfToken
-                    },
-                    body: JSON.stringify(payload)
-                }).then(function(r) {
-                    return r.json().then(function(data) {
-                        if (!r.ok) {
-                            setContactSettingsStatus(data.error || 'Unable to save contact settings.', true);
-                            return;
-                        }
-                        syncLocalContactSettings(data.contactSettings || payload);
-                        renderContactSettings();
-                        setContactSettingsStatus('Live contact settings updated.', false);
-                        showToast('Contact settings updated', 'success');
-                    });
-                }).catch(function(err) {
-                    setContactSettingsStatus(err && err.message ? err.message : 'Unable to save contact settings.', true);
-                });
-            }
-
-            function setupContactSettings() {
-                var saveBtn = document.getElementById('saveContactSettingsBtn');
-                if (!saveBtn) return;
-                saveBtn.addEventListener('click', saveContactSettings);
-                ['primaryNavbarNumber', 'immediateSupportNumber', 'footerGeneralContact', 'whatsappWelcomeMessage'].forEach(function(id) {
-                    var el = document.getElementById(id);
-                    if (!el) return;
-                    el.addEventListener('input', function() {
-                        setContactFieldError(id, '');
-                        setContactSettingsStatus('', false);
-                    });
-                });
-            }
-
             function loadContent() {
                 return fetch('/api/admin/content').then(function(r) {
                     if (!r.ok) throw new Error('Failed to load');
@@ -942,28 +828,31 @@
             function saveContent() {
                 if (!content) return Promise.resolve();
                 setSaveStatus('Saving…', 'saving');
-                return fetch('/api/admin/content', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-Token': csrfToken || ''
-                    },
-                    body: JSON.stringify(content)
-                }).then(function(r) {
-                    return r.json().then(function(data) {
-                        if (r.ok && data.success) {
-                            setSaveStatus('Saved', 'saved');
-                            showToast('Changes saved', 'success');
-                        } else {
-                            setSaveStatus('Error', 'error');
-                            showToast(data.error || 'Save failed', 'error');
-                        }
-                        return data;
+                // Reload CSRF token before saving to prevent token expiration issues
+                return loadCsrfToken().then(function() {
+                    return fetch('/api/admin/content', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-Token': csrfToken || ''
+                        },
+                        body: JSON.stringify(content)
+                    }).then(function(r) {
+                        return r.json().then(function(data) {
+                            if (r.ok && data.success) {
+                                setSaveStatus('Saved', 'saved');
+                                showToast('Changes saved', 'success');
+                            } else {
+                                setSaveStatus('Error', 'error');
+                                showToast(data.error || 'Save failed', 'error');
+                            }
+                            return data;
+                        });
+                    }).catch(function(err) {
+                        setSaveStatus('Error', 'error');
+                        showToast('Save failed: ' + err.message, 'error');
+                        return null;
                     });
-                }).catch(function(err) {
-                    setSaveStatus('Error', 'error');
-                    showToast('Save failed: ' + err.message, 'error');
-                    return null;
                 });
             }
 
@@ -1757,8 +1646,9 @@
                     obj = obj[p];
                 }
                 var last = parts[parts.length - 1];
-                var isNumber = /^(patientsServed|successRate|specialists)$/.test(last) || key.indexOf('stats.') === 0;
-                if (isNumber) {
+                // Non-bilingual fields: numbers, stats, and contact settings (phone/email)
+                var isNonBilingual = /^(patientsServed|successRate|specialists|primaryNavbarNumber|immediateSupportNumber|whatsappSupportNumber|footerGeneralContact|whatsappWelcomeMessage)$/.test(last) || key.indexOf('stats.') === 0 || key.indexOf('contactSettings.') === 0;
+                if (isNonBilingual) {
                     obj[last] = val;
                     return;
                 }
@@ -1804,6 +1694,7 @@
                     { id: 'contact', label: 'Contact', fields: [
                         { key: 'contactSettings.primaryNavbarNumber', label: 'Primary navbar number', bilingual: false },
                         { key: 'contactSettings.immediateSupportNumber', label: 'Immediate support number', bilingual: false },
+                        { key: 'contactSettings.whatsappSupportNumber', label: 'WhatsApp support number', bilingual: false },
                         { key: 'contactSettings.footerGeneralContact', label: 'Footer / general contact number', bilingual: false },
                         { key: 'contact.email', label: 'Email', bilingual: true },
                         { key: 'contact.address', label: 'Address', bilingual: true }
@@ -1899,6 +1790,13 @@
                             input.dataset.key = f.key;
                             input.dataset.lang = lang;
                             input.value = getVal(f.key, f.bilingual ? lang : 'en');
+                            // Ensure phone numbers always display LTR
+                            var isPhoneField = /contactSettings\.(primaryNavbarNumber|immediateSupportNumber|whatsappSupportNumber|footerGeneralContact)/.test(f.key);
+                            if (isPhoneField) {
+                                input.setAttribute('dir', 'ltr');
+                                input.style.direction = 'ltr';
+                                input.style.unicodeBidi = 'isolate';
+                            }
                             wrap.appendChild(label);
                             wrap.appendChild(input);
                             langPanel.appendChild(wrap);
@@ -2148,7 +2046,7 @@
                     .replace(/'/g, '&#39;');
             }
 
-            var contactsState = { page: 1, pages: 1, search: '', limit: 25 };
+            var contactsState = { page: 1, pages: 1, search: '', limit: 25, selectedIds: new Set() };
             var contactsRequestState = { controller: null, requestId: 0 };
 
             function formatDateTime(value) {
@@ -2163,6 +2061,50 @@
                 if (!t) return '';
                 if (t.length <= max) return t;
                 return t.slice(0, Math.max(max - 1, 0)) + '…';
+            }
+
+            function updateContactsSelectionState() {
+                var deleteSelectedBtn = document.getElementById('contactsDeleteSelectedBtn');
+                var selectAllCheckbox = document.getElementById('contactsSelectAllCheckbox');
+                if (deleteSelectedBtn) {
+                    deleteSelectedBtn.disabled = contactsState.selectedIds.size === 0;
+                }
+                if (selectAllCheckbox) {
+                    var checkboxes = Array.prototype.slice.call(document.querySelectorAll('.contact-select-checkbox'));
+                    if (!checkboxes.length) {
+                        selectAllCheckbox.checked = false;
+                        selectAllCheckbox.indeterminate = false;
+                        return;
+                    }
+                    var checkedCount = checkboxes.filter(function(cb) { return cb.checked; }).length;
+                    selectAllCheckbox.checked = checkedCount === checkboxes.length;
+                    selectAllCheckbox.indeterminate = checkedCount > 0 && checkedCount < checkboxes.length;
+                }
+            }
+
+            function setContactSelection(contactId, selected) {
+                if (!contactId) return;
+                if (selected) contactsState.selectedIds.add(contactId);
+                else contactsState.selectedIds.delete(contactId);
+                updateContactsSelectionState();
+            }
+
+            function setAllContactsSelection(selected) {
+                var checkboxes = Array.prototype.slice.call(document.querySelectorAll('.contact-select-checkbox'));
+                checkboxes.forEach(function(cb) {
+                    cb.checked = selected;
+                    var id = cb.getAttribute('data-contact-id');
+                    if (id) {
+                        if (selected) contactsState.selectedIds.add(id);
+                        else contactsState.selectedIds.delete(id);
+                    }
+                });
+                updateContactsSelectionState();
+            }
+
+            function clearContactSelections() {
+                contactsState.selectedIds.clear();
+                updateContactsSelectionState();
             }
 
             function renderContacts(data) {
@@ -2183,7 +2125,7 @@
                     : ('Total: ' + items.length + ' submissions');
 
                 if (!items.length) {
-                    tbody.innerHTML = '<tr><td colspan="6" class="muted">No submissions found.</td></tr>';
+                    tbody.innerHTML = '<tr><td colspan="8" class="muted">No submissions found.</td></tr>';
                     return;
                 }
 
@@ -2192,21 +2134,159 @@
                     var concern = c.concern ? String(c.concern) : '';
                     var msg = c.message ? String(c.message) : '';
                     var msgShort = truncateText(msg, 140);
+                    var contactId = escapeHtml(c.id || '');
                     return '<tr>' +
+                        '<td><input type="checkbox" class="contact-select-checkbox" data-contact-id="' + contactId + '"' + (contactsState.selectedIds.has(c.id) ? ' checked' : '') + '></td>' +
                         '<td>' + escapeHtml(formatDateTime(c.createdAt)) + '</td>' +
                         '<td>' + escapeHtml(name || '-') + '</td>' +
                         '<td>' + escapeHtml(c.email || '-') + '</td>' +
                         '<td>' + escapeHtml(c.phone || '-') + '</td>' +
                         '<td>' + (concern ? ('<span class="pill">' + escapeHtml(concern) + '</span>') : '-') + '</td>' +
                         '<td title="' + escapeHtml(msg) + '">' + escapeHtml(msgShort || '-') + '</td>' +
+                        '<td><button type="button" class="btn-danger btn-sm delete-contact-btn" data-contact-id="' + contactId + '">Delete</button></td>' +
                     '</tr>';
                 }).join('');
+
+                tbody.querySelectorAll('.contact-select-checkbox').forEach(function(cb) {
+                    cb.addEventListener('change', function() {
+                        setContactSelection(cb.getAttribute('data-contact-id'), cb.checked);
+                    });
+                });
+                updateContactsSelectionState();
+
+                tbody.querySelectorAll('.delete-contact-btn').forEach(function(btn) {
+                    btn.addEventListener('click', function() {
+                        handleDeleteContact(btn.getAttribute('data-contact-id'));
+                    });
+                });
+            }
+
+            function handleDeleteContact(contactId) {
+                if (!contactId) {
+                    showToast('Unable to delete: missing contact ID.', 'error');
+                    return;
+                }
+                if (!window.confirm('Delete this contact submission? This action cannot be undone.')) {
+                    return;
+                }
+                if (!csrfToken) {
+                    showToast('Missing security token. Refresh the page and try again.', 'error');
+                    return;
+                }
+
+                fetch('/api/admin/contacts/' + encodeURIComponent(contactId), {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRF-Token': csrfToken
+                    }
+                }).then(function(r) {
+                    return r.json().then(function(data) {
+                        if (r.status === 401) {
+                            window.location.href = '/login.html';
+                            return;
+                        }
+                        if (r.status === 404) {
+                            showToast('Submission not found (may have been deleted already).', 'success');
+                            clearContactSelections();
+                            loadContacts();
+                            return;
+                        }
+                        if (!r.ok) {
+                            showToast(data.error || 'Unable to delete submission.', 'error');
+                            return;
+                        }
+                        showToast('Contact submission deleted.', 'success');
+                        clearContactSelections();
+                        loadContacts();
+                    });
+                }).catch(function(err) {
+                    showToast('Failed to delete submission: ' + (err && err.message ? err.message : 'unknown error'), 'error');
+                });
+            }
+
+            function handleDeleteSelectedContacts() {
+                if (!contactsState.selectedIds.size) {
+                    showToast('Please select at least one submission first.', 'error');
+                    return;
+                }
+                if (!window.confirm('Delete the selected contact submissions? This action cannot be undone.')) {
+                    return;
+                }
+                if (!csrfToken) {
+                    showToast('Missing security token. Refresh the page and try again.', 'error');
+                    return;
+                }
+
+                var ids = Array.from(contactsState.selectedIds);
+                fetch('/api/admin/contacts', {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-Token': csrfToken
+                    },
+                    body: JSON.stringify({ ids: ids })
+                }).then(function(r) {
+                    return r.json().then(function(data) {
+                        if (r.status === 401) {
+                            window.location.href = '/login.html';
+                            return;
+                        }
+                        if (r.status === 404 || data.notFound) {
+                            showToast('Some submissions not found (may have been deleted already).', 'success');
+                            clearContactSelections();
+                            loadContacts();
+                            return;
+                        }
+                        if (!r.ok) {
+                            showToast(data.error || 'Unable to delete selected submissions.', 'error');
+                            return;
+                        }
+                        showToast('Selected submissions deleted.', 'success');
+                        clearContactSelections();
+                        loadContacts();
+                    });
+                }).catch(function(err) {
+                    showToast('Failed to delete submissions: ' + (err && err.message ? err.message : 'unknown error'), 'error');
+                });
+            }
+
+            function handleDeleteAllContacts() {
+                if (!window.confirm('Delete all contact submissions? This action cannot be undone.')) {
+                    return;
+                }
+                if (!csrfToken) {
+                    showToast('Missing security token. Refresh the page and try again.', 'error');
+                    return;
+                }
+
+                fetch('/api/admin/contacts?all=true', {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRF-Token': csrfToken
+                    }
+                }).then(function(r) {
+                    return r.json().then(function(data) {
+                        if (r.status === 401) {
+                            window.location.href = '/login.html';
+                            return;
+                        }
+                        if (!r.ok) {
+                            showToast(data.error || 'Unable to delete all submissions.', 'error');
+                            return;
+                        }
+                        showToast('All submissions deleted.', 'success');
+                        clearContactSelections();
+                        loadContacts();
+                    });
+                }).catch(function(err) {
+                    showToast('Failed to delete submissions: ' + (err && err.message ? err.message : 'unknown error'), 'error');
+                });
             }
 
             function loadContacts() {
                 var tbody = document.getElementById('contactsTbody');
                 var meta = document.getElementById('contactsMeta');
-                if (tbody) tbody.innerHTML = '<tr><td colspan="6" class="muted">Loading...</td></tr>';
+                if (tbody) tbody.innerHTML = '<tr><td colspan="8" class="muted">Loading...</td></tr>';
                 if (meta) meta.textContent = 'Loading...';
 
                 if (contactsRequestState.controller) {
@@ -2233,7 +2313,7 @@
                             }
                             if (!r.ok) {
                                 showToast((data && data.error) ? data.error : 'Failed to load submissions', 'error');
-                                if (tbody) tbody.innerHTML = '<tr><td colspan="6" class="muted">Failed to load.</td></tr>';
+                                if (tbody) tbody.innerHTML = '<tr><td colspan="7" class="muted">Failed to load.</td></tr>';
                                 if (meta) meta.textContent = 'Failed to load.';
                                 return;
                             }
@@ -2246,7 +2326,7 @@
                         }
                         if (requestId !== contactsRequestState.requestId) return;
                         showToast('Failed to load submissions: ' + (err && err.message ? err.message : 'unknown error'), 'error');
-                        if (tbody) tbody.innerHTML = '<tr><td colspan="6" class="muted">Failed to load.</td></tr>';
+                        if (tbody) tbody.innerHTML = '<tr><td colspan="7" class="muted">Failed to load.</td></tr>';
                         if (meta) meta.textContent = 'Failed to load.';
                     })
                     .finally(function() {
@@ -2261,7 +2341,10 @@
                 var refreshBtn = document.getElementById('contactsRefreshBtn');
                 var prevBtn = document.getElementById('contactsPrevBtn');
                 var nextBtn = document.getElementById('contactsNextBtn');
-                if (!searchEl || !refreshBtn || !prevBtn || !nextBtn) return;
+                var deleteSelectedBtn = document.getElementById('contactsDeleteSelectedBtn');
+                var deleteAllBtn = document.getElementById('contactsDeleteAllBtn');
+                var selectAllCheckbox = document.getElementById('contactsSelectAllCheckbox');
+                if (!searchEl || !refreshBtn || !prevBtn || !nextBtn || !deleteSelectedBtn || !deleteAllBtn || !selectAllCheckbox) return;
 
                 var timer = null;
                 function schedule() {
@@ -2287,6 +2370,11 @@
                     contactsState.page = Math.min(contactsState.page + 1, contactsState.pages || 1);
                     loadContacts();
                 });
+                selectAllCheckbox.addEventListener('change', function() {
+                    setAllContactsSelection(selectAllCheckbox.checked);
+                });
+                deleteSelectedBtn.addEventListener('click', handleDeleteSelectedContacts);
+                deleteAllBtn.addEventListener('click', handleDeleteAllContacts);
 
                 loadContacts();
             }
@@ -2317,32 +2405,36 @@
             document.getElementById('logoutBtn').addEventListener('click', logout);
 
             function publishChanges() {
-                if (!csrfToken) {
-                    showToast('Missing security token. Please refresh the page and try again.', 'error');
-                    return;
-                }
                 if (!window.confirm('Publish the current draft content to the live website?')) return;
                 setSaveStatus('Publishing…', 'saving');
-                fetch('/api/admin/publish', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-Token': csrfToken
-                    },
-                    body: JSON.stringify({})
-                }).then(function(r) {
-                    return r.json().then(function(data) {
-                        if (r.ok && data.success) {
-                            setSaveStatus('Published', 'saved');
-                            showToast('Content published to live site', 'success');
-                        } else {
-                            setSaveStatus('Error', 'error');
-                            showToast(data.error || 'Publish failed', 'error');
-                        }
+                // Reload CSRF token before publishing to prevent token expiration issues
+                return loadCsrfToken().then(function() {
+                    if (!csrfToken) {
+                        showToast('Missing security token. Please refresh the page and try again.', 'error');
+                        setSaveStatus('Error', 'error');
+                        return;
+                    }
+                    return fetch('/api/admin/publish', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-Token': csrfToken
+                        },
+                        body: JSON.stringify({})
+                    }).then(function(r) {
+                        return r.json().then(function(data) {
+                            if (r.ok && data.success) {
+                                setSaveStatus('Published', 'saved');
+                                showToast('Content published to live site', 'success');
+                            } else {
+                                setSaveStatus('Error', 'error');
+                                showToast(data.error || 'Publish failed', 'error');
+                            }
+                        });
+                    }).catch(function(err) {
+                        setSaveStatus('Error', 'error');
+                        showToast('Publish failed: ' + err.message, 'error');
                     });
-                }).catch(function(err) {
-                    setSaveStatus('Error', 'error');
-                    showToast('Publish failed: ' + err.message, 'error');
                 });
             }
 
@@ -2468,12 +2560,29 @@
                     if (!looksLikeVideoFile(file)) { showToast('Please choose an MP4/WebM/OGG video file', 'error'); return; }
                     var fd = new FormData();
                     fd.append('file', file);
-                    setSaveStatus('Uploading...', 'saving');
-                    if (statusEl) statusEl.textContent = 'Uploading... 0%';
-                    xhrUploadJson('/api/admin/upload-video', fd, csrfToken ? { 'X-CSRF-Token': csrfToken } : {}, function(pct) {
+                    var startTime = Date.now();
+                    var progressTimer = null;
+
+                    function updateProgress(pct) {
                         if (!statusEl) return;
-                        statusEl.textContent = pct == null ? 'Uploading...' : ('Uploading... ' + pct + '%');
+                        var elapsed = Math.round((Date.now() - startTime) / 1000);
+                        var elapsedStr = elapsed < 60 ? elapsed + 's' : Math.floor(elapsed / 60) + 'm ' + (elapsed % 60) + 's';
+                        if (pct == null) {
+                            statusEl.textContent = 'Uploading... (' + elapsedStr + ')';
+                        } else {
+                            statusEl.textContent = 'Uploading... ' + pct + '% (' + elapsedStr + ')';
+                        }
+                    }
+
+                    // Start progress timer
+                    progressTimer = setInterval(updateProgress, 1000);
+
+                    setSaveStatus('Uploading...', 'saving');
+                    if (statusEl) statusEl.textContent = 'Uploading... 0% (0s)';
+                    xhrUploadJson('/api/admin/upload-video', fd, csrfToken ? { 'X-CSRF-Token': csrfToken } : {}, function(pct) {
+                        updateProgress(pct);
                     }).then(function(data) {
+                        clearInterval(progressTimer);
                         if (data.success && data.url) {
                             var keys = contentKey.split('.');
                             var obj = content;
@@ -2485,7 +2594,7 @@
                             setPreview(data.url);
                             scheduleSave();
                             showToast('Video saved', 'success');
-                            if (statusEl) statusEl.textContent = 'Uploaded. 100%';
+                            if (statusEl) statusEl.textContent = 'Uploaded successfully';
                         } else {
                             var msg = (data && data.error) ? data.error : 'Upload failed';
                             showToast(msg, 'error');
@@ -2493,6 +2602,7 @@
                         }
                         setSaveStatus('Ready', '');
                     }).catch(function(err) {
+                        clearInterval(progressTimer);
                         var msg = err && err.message ? err.message : 'Upload failed';
                         showToast(msg, 'error');
                         if (statusEl) statusEl.textContent = 'Error: ' + msg;
@@ -2538,17 +2648,174 @@
                 valueEl.addEventListener('input', updateRoute);
             }
 
+            function setupBackup() {
+                var createBtn = document.getElementById('createBackupBtn');
+                var refreshBtn = document.getElementById('refreshBackupsBtn');
+                var backupsList = document.getElementById('backupsList');
+                var backupStatus = document.getElementById('backupStatus');
+                var restoreDropZone = document.getElementById('restoreDropZone');
+                var restoreFileInput = document.getElementById('restoreFileInput');
+                var restoreStatus = document.getElementById('restoreStatus');
+
+                if (!createBtn || !refreshBtn || !backupsList || !backupStatus || !restoreDropZone || !restoreFileInput || !restoreStatus) return;
+
+                function setBackupStatus(text, type) {
+                    backupStatus.textContent = text || '';
+                    backupStatus.className = type ? 'backup-status-' + type : '';
+                }
+
+                function loadBackupsList() {
+                    backupsList.innerHTML = '<div style="padding: 16px; text-align: center; color: #999; font-size: 13px;">Loading...</div>';
+                    fetch('/api/admin/backups', {
+                        method: 'GET',
+                        headers: { 'X-CSRF-Token': csrfToken }
+                    })
+                    .then(function(r) {
+                        if (r.status === 401) {
+                            window.location.href = '/login.html';
+                            return;
+                        }
+                        return r.json().then(function(data) {
+                            if (!r.ok) throw new Error(data.error || 'Failed to load backups');
+                            return data;
+                        });
+                    })
+                    .then(function(data) {
+                        if (!data.backups || data.backups.length === 0) {
+                            backupsList.innerHTML = '<div style="padding: 16px; text-align: center; color: #999; font-size: 13px;">No backups yet. Create one to get started.</div>';
+                            return;
+                        }
+                        var html = '';
+                        data.backups.forEach(function(backup) {
+                            var date = new Date(backup.timestamp);
+                            var dateStr = date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                            html += '<div style="display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; border-bottom: 1px solid #e5e7eb;">';
+                            html += '  <div>';
+                            html += '    <div style="font-weight: 500; color: #1a1a1a; font-size: 13px;">' + escapeHtml(backup.filename) + '</div>';
+                            html += '    <div style="font-size: 12px; color: #666; margin-top: 4px;">' + dateStr + ' • ' + backup.sizeReadable + '</div>';
+                            html += '  </div>';
+                            html += '  <a href="/api/admin/backup/download/' + encodeURIComponent(backup.filename) + '" class="btn-small" style="text-decoration: none; display: inline-block; padding: 6px 12px; background: #0096D6; color: white; border-radius: 6px; font-size: 12px;">Download</a>';
+                            html += '</div>';
+                        });
+                        backupsList.innerHTML = html;
+                    })
+                    .catch(function(err) {
+                        backupsList.innerHTML = '<div style="padding: 16px; text-align: center; color: #d32f2f; font-size: 13px;">Error: ' + escapeHtml(err.message) + '</div>';
+                    });
+                }
+
+                createBtn.addEventListener('click', function() {
+                    createBtn.disabled = true;
+                    setBackupStatus('Creating backup...', 'info');
+                    fetch('/api/admin/backup', {
+                        method: 'POST',
+                        headers: { 'X-CSRF-Token': csrfToken }
+                    })
+                    .then(function(r) {
+                        if (r.status === 401) {
+                            window.location.href = '/login.html';
+                            return;
+                        }
+                        return r.json().then(function(data) {
+                            if (!r.ok) throw new Error(data.error || 'Backup creation failed');
+                            return data;
+                        });
+                    })
+                    .then(function(data) {
+                        setBackupStatus('Backup created successfully: ' + escapeHtml(data.backup.filename), 'success');
+                        showToast('Backup created successfully', 'success');
+                        loadBackupsList();
+                    })
+                    .catch(function(err) {
+                        setBackupStatus('Error: ' + escapeHtml(err.message), 'error');
+                        showToast('Backup failed: ' + err.message, 'error');
+                    })
+                    .finally(function() {
+                        createBtn.disabled = false;
+                    });
+                });
+
+                refreshBtn.addEventListener('click', loadBackupsList);
+
+                // Restore dropdown
+                restoreDropZone.addEventListener('click', function(e) {
+                    if (e.target !== restoreFileInput) restoreFileInput.click();
+                });
+                restoreFileInput.addEventListener('change', function() {
+                    if (restoreFileInput.files.length > 0) {
+                        performRestoreFromFile(restoreFileInput.files[0]);
+                    }
+                });
+                restoreDropZone.addEventListener('dragover', function(e) {
+                    e.preventDefault();
+                    restoreDropZone.classList.add('dragover');
+                });
+                restoreDropZone.addEventListener('dragleave', function() {
+                    restoreDropZone.classList.remove('dragover');
+                });
+                restoreDropZone.addEventListener('drop', function(e) {
+                    e.preventDefault();
+                    restoreDropZone.classList.remove('dragover');
+                    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+                        var file = e.dataTransfer.files[0];
+                        restoreFileInput.files = e.dataTransfer.files;
+                        performRestoreFromFile(file);
+                    }
+                });
+
+                function performRestoreFromFile(file) {
+                    if (!file.name.toLowerCase().endsWith('.zip')) {
+                        showToast('Please select a .zip backup file', 'error');
+                        restoreStatus.textContent = 'Error: Please select a .zip file';
+                        return;
+                    }
+                    if (!window.confirm('Restore backup? This will overwrite your current data. Make sure you have a backup first.')) {
+                        return;
+                    }
+
+                    var formData = new FormData();
+                    formData.append('file', file);
+                    restoreStatus.textContent = 'Restoring backup...';
+
+                    fetch('/api/admin/restore', {
+                        method: 'POST',
+                        headers: { 'X-CSRF-Token': csrfToken },
+                        body: formData
+                    })
+                    .then(function(r) {
+                        if (r.status === 401) {
+                            window.location.href = '/login.html';
+                            return;
+                        }
+                        return r.json().then(function(data) {
+                            if (!r.ok) throw new Error(data.error || 'Restore failed');
+                            return data;
+                        });
+                    })
+                    .then(function(data) {
+                        restoreStatus.textContent = 'Restore completed successfully. Reloading...';
+                        showToast('Backup restored successfully', 'success');
+                        setTimeout(function() { window.location.reload(); }, 1500);
+                    })
+                    .catch(function(err) {
+                        restoreStatus.textContent = 'Error: ' + escapeHtml(err.message);
+                        showToast('Restore failed: ' + err.message, 'error');
+                    });
+                }
+
+                loadBackupsList();
+            }
+
             checkAuth().then(function(ok) {
                 if (!ok) return;
                 setupAccountSection();
                 setupRestore();
                 setupContacts();
+                setupBackup();
                 return Promise.all([loadContent(), loadCsrfToken()]);
             }).then(function() {
                 if (!content) return;
                 setSaveStatus('Ready', '');
-                renderContactSettings();
-                setupContactSettings();
                 renderSectionList();
                 renderExpertsList();
                 setupExpertsUI();

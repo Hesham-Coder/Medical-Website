@@ -297,8 +297,8 @@
         <div class="field">
           <label for="postVideoUrl">Video URL</label>
           <input id="postVideoUrl" type="text" placeholder="/uploads/... or https://...">
-          <video id="postVideoPreview" controls style="display:none;margin-top:8px;width:100%;max-height:220px;border-radius:8px;border:1px solid var(--border);background:#000;"></video>
-          <iframe id="postVideoEmbedPreview" title="Video embed preview" style="display:none;margin-top:8px;width:100%;height:220px;border-radius:8px;border:1px solid var(--border);" allowfullscreen></iframe>
+          <video id="postVideoPreview" controls style="display:none;margin-top:8px;width:100%;aspect-ratio:16/9;border-radius:8px;border:1px solid var(--border);background:#000;object-fit:contain;"></video>
+          <iframe id="postVideoEmbedPreview" title="Video embed preview" style="display:none;margin-top:8px;width:100%;min-height:400px;border-radius:8px;border:1px solid var(--border);" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture;" allowTransparency="true" allowfullscreen></iframe>
         </div>
         <div class="field">
           <label class="sr" for="postVideoFile">Upload video</label>
@@ -377,8 +377,9 @@
         });
       }
 
-      function xhrUploadJson(url, formData, headers, onProgress) {
+      function xhrUploadJson(url, formData, headers, onProgress, timeoutMs) {
         headers = headers || {};
+        timeoutMs = timeoutMs || 120000; // Default 2 minutes
         return new Promise(function (resolve, reject) {
           var xhr = new XMLHttpRequest();
           xhr.open('POST', url, true);
@@ -402,8 +403,8 @@
             reject(new Error((data && data.error) || ('Upload failed (' + xhr.status + ')')));
           };
           xhr.onerror = function () { reject(new Error('Network error')); };
-          xhr.ontimeout = function () { reject(new Error('Request timeout')); };
-          xhr.timeout = 120000;
+          xhr.ontimeout = function () { reject(new Error('Request timeout after ' + Math.round(timeoutMs / 1000) + ' seconds')); };
+          xhr.timeout = timeoutMs;
           xhr.send(formData);
         });
       }
@@ -604,16 +605,35 @@
         var fd = new FormData();
         fd.append('file', file);
         var statusEl = document.getElementById('postVideoUploadStatus');
-        if (statusEl) statusEl.textContent = 'Uploading... 0%';
-        return xhrUploadJson('/api/admin/upload-video', fd, { 'X-CSRF-Token': csrfToken }, function (pct) {
+        var startTime = Date.now();
+        var timeoutMs = 600000; // 10 minutes for video uploads
+        var progressTimer = null;
+
+        function updateProgress(pct) {
           if (!statusEl) return;
-          statusEl.textContent = pct == null ? 'Uploading...' : ('Uploading... ' + pct + '%');
-        }).then(function (data) {
+          var elapsed = Math.round((Date.now() - startTime) / 1000);
+          var elapsedStr = elapsed < 60 ? elapsed + 's' : Math.floor(elapsed / 60) + 'm ' + (elapsed % 60) + 's';
+          if (pct == null) {
+            statusEl.textContent = 'Uploading... (' + elapsedStr + ')';
+          } else {
+            statusEl.textContent = 'Uploading... ' + pct + '% (' + elapsedStr + ')';
+          }
+        }
+
+        // Start progress timer
+        progressTimer = setInterval(updateProgress, 1000);
+
+        if (statusEl) statusEl.textContent = 'Uploading... 0% (0s)';
+        return xhrUploadJson('/api/admin/upload-video', fd, { 'X-CSRF-Token': csrfToken }, function (pct) {
+          updateProgress(pct);
+        }, timeoutMs).then(function (data) {
+          clearInterval(progressTimer);
           if (!data || !data.success) throw new Error((data && data.error) || 'Upload failed');
           document.getElementById('postVideoUrl').value = data.url;
           syncVideoPreview();
-          if (statusEl) statusEl.textContent = 'Uploaded. 100%';
+          if (statusEl) statusEl.textContent = 'Uploaded successfully';
         }).catch(function (err) {
+          clearInterval(progressTimer);
           if (statusEl) statusEl.textContent = 'Error: ' + (err && err.message ? err.message : 'Upload failed');
           alert(err.message);
         });
@@ -652,21 +672,26 @@
         }
         function asEmbedUrl(rawUrl) {
           if (!rawUrl) return '';
+          // YouTube: watch?v= format
           if (/youtube\.com\/watch\?v=/i.test(rawUrl)) {
             var videoId = (rawUrl.split('v=')[1] || '').split('&')[0];
             return videoId ? 'https://www.youtube.com/embed/' + videoId : '';
           }
+          // YouTube: short URL format
           if (/youtu\.be\//i.test(rawUrl)) {
             var shortId = rawUrl.split('youtu.be/')[1].split(/[?&]/)[0];
             return shortId ? 'https://www.youtube.com/embed/' + shortId : '';
           }
-          if (/facebook\.com\/.*\/videos\//i.test(rawUrl) || /facebook\.com\/reel\//i.test(rawUrl)) {
-            return 'https://www.facebook.com/plugins/video.php?href=' + encodeURIComponent(rawUrl) + '&show_text=false';
+          // Facebook: any video page or reel
+          if (/facebook\.com\//i.test(rawUrl) && (/\/video|reel|watch/i.test(rawUrl) || /facebook\.com\/.*\/(video|reel)\//i.test(rawUrl))) {
+            return 'https://www.facebook.com/plugins/video.php?href=' + encodeURIComponent(rawUrl) + '&show_text=false&width=560';
           }
+          // Vimeo: numeric video ID
           if (/vimeo\.com\/\d+/i.test(rawUrl)) {
             var vmId = (rawUrl.match(/vimeo\.com\/(\d+)/i) || [])[1];
             return vmId ? 'https://player.vimeo.com/video/' + vmId : '';
           }
+          // Already embed URLs - pass through
           if (/youtube\.com\/embed\//i.test(rawUrl) || /youtube-nocookie\.com\/embed\//i.test(rawUrl) || /player\.vimeo\.com\/video\//i.test(rawUrl) || /facebook\.com\/plugins\/video\.php/i.test(rawUrl)) {
             return rawUrl;
           }
@@ -696,6 +721,14 @@
         }
         embedPreview.src = embedUrl;
         embedPreview.style.display = 'block';
+        // Parse Facebook embed if SDK is loaded
+        if (window.FB && window.FB.XFBML && /facebook\.com\/plugins\/video/i.test(embedUrl)) {
+          setTimeout(function() {
+            try {
+              window.FB.XFBML.parse();
+            } catch (e) {}
+          }, 100);
+        }
       }
 
       function bindEvents() {
@@ -792,5 +825,8 @@
         });
     })();
   </script>
+  
+  <!-- Facebook SDK for embedded video preview -->
+  <script async defer crossorigin="anonymous" src="https://connect.facebook.net/en_US/sdk.js#xfbml=1&version=v18.0" onload="if(window.FB && document.getElementById('postVideoEmbedPreview')) FB.XFBML.parse();"></script>
 </body>
 </html>

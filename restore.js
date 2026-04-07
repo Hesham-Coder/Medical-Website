@@ -1,7 +1,7 @@
-const fs = require('fs');
 const path = require('path');
-const AdmZip = require('adm-zip');
-const { ROOT_DIR, BACKUPS_DIR } = require('./lib/config');
+const fs = require('fs');
+const { restoreBackup } = require('./lib/backupStore');
+const { BACKUPS_DIR, ROOT_DIR } = require('./lib/config');
 
 function resolveBackupFile(input) {
   if (input) {
@@ -13,7 +13,7 @@ function resolveBackupFile(input) {
   }
 
   const files = fs.readdirSync(BACKUPS_DIR)
-    .filter((name) => /^backup-\d{4}-\d{2}-\d{2}-\d{2}-\d{2}\.zip$/.test(name))
+    .filter((name) => /^backup-\d{4}-\d{2}-\d{2}-\d{2}-\d{2}-\d{2}\.zip$/.test(name))
     .sort()
     .reverse();
 
@@ -21,24 +21,30 @@ function resolveBackupFile(input) {
   return path.join(BACKUPS_DIR, files[0]);
 }
 
-function runRestore() {
-  const requestedPath = process.argv[2] || '';
-  const backupFile = resolveBackupFile(requestedPath);
-  if (!fs.existsSync(backupFile)) {
-    throw new Error(`Backup file not found: ${backupFile}`);
+(async () => {
+  try {
+    const requestedPath = process.argv[2] || '';
+    const backupFile = resolveBackupFile(requestedPath);
+    if (!fs.existsSync(backupFile)) {
+      throw new Error(`Backup file not found: ${backupFile}`);
+    }
+
+    const result = await restoreBackup(backupFile);
+    // eslint-disable-next-line no-console
+    console.log('Restore completed successfully');
+    // eslint-disable-next-line no-console
+    console.log(`From: ${backupFile}`);
+    if (result.metadata.errors && result.metadata.errors.length > 0) {
+      // eslint-disable-next-line no-console
+      console.warn('Some warnings occurred:');
+      result.metadata.errors.forEach((err) => {
+        // eslint-disable-next-line no-console
+        console.warn(`  - ${err.file || err.category}: ${err.error}`);
+      });
+    }
+  } catch (error) {
+    // eslint-disable-next-line no-console
+    console.error(`Restore failed: ${error.message}`);
+    process.exit(1);
   }
-
-  const zip = new AdmZip(backupFile);
-  zip.extractAllTo(ROOT_DIR, true);
-
-  // eslint-disable-next-line no-console
-  console.log(`Restore completed from: ${backupFile}`);
-}
-
-try {
-  runRestore();
-} catch (error) {
-  // eslint-disable-next-line no-console
-  console.error(`Restore failed: ${error.message}`);
-  process.exit(1);
-}
+})();

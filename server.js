@@ -8,6 +8,7 @@ const express = require('express');
 const session = require('express-session');
 const compression = require('compression');
 const connectRedis = require('connect-redis');
+const MemoryStore = require('express-session').MemoryStore;
 const logger = require('./lib/logger');
 const { initializeFiles } = require('./lib/contentStore');
 const { securityHeaders, blockSensitivePaths } = require('./lib/security');
@@ -33,6 +34,7 @@ const RedisStoreCtor = connectRedis.default || connectRedis.RedisStore || connec
 const app = express();
 app.locals.sessionReady = false;
 app.locals.redisClient = null;
+app.locals.usingMemoryStore = false;
 
 if (IS_PROD) {
   app.set('trust proxy', 1);
@@ -78,6 +80,7 @@ async function configureSession() {
 
     app.locals.redisClient = redisClient;
     app.locals.sessionReady = true;
+    app.locals.usingMemoryStore = false;
     app.use(session({
       store: redisStore,
       secret: SESSION_SECRET,
@@ -93,13 +96,27 @@ async function configureSession() {
     }));
     logger.info('Session store initialized with Redis');
   } catch (error) {
-    app.locals.sessionReady = false;
     app.locals.redisClient = null;
-    logger.error('Redis session initialization failed', { error: error.message });
-    app.use((req, res, next) => {
-      req.session = null;
-      next();
+    app.locals.usingMemoryStore = true;
+    app.locals.sessionReady = true;
+    logger.warn('Redis session initialization failed; falling back to in-memory session store', {
+      error: error.message,
+      note: 'Sessions will not persist across server restarts. For production, configure Redis.',
     });
+    app.use(session({
+      store: new MemoryStore(),
+      secret: SESSION_SECRET,
+      resave: false,
+      saveUninitialized: false,
+      name: 'cancercenter.sid',
+      cookie: {
+        secure: IS_PROD,
+        httpOnly: true,
+        maxAge: SESSION_MAX_AGE_MS,
+        sameSite: 'strict',
+      },
+    }));
+    logger.info('Session store initialized with in-memory MemoryStore (fallback mode)');
   }
 }
 
@@ -108,6 +125,11 @@ app.get('/health', async (req, res) => {
     redis: {
       ok: Boolean(app.locals.redisClient && app.locals.redisClient.isReady),
       message: app.locals.redisClient && app.locals.redisClient.isReady ? 'connected' : 'unavailable',
+    },
+    session: {
+      ok: app.locals.sessionReady,
+      mode: app.locals.usingMemoryStore ? 'memory (fallback)' : 'redis',
+      message: app.locals.sessionReady ? 'initialized' : 'failed',
     },
     filesystem: {
       dataDir: false,
@@ -129,7 +151,7 @@ app.get('/health', async (req, res) => {
     checks.filesystem.uploadsDir = false;
   }
 
-  const ok = checks.filesystem.dataDir && checks.filesystem.uploadsDir && checks.redis.ok;
+  const ok = checks.filesystem.dataDir && checks.filesystem.uploadsDir && checks.session.ok;
   res.status(200).json({
     status: ok ? 'ok' : 'degraded',
     uptimeSeconds: Math.round(process.uptime()),

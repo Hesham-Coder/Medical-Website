@@ -29,14 +29,13 @@
       "ar": "استعراض خدمات العلاج"
     },
     "heroImageUrl": "/uploads/img-1770764937645-dg1cvg.jpg",
-    "logoUrl": "/uploads/img-1770765094009-eigrur.jpg",
-    "logoName": {
-      "en": "Comprehensive Cancer Center",
-      "ar": "مركز شامل لعلاج الأورام"
-    }
+    "logoUrl": "/uploads/img-1770765094009-eigrur.jpg"
   },
   "contact": {
-    "phone": "(010) 123-45678",
+    "phone": {
+      "en": "+20 11 2080 0011",
+      "ar": "+20 11 2080 0011"
+    },
     "address": {
       "en": "644 El Horreya Road, Gianaclis, Alexandria",
       "ar": "٦٤٤ طريق الحرية، جناكليس، الإسكندرية"
@@ -45,7 +44,10 @@
       "en": "info@comprehensivecancercenter.com",
       "ar": "info@comprehensivecancercenter.com"
     },
-    "emergencyPhone": "(03)5865843",
+    "emergencyPhone": {
+      "en": "03-5865843",
+      "ar": "03-5865843"
+    },
     "formRoute": {
       "type": "none",
       "value": ""
@@ -89,7 +91,7 @@
       "imageUrl": "/uploads/img-1771027952625-y09lbq.png",
       "hoverDescription": {
         "en": "",
-        "ar": ""
+        "ar": "حمو اللولو"
       },
       "visible": true
     },
@@ -165,7 +167,7 @@
   ],
   "aboutSection": {
     "heading": {
-      "en": "Leading cancer care grounded in science and compassion",
+      "en": "Hello From About Section",
       "ar": "ريادة في علاج الأورام بالعلم والإنسانية"
     },
     "highlightsHeading": {
@@ -204,11 +206,7 @@
       "en": "Providing coordinated, guideline-based cancer care with an emphasis on clear communication, safety, and support for patients and families.",
       "ar": "نقدم رعاية منسقة قائمة على الإرشادات العلمية مع التركيز على وضوح المعلومات وسلامة المريض ودعم الأسرة."
     },
-    "videoUrl": "https://www.facebook.com/reel/8113161795385494",
-    "videoTitle": {
-      "en": "Center Overview",
-      "ar": "Center Overview"
-    }
+    "videoUrl": "https://www.facebook.com/reel/8113161795385494"
   },
   "footer": {
     "copyright": {
@@ -242,7 +240,6 @@
     "hero",
     "services",
     "about",
-    "certificates",
     "news",
     "updates",
     "testimonials",
@@ -259,10 +256,9 @@
     "contact": true,
     "cta": true,
     "testimonials": true,
-    "news": true,
+    "news": false,
     "updates": true,
-    "articles": true,
-    "certificates": true
+    "articles": true
   },
   "contactSection": {
     "heading": {
@@ -478,11 +474,11 @@
   ],
   "seo": {
     "metaTitle": {
-      "en": "Comprehensive Cancer Center | Evidence-Based Cancer Care in Alexandria",
+      "en": "Comprehensive Cancer Center | Evidence‑Based Cancer Care in Alexandria",
       "ar": "مركز شامل لعلاج الأورام | رعاية معتمدة على الدليل في الإسكندرية"
     },
     "metaDescription": {
-      "en": "Comprehensive Cancer Center provides coordinated, evidence-based cancer care in Alexandria, including diagnostics, systemic therapy, radiation, surgery, supportive care, and genetic counseling.",
+      "en": "Comprehensive Cancer Center provides coordinated, evidence‑based cancer care in Alexandria, including diagnostics, systemic therapy, radiation, surgery, supportive care, and genetic counseling.",
       "ar": "يقدم مركز شامل لعلاج الأورام في الإسكندرية رعاية منسقة قائمة على الدليل تشمل التشخيص والعلاج الدوائي والإشعاعي والجراحي والدعم النفسي والاستشارات الجينية."
     },
     "ogImage": "/uploads/img-1770764937645-dg1cvg.jpg"
@@ -547,23 +543,5 @@
       },
       "visible": true
     }
-  ],
-  "contactSettings": {
-    "primaryNavbarNumber": "(010) 123-45678",
-    "immediateSupportNumber": "(03)5865843",
-    "whatsappSupportNumber": "201556766477",
-    "footerGeneralContact": "(011) 123-45678",
-    "whatsappWelcomeMessage": "Hello, I would like to speak with your support team."
-  },
-  "certificatesSection": {
-    "heading": {
-      "en": "Our Certifications",
-      "ar": "شهاداتنا"
-    },
-    "subheading": {
-      "en": "Accreditations and quality standards we are proud to maintain.",
-      "ar": "الاعتمادات ومعايير الجودة التي نحرص على الالتزام بها."
-    }
-  },
-  "certificates": []
+  ]
 }

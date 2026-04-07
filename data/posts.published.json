@@ -1,24 +1,26 @@
 [
   {
-    "id": "p-20260215-007",
-    "title": "Article: How Multidisciplinary Tumor Boards Improve Treatment Decisions",
-    "slug": "how-tumor-boards-improve-treatment-decisions",
-    "type": "article",
-    "excerpt": "A practical overview of how multidisciplinary tumor boards align specialties and improve decision quality in complex oncology care.",
-    "content": "<h2>Why Tumor Boards Matter</h2><p>Tumor boards bring oncology, surgery, radiology, pathology, and supportive care together to review cases from multiple angles.</p><p>This structure helps reduce variation and improves treatment sequencing decisions.</p>",
-    "featuredImage": "https://images.unsplash.com/photo-1576091160550-2173dba999ef?auto=format&fit=crop&w=1200&q=80",
-    "videoUrl": "",
-    "author": "Dr. Sarah Chen",
+    "id": "p-20260215-004",
+    "title": "What’s New: Same-Week New Diagnosis Navigation Calls",
+    "slug": "same-week-diagnosis-navigation-calls",
+    "type": "update",
+    "excerpt": "Patients with new diagnoses can now receive a navigation call during the same week to clarify next steps before first visit.",
+    "content": "<p>We introduced same-week navigator outreach for new diagnosis pathways to reduce uncertainty before first consultation.</p>",
+    "featuredImage": "/uploads/img-1775568553925-ap5zz8.jpg",
+    "videoUrl": "/uploads/vid-1775568752183-2svxgw.mp4",
+    "author": "Care Navigation Team",
     "tags": [
-      "tumor-board",
-      "clinical-decision-making"
+      "patient-navigation",
+      "new-diagnosis",
+      "nes-adasf",
+      "ewr- safas"
     ],
     "isPublished": true,
-    "isFeatured": true,
-    "seoTitle": "How Tumor Boards Improve Treatment Decisions",
-    "seoDescription": "Understand how multidisciplinary review improves treatment quality for complex oncology cases.",
-    "createdAt": "2026-02-08T08:40:00.000Z",
-    "updatedAt": "2026-02-15T07:00:00.000Z"
+    "isFeatured": false,
+    "seoTitle": "Same-Week Navigation Calls for New Diagnosis",
+    "seoDescription": "Same-week navigation calls now available for new diagnosis pathways.",
+    "createdAt": "2026-02-10T15:45:00.000Z",
+    "updatedAt": "2026-04-07T19:11:38.257Z"
   },
   {
     "id": "p-20260215-001",
@@ -61,7 +63,7 @@
     "seoTitle": "Updated Contact Center Routing",
     "seoDescription": "New request routing improves first-response direction and lowers delays.",
     "createdAt": "2026-01-31T14:10:00.000Z",
-    "updatedAt": "2026-02-15T19:16:56.419Z"
+    "updatedAt": "2026-02-15T19:16:56.412Z"
   },
   {
     "id": "p-20260215-002",

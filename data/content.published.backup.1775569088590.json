@@ -36,7 +36,7 @@
     }
   },
   "contact": {
-    "phone": "(010) 123-45678",
+    "phone": "[object Object]",
     "address": {
       "en": "644 El Horreya Road, Gianaclis, Alexandria",
       "ar": "٦٤٤ طريق الحرية، جناكليس، الإسكندرية"
@@ -45,7 +45,7 @@
       "en": "info@comprehensivecancercenter.com",
       "ar": "info@comprehensivecancercenter.com"
     },
-    "emergencyPhone": "(03)5865843",
+    "emergencyPhone": "[object Object]",
     "formRoute": {
       "type": "none",
       "value": ""
@@ -549,10 +549,10 @@
     }
   ],
   "contactSettings": {
-    "primaryNavbarNumber": "(010) 123-45678",
-    "immediateSupportNumber": "(03)5865843",
-    "whatsappSupportNumber": "201556766477",
-    "footerGeneralContact": "(011) 123-45678",
+    "primaryNavbarNumber": "+20 11 2080 0011",
+    "immediateSupportNumber": "03-5865843",
+    "whatsappSupportNumber": "03-5865843",
+    "footerGeneralContact": "+20 11 2080 0011",
     "whatsappWelcomeMessage": "Hello, I would like to speak with your support team."
   },
   "certificatesSection": {

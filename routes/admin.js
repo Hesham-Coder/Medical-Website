@@ -5,13 +5,16 @@ const os = require('os');
 const csurf = require('csurf');
 const multer = require('multer');
 const AdmZip = require('adm-zip');
-const { ADMIN_DIR, UPLOADS_DIR, DATA_DIR } = require('../lib/config');
+const { ADMIN_DIR, UPLOADS_DIR, DATA_DIR, BACKUPS_DIR } = require('../lib/config');
 const { requireAuth } = require('../middleware/auth');
 const {
   readContent,
   writeDraftContent,
   publishDraftContent,
   queryContacts,
+  deleteContact,
+  deleteContacts,
+  clearContacts,
   invalidateContentCaches,
   updateContactSettings,
 } = require('../lib/contentStore');
@@ -29,6 +32,7 @@ const {
   validateContactSettingsPayload,
   slugify,
 } = require('../lib/validation');
+const { createBackup, restoreBackup, listBackups } = require('../lib/backupStore');
 const { audit } = require('../lib/audit');
 const { invalidateUsersCache } = require('../lib/userStore');
 const logger = require('../lib/logger');
@@ -165,6 +169,50 @@ router.get('/api/admin/contacts', requireAuth, async (req, res) => {
   }
 });
 
+router.delete('/api/admin/contacts', requireAuth, csurf(), async (req, res) => {
+  try {
+    const deleteAll = String(req.query.all || '').toLowerCase() === 'true';
+    if (deleteAll) {
+      await clearContacts();
+      await audit('delete_all_contact_submissions', { user: req.session.userId || 'unknown' });
+      return res.json({ success: true, message: 'All contact submissions deleted' });
+    }
+
+    const ids = Array.isArray(req.body && req.body.ids) ? req.body.ids.map((id) => String(id).trim()).filter(Boolean) : [];
+    if (!ids.length) {
+      return res.status(400).json({ error: 'Contact IDs are required' });
+    }
+
+    await deleteContacts(ids);
+    await audit('delete_selected_contact_submissions', {
+      user: req.session.userId || 'unknown',
+      contactIds: ids,
+    });
+    res.json({ success: true, message: 'Selected contact submissions deleted' });
+  } catch (error) {
+    logger.error('Error deleting contact submissions', { error: error.message });
+    res.status(500).json({ error: 'Failed to delete contact submissions' });
+  }
+});
+
+router.delete('/api/admin/contacts/:id', requireAuth, csurf(), async (req, res) => {
+  try {
+    const contactId = String(req.params.id || '').trim();
+    if (!contactId) {
+      return res.status(400).json({ error: 'Contact ID is required' });
+    }
+    await deleteContact(contactId);
+    await audit('delete_contact_submission', { user: req.session.userId || 'unknown', contactId });
+    res.json({ success: true, message: 'Contact submission deleted' });
+  } catch (error) {
+    if (error && error.message === 'Contact not found') {
+      return res.status(404).json({ error: 'Contact submission not found' });
+    }
+    logger.error('Error deleting contact submission', { error: error.message });
+    res.status(500).json({ error: 'Failed to delete contact submission' });
+  }
+});
+
 router.post('/api/admin/content', requireAuth, csurf(), async (req, res) => {
   try {
     const content = req.body;
@@ -237,12 +285,20 @@ router.post('/api/admin/upload', requireAuth, csurf(), imageUpload.single('file'
 });
 
 router.post('/api/admin/upload-video', requireAuth, csurf(), videoUpload.single('file'), (req, res) => {
+  // Set longer timeout for video uploads (10 minutes)
+  req.setTimeout(10 * 60 * 1000);
+  res.setTimeout(10 * 60 * 1000);
+
   if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
   const url = '/uploads/' + path.basename(req.file.path);
   res.json({ success: true, url });
 });
 
 router.post('/api/admin/restore', requireAuth, restoreLimiter, csurf(), restoreUpload.single('file'), async (req, res) => {
+  // Set longer timeout for restore operations (30 minutes for large backups)
+  req.setTimeout(30 * 60 * 1000);
+  res.setTimeout(30 * 60 * 1000);
+
   const zipPath = req.file && req.file.path ? String(req.file.path) : '';
   if (!zipPath) return res.status(400).json({ error: 'No backup file uploaded' });
 
@@ -294,6 +350,89 @@ router.post('/api/admin/restore', requireAuth, restoreLimiter, csurf(), restoreU
     res.status(500).json({ error: 'Restore failed' });
   } finally {
     fs.unlink(zipPath).catch(() => {});
+  }
+});
+
+// Create backup endpoint
+router.post('/api/admin/backup', requireAuth, csurf(), async (req, res) => {
+  try {
+    const result = await createBackup();
+    
+    if (!result.success) {
+      logger.error('Backup creation failed', { message: result.message });
+      return res.status(500).json({ error: result.message || 'Backup creation failed' });
+    }
+
+    await audit('create_backup', {
+      user: req.session.userId || 'unknown',
+      filename: result.filename,
+      path: result.path,
+    });
+
+    res.json({
+      success: true,
+      message: result.message,
+      backup: {
+        filename: result.filename,
+        path: result.path,
+        timestamp: result.metadata?.timestamp,
+        version: result.metadata?.version,
+      },
+    });
+  } catch (error) {
+    logger.error('Backup creation failed', { error: error.message });
+    res.status(500).json({ error: 'Backup creation failed' });
+  }
+});
+
+// List backups endpoint
+router.get('/api/admin/backups', requireAuth, csurf(), async (req, res) => {
+  try {
+    const backups = await listBackups();
+    
+    res.json({
+      success: true,
+      count: backups.length,
+      backups: backups.map(b => ({
+        filename: b.filename || b.name,
+        timestamp: b.timestamp,
+        size: b.size,
+        sizeReadable: b.sizeReadable,
+      })),
+    });
+  } catch (error) {
+    logger.error('Failed to list backups', { error: error.message });
+    res.status(500).json({ error: 'Failed to list backups' });
+  }
+});
+
+// Download backup endpoint
+router.get('/api/admin/backup/download/:filename', requireAuth, async (req, res) => {
+  try {
+    const filename = String(req.params.filename || '');
+    
+    // Sanitize filename to prevent directory traversal
+    if (filename.includes('..') || filename.includes('/') || filename.includes('\\')) {
+      return res.status(400).json({ error: 'Invalid backup filename' });
+    }
+
+    const backupPath = safeJoin(BACKUPS_DIR, filename);
+    
+    try {
+      await fs.access(backupPath);
+    } catch {
+      return res.status(404).json({ error: 'Backup not found' });
+    }
+
+    await audit('download_backup', {
+      user: req.session.userId || 'unknown',
+      filename,
+    });
+
+    res.download(backupPath, filename);
+  } catch (error) {
+    logger.error('Backup download failed', { error: error.message });
+    res.status(500).json({ error: 'Backup download failed' });
   }
 });
 

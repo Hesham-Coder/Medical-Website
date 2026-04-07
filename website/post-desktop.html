@@ -44,13 +44,16 @@
       <h1 id="postTitle" class="text-3xl sm:text-4xl lg:text-5xl font-black leading-tight mb-5"></h1>
       <p id="postExcerpt" class="text-base sm:text-lg text-slate-600 mb-8"></p>
       <img id="postImage" class="hidden w-full max-h-[480px] object-cover rounded-2xl mb-8" alt="">
-      <video id="postVideo" class="hidden w-full max-h-[520px] object-cover rounded-2xl mb-8 bg-black" controls playsinline preload="metadata"></video>
-      <iframe id="postVideoEmbed" class="hidden w-full h-[420px] rounded-2xl mb-8 border border-slate-200" allowfullscreen></iframe>
+      <video id="postVideo" class="hidden w-full rounded-2xl mb-8 bg-black" style="aspect-ratio:16/9;object-fit:contain;" controls playsinline preload="metadata"></video>
+      <iframe id="postVideoEmbed" class="hidden w-full rounded-2xl mb-8 border border-slate-200" style="min-height:500px;" sandbox="allow-same-origin allow-scripts allow-popups allow-popups-to-escape-sandbox" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture;" allowTransparency="true" allowfullscreen></iframe>
       <div id="postContent" class="content bg-white border border-slate-200 rounded-2xl p-6 sm:p-8"></div>
       <div id="postTags" class="mt-6 flex flex-wrap gap-2"></div>
     </article>
   </main>
 
   <script src="/js/post-page.js"></script>
+  
+  <!-- Facebook SDK for embedded video parsing -->
+  <script async defer crossorigin="anonymous" src="https://connect.facebook.net/en_US/sdk.js#xfbml=1&version=v18.0"></script>
 </body>
 </html>

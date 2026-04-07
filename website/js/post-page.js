@@ -36,21 +36,26 @@
   function toEmbedUrl(url) {
     var rawUrl = String(url || '').trim();
     if (!rawUrl) return '';
+    // YouTube: watch?v= format
     if (/youtube\.com\/watch\?v=/i.test(rawUrl)) {
       var videoId = (rawUrl.split('v=')[1] || '').split('&')[0];
       return videoId ? 'https://www.youtube.com/embed/' + videoId : '';
     }
+    // YouTube: short URL format
     if (/youtu\.be\//i.test(rawUrl)) {
       var shortId = rawUrl.split('youtu.be/')[1].split(/[?&]/)[0];
       return shortId ? 'https://www.youtube.com/embed/' + shortId : '';
     }
-    if (/facebook\.com\/.*\/videos\//i.test(rawUrl) || /facebook\.com\/reel\//i.test(rawUrl)) {
-      return 'https://www.facebook.com/plugins/video.php?href=' + encodeURIComponent(rawUrl) + '&show_text=false';
+    // Facebook: any video page or reel
+    if (/facebook\.com\//i.test(rawUrl) && (/\/video|reel|watch/i.test(rawUrl) || /facebook\.com\/.*\/(video|reel)\//i.test(rawUrl))) {
+      return 'https://www.facebook.com/plugins/video.php?href=' + encodeURIComponent(rawUrl) + '&show_text=false&width=560';
     }
+    // Vimeo: numeric video ID
     if (/vimeo\.com\/\d+/i.test(rawUrl)) {
       var vmId = (rawUrl.match(/vimeo\.com\/(\d+)/i) || [])[1];
       return vmId ? 'https://player.vimeo.com/video/' + vmId : '';
     }
+    // Already embed URLs - pass through
     if (/youtube\.com\/embed\//i.test(rawUrl) || /youtube-nocookie\.com\/embed\//i.test(rawUrl) || /player\.vimeo\.com\/video\//i.test(rawUrl) || /facebook\.com\/plugins\/video\.php/i.test(rawUrl)) {
       return rawUrl;
     }
@@ -132,6 +137,17 @@
       document.head.appendChild(canonical);
     }
     canonical.setAttribute('href', window.location.origin + '/posts/' + encodeURIComponent(post.slug));
+
+    // If Facebook embed was added, parse it with FB SDK
+    if (window.FB && window.FB.XFBML && post.videoUrl && /facebook\.com\//i.test(post.videoUrl)) {
+      setTimeout(function() {
+        try {
+          window.FB.XFBML.parse();
+        } catch (e) {
+          // FB SDK might not be fully ready
+        }
+      }, 100);
+    }
   }
 
   function showError(message) {

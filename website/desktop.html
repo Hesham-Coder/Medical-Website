@@ -954,6 +954,14 @@
             }
         }
 
+        /* Ensure all phone numbers and numeric content always displays LTR */
+        [data-contact-source],
+        [data-contact-link-kind],
+        .phone-number {
+            direction: ltr !important;
+            unicode-bidi: isolate !important;
+        }
+
     </style>
 
     <!-- Tailwind Configuration -->
@@ -1819,7 +1827,7 @@
                                             24/7 Nurse Hotline</p>
                                         <a href="#" data-contact-source="immediate" data-contact-link-kind="tel"
                                             class="text-base sm:text-lg font-bold hover:text-brand-blue-light transition-colors">
-                                            <span data-contact-source="immediate">+20 11 2080 0011</span>
+                                            <span data-contact-source="immediate" dir="ltr" style="unicode-bidi: isolate;">+20 11 2080 0011</span>
                                         </a>
                                     </div>
                                 </div>
@@ -1831,10 +1839,10 @@
                                             class="text-[10px] sm:text-xs text-blue-300 font-bold uppercase tracking-wider">
                                             WhatsApp Support</p>
                                         <a href="#"
-                                            data-contact-source="immediate" data-contact-link-kind="whatsapp"
+                                            data-contact-source="whatsapp" data-contact-link-kind="whatsapp"
                                             target="_blank" rel="noopener noreferrer"
                                             class="text-base sm:text-lg font-bold hover:text-brand-blue-light transition-colors">
-                                            <span data-contact-source="immediate">+20 11 2080 0011</span>
+                                            <span data-contact-source="whatsapp" dir="ltr" style="unicode-bidi: isolate;">+20 11 2080 0011</span>
                                         </a>
                                     </div>
                                 </div>
@@ -2794,6 +2802,7 @@
                 return {
                     primary: getLocalized(settings.primaryNavbarNumber, lang) || getLocalized(contact.phone, lang) || '',
                     immediate: getLocalized(settings.immediateSupportNumber, lang) || getLocalized(contact.emergencyPhone, lang) || getLocalized(contact.phone, lang) || '',
+                    whatsapp: getLocalized(settings.whatsappSupportNumber, lang) || getLocalized(settings.immediateSupportNumber, lang) || getLocalized(contact.emergencyPhone, lang) || getLocalized(contact.phone, lang) || '',
                     footer: getLocalized(settings.footerGeneralContact, lang) || getLocalized(contact.phone, lang) || '',
                     whatsappMessage: getLocalized(settings.whatsappWelcomeMessage, lang) || 'Hello, I would like to speak with your support team.',
                 };
@@ -2806,34 +2815,75 @@
             function buildWhatsAppUrl(phone, message) {
                 var digits = digitsOnly(phone);
                 if (!digits) return '#';
-                return 'https://wa.me/' + digits + '?text=' + encodeURIComponent(String(message || '').trim());
+                
+                // Detect if mobile or desktop
+                var isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+                
+                var url;
+                if (isMobile) {
+                    // Mobile: use wa.me protocol
+                    url = 'https://wa.me/' + digits + '?text=' + encodeURIComponent(String(message || '').trim());
+                } else {
+                    // Desktop: use WhatsApp Web
+                    url = 'https://web.whatsapp.com/send?phone=' + digits + '&text=' + encodeURIComponent(String(message || '').trim());
+                }
+                
+                console.log('✓ WhatsApp URL generated:', { 
+                    phone: phone, 
+                    digits: digits, 
+                    isMobile: isMobile,
+                    url: url 
+                });
+                return url;
             }
 
             function applyContactSettings(c, lang) {
                 var settings = getContactSettings(c, lang);
+                console.log('📞 Contact Settings Applied:', {
+                    lang: lang,
+                    primary: settings.primary,
+                    immediate: settings.immediate,
+                    whatsapp: settings.whatsapp,
+                    footer: settings.footer,
+                    whatsappMessage: settings.whatsappMessage
+                });
+                
                 document.querySelectorAll('[data-contact-source]').forEach(function (el) {
                     var source = el.getAttribute('data-contact-source') || 'primary';
-                    var value = source === 'immediate' ? settings.immediate : source === 'footer' ? settings.footer : settings.primary;
+                    var value = source === 'immediate' ? settings.immediate : source === 'footer' ? settings.footer : source === 'whatsapp' ? settings.whatsapp : settings.primary;
                     if (el.hasAttribute('data-contact-link-kind')) return;
-                    if (value) el.textContent = value;
+                    if (value) {
+                        el.textContent = value;
+                        // Ensure numbers always display LTR (important for phone numbers in RTL context)
+                        el.setAttribute('dir', 'ltr');
+                        el.style.unicodeBidi = 'isolate';
+                    }
                 });
                 document.querySelectorAll('[data-contact-link-kind]').forEach(function (el) {
                     var source = el.getAttribute('data-contact-source') || 'primary';
-                    var value = source === 'immediate' ? settings.immediate : source === 'footer' ? settings.footer : settings.primary;
+                    var value = source === 'immediate' ? settings.immediate : source === 'footer' ? settings.footer : source === 'whatsapp' ? settings.whatsapp : settings.primary;
                     var kind = el.getAttribute('data-contact-link-kind') || 'tel';
+                    // Ensure numbers always display LTR
+                    el.setAttribute('dir', 'ltr');
+                    el.style.unicodeBidi = 'isolate';
                     if (kind === 'whatsapp') {
-                        el.setAttribute('href', buildWhatsAppUrl(value, settings.whatsappMessage));
+                        var href = buildWhatsAppUrl(value, settings.whatsappMessage);
+                        el.setAttribute('href', href);
+                        console.log('🟢 WhatsApp link set:', { source: source, number: value, href: href });
                     } else {
                         var digits = digitsOnly(value);
-                        el.setAttribute('href', digits ? ('tel:' + digits) : '#');
+                        var href = digits ? ('tel:' + digits) : '#';
+                        el.setAttribute('href', href);
+                        console.log('📱 Tel link set:', { source: source, number: value, href: href });
                     }
                 });
 
                 var widget = document.getElementById('whatsappWidget');
                 if (widget) {
-                    var widgetHref = buildWhatsAppUrl(settings.immediate, settings.whatsappMessage);
+                    var widgetHref = buildWhatsAppUrl(settings.whatsapp, settings.whatsappMessage);
                     widget.setAttribute('href', widgetHref);
-                    widget.style.display = digitsOnly(settings.immediate) ? 'inline-flex' : 'none';
+                    widget.style.display = digitsOnly(settings.whatsapp) ? 'inline-flex' : 'none';
+                    console.log('🟢 WhatsApp Widget set:', { href: widgetHref, visible: digitsOnly(settings.whatsapp) ? 'yes' : 'no' });
                 }
             }
 
@@ -3294,7 +3344,12 @@
             }
             var isPreview = window.location.search.indexOf('preview=1') !== -1;
             var contentEndpoint = isPreview ? '/api/admin/content' : '/api/public/content';
-            fetch(contentEndpoint).then(function (r) { return r.json(); }).then(function (c) {
+            console.log('🚀 Loading content from:', contentEndpoint);
+            fetch(contentEndpoint).then(function (r) { 
+                console.log('📡 Response received:', r.status);
+                return r.json(); 
+            }).then(function (c) {
+                console.log('✅ Content loaded successfully:', c);
                 window.websiteContent = c;
                 websiteContent = c;
                 applySections(c);
@@ -3303,12 +3358,14 @@
                 applyTestimonials(c);
                 applyCertificates(c);
                 setupCoverageModal();
+                console.log('🔧 About to set language:', currentLang);
                 setLanguage(currentLang);
                 document.querySelectorAll('.lang-toggle').forEach(function (btn) {
                     btn.addEventListener('click', function () { switchLanguage(btn.getAttribute('data-lang')); });
                 });
                 if (window.observeAnimatedElements) window.observeAnimatedElements();
-            }).catch(function () {
+            }).catch(function (err) {
+                console.error('❌ Error loading content:', err);
                 initDynamicSectionFocus();
                 setupCoverageModal();
                 setLanguage(currentLang);
