@@ -1,0 +1,311 @@
+/**
+ * RTL/LTR Bidirectional Layout Styles
+ * 
+ * This CSS provides a production-ready solution for bilingual Arabic/English layouts.
+ * 
+ * Key Principles:
+ * 1. Direction is controlled ONLY at html element level
+ * 2. Use CSS logical properties (start/end instead of left/right) where possible
+ * 3. Avoid hardcoded text-align left/right
+ * 4. Numbers get wrapped with Unicode directional markers (handled by JS)
+ * 5. Flexbox and Grid automatically respect dir attribute
+ */
+
+/* ========================================
+   Root Level - Direction Cascade
+   ======================================== */
+
+/* Direction cascade from <html dir> attribute.
+   Explicit attr-selector rules (specificity 0,1,1) beat the UA default
+   and prevent the 'direction: inherit' on root resolving to ltr. */
+html            { direction: ltr; }   /* safe default — overridden below */
+html[dir="rtl"] { direction: rtl; }
+html[dir="ltr"] { direction: ltr; }
+
+body {
+  direction: inherit;
+  text-align: start;  /* 'start' respects direction (right in RTL, left in LTR) */
+  margin: 0;
+  padding: 0;
+}
+
+/* ========================================
+   Logical Properties (Start/End)
+   Use these instead of left/right for directional elements
+   ======================================== */
+
+/* Padding/margin at logical start (left in LTR, right in RTL) */
+.sidebar {
+  padding-inline-start: 24px;  /* Replaces: padding-left in LTR, padding-right in RTL */
+  padding-inline-end: 24px;    /* Replaces: padding-right in LTR, padding-left in RTL */
+}
+
+/* Text alignment using logical values */
+.card-content {
+  text-align: start;  /* Left in LTR, right in RTL */
+}
+
+.card-content-end {
+  text-align: end;    /* Right in LTR, left in RTL */
+}
+
+/* Inline start/end for horizontal spacing */
+.button-group {
+  display: flex;
+  gap: 12px;
+}
+
+.button-group button:first-child {
+  margin-inline-start: 0;  /* No margin at logical start */
+}
+
+.button-group button:last-child {
+  margin-inline-end: 0;    /* No margin at logical end */
+}
+
+/* ========================================
+   Flexbox (Automatically respects dir)
+   ======================================== */
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  /* flex-direction automatically reverses in RTL */
+  /* No need for special CSS - it just works! */
+}
+
+.nav-menu {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  /* Items automatically flow right-to-left in RTL */
+}
+
+/* ========================================
+   Grid (Automatically respects dir)
+   ======================================== */
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  /* Grid items automatically reorder in RTL */
+}
+
+/* ========================================
+   Number Safety - Keep Numbers LTR in RTL
+   ======================================== */
+
+/* For static phone numbers, prices, IDs */
+.number,
+.price,
+.phone,
+.id-code {
+  direction: ltr;
+  unicode-bidi: isolate;   /* Prevents parent RTL from affecting numbers */
+  display: inline-block;   /* Ensures proper rendering */
+}
+
+/* For inline numbers in text */
+.number-inline {
+  direction: ltr;
+  unicode-bidi: isolate;
+}
+
+/* ========================================
+   Form Elements
+   ======================================== */
+
+input[type="text"],
+input[type="email"],
+input[type="tel"],
+input[type="number"],
+textarea,
+select {
+  direction: inherit;  /* Respects html dir attribute */
+  text-align: start;   /* Start alignment based on direction */
+}
+
+/* Special case: phone numbers always LTR */
+input[type="tel"] {
+  direction: ltr;
+  text-align: ltr;
+}
+
+/* Special case: numbers always LTR */
+input[type="number"] {
+  direction: ltr;
+  text-align: right;  /* Align right for number input display */
+}
+
+/* ========================================
+   Lists & Navigation
+   ======================================== */
+
+ul, ol {
+  padding-inline-start: 1.5em;  /* Indent based on direction */
+}
+
+li {
+  text-align: start;  /* Respects direction */
+}
+
+/* Horizontal lists */
+.horizontal-list {
+  display: flex;
+  gap: 16px;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  /* Items automatically reverse order in RTL */
+}
+
+/* ========================================
+   Modals & Dialogs
+   ======================================== */
+
+.modal {
+  direction: inherit;
+  text-align: start;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;  /* Button order naturally respects dir */
+}
+
+/* ========================================
+   Images & Icons
+   ======================================== */
+
+/* Icon positions - use transform instead of left/right */
+.button-with-icon {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* If icon needs to flip in RTL, use transform */
+.icon-flipped {
+  transform: scaleX(-1);
+}
+
+/* ========================================
+   Language Switcher Styles
+   ======================================== */
+
+.lang-switcher {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+
+.lang-btn {
+  padding: 8px 12px;
+  border: 2px solid #ccc;
+  background: #f5f5f5;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  color: #333;
+  transition: all 0.2s ease;
+}
+
+.lang-btn:hover {
+  border-color: #0096D6;
+  background: #f0f9ff;
+}
+
+.lang-btn.active {
+  background: #0096D6;
+  color: white;
+  border-color: #0096D6;
+}
+
+/* ========================================
+   Utility Classes
+   ======================================== */
+
+/* Force LTR context (useful for codes, emails, etc.) */
+.force-ltr {
+  direction: ltr;
+  unicode-bidi: isolate;
+}
+
+/* Force RTL context */
+.force-rtl {
+  direction: rtl;
+  unicode-bidi: isolate;
+}
+
+/* Text alignment utilities */
+.text-start {
+  text-align: start;     /* Respects dir */
+}
+
+.text-end {
+  text-align: end;       /* Respects dir */
+}
+
+.text-center {
+  text-align: center;    /* Center regardless of dir */
+}
+
+/* Margin utilities using logical properties */
+.ms-auto {
+  margin-inline-start: auto;   /* Push to right in LTR, left in RTL */
+}
+
+.me-auto {
+  margin-inline-end: auto;     /* Push to left in LTR, right in RTL */
+}
+
+/* ========================================
+   Responsive Adjustments
+   ======================================== */
+
+@media (max-width: 768px) {
+  .header {
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  .nav-menu {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ========================================
+   Print Styles (Preserve Direction)
+   ======================================== */
+
+@media print {
+  html {
+    direction: inherit;
+  }
+  
+  body {
+    direction: inherit;
+  }
+}
+
+/* ========================================
+   Accessibility - RTL Text Highlight
+   ======================================== */
+
+::selection {
+  background-color: rgba(0, 150, 214, 0.3);
+  /* Color works the same in both directions */
+}
+
+::-moz-selection {
+  background-color: rgba(0, 150, 214, 0.3);
+}

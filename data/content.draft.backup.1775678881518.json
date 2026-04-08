@@ -1,11 +1,11 @@
 {
   "siteInfo": {
     "title": {
-      "en": "SATT",
+      "en": "Comprehensive Cancer Center",
       "ar": "مركز شامل لعلاج الأورام"
     },
     "tagline": {
-      "en": "Hello FRom another ",
+      "en": "Science That Heals. Care That Connects.",
       "ar": "طب متقدم ورعاية إنسانية متكاملة."
     },
     "heroHeading": {
@@ -31,7 +31,7 @@
     "heroImageUrl": "/uploads/img-1770764937645-dg1cvg.jpg",
     "logoUrl": "/uploads/img-1770765094009-eigrur.jpg",
     "logoName": {
-      "en": "SATT",
+      "en": "Comprehensive Cancer Center",
       "ar": "مركز شامل لعلاج الأورام"
     }
   },
@@ -204,7 +204,7 @@
       "en": "Providing coordinated, guideline-based cancer care with an emphasis on clear communication, safety, and support for patients and families.",
       "ar": "نقدم رعاية منسقة قائمة على الإرشادات العلمية مع التركيز على وضوح المعلومات وسلامة المريض ودعم الأسرة."
     },
-    "videoUrl": "https://www.facebook.com/cccofegypt/videos/8113161795385494",
+    "videoUrl": "https://www.facebook.com/reel/2104480007074501/?s=single_unit",
     "videoTitle": {
       "en": "Center Overview",
       "ar": "Center Overview"

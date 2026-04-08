@@ -6,7 +6,7 @@
     <script>(function(){try{var l=localStorage.getItem('app-lang-preference')||localStorage.getItem('lang')||'en';var lang=l==='ar'?'ar':'en';var d=document.documentElement;d.setAttribute('dir','ltr');d.setAttribute('lang',lang);d.classList.add('lang-'+lang);}catch(e){}}());</script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Content Editor – Admin Dashboard</title>
-    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
+    <script src="/js/Sortable.min.js"></script>
     <link rel="stylesheet" href="/rtl-styles.css">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -657,7 +657,11 @@
             <div class="form-group">
                 <label>Video URL <span style="font-weight:400; color:#888;">(YouTube / Vimeo / Facebook reel link or embed URL)</span></label>
                 <input type="text" id="videoCardUrl" placeholder="https://www.youtube.com/watch?v=…">
-                <p style="font-size:12px; color:#888; margin-top:4px;">Leave blank to use the uploaded file below instead.</p>
+                <div id="videoUrlPreviewWrap" style="margin-top:8px; display:none; border-radius:8px; overflow:hidden; background:#000; position:relative; padding-top:56.25%;">
+                    <iframe id="videoUrlPreviewFrame" src="" style="position:absolute; inset:0; width:100%; height:100%; border:none;" allowfullscreen loading="lazy" title="Video preview" sandbox="allow-scripts allow-same-origin allow-presentation allow-popups"></iframe>
+                </div>
+                <p id="videoUrlStatus" style="font-size:12px; margin-top:4px; min-height:16px;"></p>
+                <p style="font-size:12px; color:#888; margin-top:4px;">Leave blank to use the uploaded file below instead. After saving, click <strong>Publish changes</strong> for the video to appear on the website.</p>
             </div>
 
             <div class="form-group">
@@ -1786,8 +1790,7 @@
                         { key: 'aboutSection.highlights.1', label: 'Highlight 2', bilingual: true },
                         { key: 'aboutSection.highlights.2', label: 'Highlight 3', bilingual: true },
                         { key: 'aboutSection.highlights.3', label: 'Highlight 4', bilingual: true },
-                        { key: 'aboutSection.footerBlurb', label: 'Short footer blurb', bilingual: true },
-                        { key: 'aboutSection.videoUrl', label: 'About video URL (Facebook reel or embed)', bilingual: false }
+                        { key: 'aboutSection.footerBlurb', label: 'Short footer blurb', bilingual: true }
                     ]},
                     { id: 'contactSection', label: 'Contact section', fields: [
                         { key: 'contactSection.heading', label: 'Heading', bilingual: true },
@@ -2780,18 +2783,98 @@
                                 }
 
                                 if (urlEl) {
-                                    // Show the saved URL only if it's an embed-type URL (not a file path)
+                                    var urlPreviewWrap = document.getElementById('videoUrlPreviewWrap');
+                                    var urlPreviewFrame = document.getElementById('videoUrlPreviewFrame');
+                                    var urlStatusEl = document.getElementById('videoUrlStatus');
+
+                                    function toEmbedPreviewUrl(raw) {
+                                        if (!raw) return '';
+                                        var s = String(raw).trim().toLowerCase();
+                                        // YouTube watch URL
+                                        if (s.indexOf('youtube.com/watch') !== -1 && s.indexOf('v=') !== -1) {
+                                            var qIdx = raw.indexOf('v=');
+                                            var vid = raw.slice(qIdx + 2).split(/[&?#]/)[0];
+                                            return vid ? 'https://www.youtube-nocookie.com/embed/' + vid + '?rel=0' : '';
+                                        }
+                                        // YouTube Shorts
+                                        if (s.indexOf('youtube.com/shorts/') !== -1) {
+                                            var shIdx = raw.toLowerCase().indexOf('shorts/');
+                                            var shId = raw.slice(shIdx + 7).split(/[?&#]/)[0];
+                                            return shId ? 'https://www.youtube-nocookie.com/embed/' + shId + '?rel=0' : '';
+                                        }
+                                        // YouTube short URL (youtu.be)
+                                        if (s.indexOf('youtu.be/') !== -1) {
+                                            var beIdx = raw.toLowerCase().indexOf('youtu.be/');
+                                            var sid = raw.slice(beIdx + 9).split(/[?&#]/)[0];
+                                            return sid ? 'https://www.youtube-nocookie.com/embed/' + sid + '?rel=0' : '';
+                                        }
+                                        // Already-embedded YouTube
+                                        if (s.indexOf('youtube.com/embed/') !== -1 || s.indexOf('youtube-nocookie.com/embed/') !== -1) {
+                                            return raw;
+                                        }
+                                        // Vimeo canonical
+                                        if (s.indexOf('vimeo.com/') !== -1 && s.indexOf('player.vimeo.com') === -1) {
+                                            var vmMatch = raw.match(/vimeo\.com\/(\d+)/i);
+                                            if (vmMatch) return 'https://player.vimeo.com/video/' + vmMatch[1];
+                                        }
+                                        // Already-embedded Vimeo or Facebook plugin
+                                        if (s.indexOf('player.vimeo.com/video/') !== -1 || s.indexOf('facebook.com/plugins/video.php') !== -1) {
+                                            return raw;
+                                        }
+                                        // Facebook direct video / reel link
+                                        if (s.indexOf('facebook.com/') !== -1) {
+                                            return 'https://www.facebook.com/plugins/video.php?href=' + encodeURIComponent(raw) + '&show_text=false';
+                                        }
+                                        return '';
+                                    }
+
+                                    function updateUrlPreview(val) {
+                                        if (!urlPreviewWrap || !urlPreviewFrame) return;
+                                        var embedSrc = val ? toEmbedPreviewUrl(val) : '';
+                                        if (embedSrc) {
+                                            urlPreviewFrame.src = embedSrc;
+                                            urlPreviewWrap.style.display = 'block';
+                                            if (urlStatusEl) { urlStatusEl.style.color = '#166534'; urlStatusEl.textContent = '✓ Valid – preview shown below.'; }
+                                        } else if (val && /\.(mp4|webm|ogv|ogg|mov|m4v)(\?|#|$)/i.test(val)) {
+                                            urlPreviewFrame.src = '';
+                                            urlPreviewWrap.style.display = 'none';
+                                            if (urlStatusEl) { urlStatusEl.style.color = '#166534'; urlStatusEl.textContent = '✓ Direct video file URL recognised.'; }
+                                        } else if (val && /^\/uploads\//i.test(val)) {
+                                            urlPreviewFrame.src = '';
+                                            urlPreviewWrap.style.display = 'none';
+                                            if (urlStatusEl) { urlStatusEl.style.color = '#166534'; urlStatusEl.textContent = '✓ Uploaded file URL.'; }
+                                        } else if (val) {
+                                            urlPreviewFrame.src = '';
+                                            urlPreviewWrap.style.display = 'none';
+                                            if (urlStatusEl) { urlStatusEl.style.color = '#b45309'; urlStatusEl.textContent = '⚠ Not recognised – use a YouTube, Vimeo, or Facebook URL.'; }
+                                        } else {
+                                            urlPreviewFrame.src = '';
+                                            urlPreviewWrap.style.display = 'none';
+                                            if (urlStatusEl) urlStatusEl.textContent = '';
+                                        }
+                                    }
+
+                                    // Show the saved URL only if it's an embed-type URL (not an uploaded file path)
                                     var savedUrl = typeof ab.videoUrl === 'string' ? ab.videoUrl : (ab.videoUrl && ab.videoUrl.en) || '';
-                                    var isFileUrl = savedUrl && /\.(mp4|webm|ogv|ogg|mov|m4v)(\?|$)/i.test(savedUrl);
+                                    var isFileUrl = savedUrl && (/\.(mp4|webm|ogv|ogg|mov|m4v)(\?|#|$)/i.test(savedUrl) || /^\/uploads\//i.test(savedUrl));
                                     urlEl.value = isFileUrl ? '' : savedUrl;
+                                    updateUrlPreview(urlEl.value);
+
                                     urlEl.addEventListener('input', function() {
                                         var val = urlEl.value.trim();
                                         if (val) {
                                             // URL field takes priority – override any uploaded file URL
                                             content.aboutSection.videoUrl = val;
-                                            scheduleSave();
+                                        } else {
+                                            // Clearing the field removes embed URLs; uploaded file URLs stay until Remove is clicked
+                                            var cur = content.aboutSection && content.aboutSection.videoUrl;
+                                            var curStr = typeof cur === 'string' ? cur : (cur && cur.en) || '';
+                                            if (!/\.(mp4|webm|ogv|ogg|mov|m4v)(\?|#|$)/i.test(curStr) && !/^\/uploads\//i.test(curStr)) {
+                                                content.aboutSection.videoUrl = '';
+                                            }
                                         }
-                                        // If cleared, leave the existing value (uploaded file) intact
+                                        updateUrlPreview(val);
+                                        scheduleSave();
                                     });
                                 }
                             }
@@ -2860,14 +2943,45 @@
                             var date = new Date(backup.timestamp);
                             var dateStr = date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
                             html += '<div style="display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; border-bottom: 1px solid #e5e7eb;">';
-                            html += '  <div>';
-                            html += '    <div style="font-weight: 500; color: #1a1a1a; font-size: 13px;">' + escapeHtml(backup.filename) + '</div>';
-                            html += '    <div style="font-size: 12px; color: #666; margin-top: 4px;">' + dateStr + ' • ' + backup.sizeReadable + '</div>';
+                            html += '  <div style="flex:1; min-width:0; margin-right:12px;">';
+                            html += '    <div style="font-weight: 500; color: #1a1a1a; font-size: 13px; overflow-wrap: anywhere;">' + escapeHtml(backup.filename) + '</div>';
+                            html += '    <div style="font-size: 12px; color: #666; margin-top: 4px;">' + dateStr + ' &bull; ' + escapeHtml(backup.sizeReadable) + '</div>';
                             html += '  </div>';
-                            html += '  <a href="/api/admin/backup/download/' + encodeURIComponent(backup.filename) + '" class="btn-small" style="text-decoration: none; display: inline-block; padding: 6px 12px; background: #0096D6; color: white; border-radius: 6px; font-size: 12px;">Download</a>';
+                            html += '  <div style="display:flex; gap:6px; flex-shrink:0;">';
+                            html += '    <a href="/api/admin/backup/download/' + encodeURIComponent(backup.filename) + '" style="text-decoration: none; display: inline-block; padding: 6px 12px; background: #0096D6; color: white; border-radius: 6px; font-size: 12px;">Download</a>';
+                            html += '    <button type="button" data-delete-backup="' + escapeHtml(backup.filename) + '" style="padding: 6px 12px; background: #dc2626; color: white; border: none; border-radius: 6px; font-size: 12px; cursor: pointer;">Delete</button>';
+                            html += '  </div>';
                             html += '</div>';
                         });
                         backupsList.innerHTML = html;
+                        backupsList.querySelectorAll('[data-delete-backup]').forEach(function(btn) {
+                            btn.addEventListener('click', function() {
+                                var filename = btn.getAttribute('data-delete-backup');
+                                if (!window.confirm('Delete backup "' + filename + '"?\nThis cannot be undone.')) return;
+                                btn.disabled = true;
+                                btn.textContent = 'Deleting…';
+                                loadCsrfToken().then(function() {
+                                    return fetch('/api/admin/backup/' + encodeURIComponent(filename), {
+                                        method: 'DELETE',
+                                        headers: {
+                                            'Content-Type': 'application/json',
+                                            'X-CSRF-Token': csrfToken || ''
+                                        }
+                                    });
+                                }).then(function(r) {
+                                    return r.json().then(function(data) {
+                                        if (!r.ok || !data.success) throw new Error((data && data.error) || 'Delete failed');
+                                    });
+                                }).then(function() {
+                                    showToast('Backup deleted', 'success');
+                                    loadBackupsList();
+                                }).catch(function(err) {
+                                    showToast((err && err.message) ? err.message : 'Failed to delete backup', 'error');
+                                    btn.disabled = false;
+                                    btn.textContent = 'Delete';
+                                });
+                            });
+                        });
                     })
                     .catch(function(err) {
                         backupsList.innerHTML = '<div style="padding: 16px; text-align: center; color: #d32f2f; font-size: 13px;">Error: ' + escapeHtml(err.message) + '</div>';

@@ -493,6 +493,40 @@ router.get('/api/admin/backup/download/:filename', requireAuth, async (req, res)
   }
 });
 
+// Delete backup endpoint
+router.delete('/api/admin/backup/:filename', requireAuth, doubleCsrfProtection(), async (req, res) => {
+  try {
+    const filename = String(req.params.filename || '');
+
+    // Reject directory traversal, path separators, and anything that isn't a timestamped backup zip
+    if (!filename || filename.includes('..') || filename.includes('/') || filename.includes('\\') || !/^backup-[\d-]+\.zip$/i.test(filename)) {
+      return res.status(400).json({ error: 'Invalid backup filename' });
+    }
+
+    const backupPath = safeJoin(BACKUPS_DIR, filename);
+
+    try {
+      await fs.access(backupPath);
+    } catch {
+      return res.status(404).json({ error: 'Backup not found' });
+    }
+
+    await fs.unlink(backupPath);
+
+    await audit('delete_backup', {
+      user: req.session.userId || 'unknown',
+      filename,
+    });
+
+    logger.info('Backup deleted', { filename, user: req.session.userId || 'unknown' });
+
+    res.json({ success: true, message: 'Backup deleted' });
+  } catch (error) {
+    logger.error('Backup deletion failed', { error: error.message });
+    res.status(500).json({ error: 'Failed to delete backup' });
+  }
+});
+
 function ensureUniqueSlug(posts, slug, currentId) {
   let candidate = slug;
   let counter = 2;
