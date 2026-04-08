@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Medical Website</title>
     <meta name="description" content="Evidence-based care with a modern, mobile-first experience." />
-    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="/css/tailwind.output.css?v=6c0316a5" />
     <style>
       .whatsapp-widget {
         position: fixed;
@@ -225,11 +225,11 @@
           <div class="flex items-start justify-between gap-3">
             <div>
               <h2 id="videoTitle" class="text-lg font-extrabold tracking-tight text-slate-900 sm:text-xl">Center Overview</h2>
-              <p class="mt-1 text-sm text-slate-600">Watch a short introduction.</p>
+              <p id="videoSubtitle" class="mt-1 text-sm text-slate-600">Watch a short introduction.</p>
             </div>
           </div>
 
-          <div class="mt-4 overflow-hidden rounded-2xl border border-slate-200 bg-slate-100">
+          <div id="videoContainer" class="mt-4 overflow-hidden rounded-2xl border border-slate-200 bg-slate-100">
             <div class="aspect-video w-full">
               <iframe
                 id="videoFrame"
@@ -241,6 +241,13 @@
                 allowfullscreen
                 loading="lazy"
               ></iframe>
+              <video
+                id="videoFilePlayer"
+                class="h-full w-full"
+                controls
+                preload="metadata"
+                style="display:none;"
+              ></video>
             </div>
           </div>
         </div>
@@ -771,14 +778,28 @@
           renderDoctors(c.experts);
 
           // Video
-          var v = document.getElementById("videoFrame");
           var vurl = i18n(c.aboutSection && c.aboutSection.videoUrl);
           var embed = toEmbedUrl(vurl);
-          if (v && embed) v.setAttribute("src", embed);
+          var isDirectFile = !embed && vurl && /\.(mp4|webm|ogv|ogg|mov|m4v)(\?|$)/i.test(vurl);
+          var vFrame = document.getElementById("videoFrame");
+          var vFile  = document.getElementById("videoFilePlayer");
           var videoTitle = document.getElementById("videoTitle");
           var overviewTitle = i18n(c.aboutSection && c.aboutSection.videoTitle) || i18n(c.aboutSection && c.aboutSection.heading) || "Center Overview";
           if (videoTitle) videoTitle.textContent = overviewTitle;
-          if (v) v.setAttribute("title", overviewTitle + " Video");
+          var videoSubtitle = document.getElementById("videoSubtitle");
+          var overviewSubtitle = i18n(c.aboutSection && c.aboutSection.videoSubtitle);
+          if (videoSubtitle && overviewSubtitle) videoSubtitle.textContent = overviewSubtitle;
+          if (isDirectFile && vFile && vFrame) {
+            vFile.setAttribute("src", vurl);
+            vFile.setAttribute("title", overviewTitle + " Video");
+            vFile.style.display = "";
+            vFrame.style.display = "none";
+          } else if (embed && vFrame) {
+            vFrame.setAttribute("src", embed);
+            vFrame.setAttribute("title", overviewTitle + " Video");
+            vFrame.style.display = "";
+            if (vFile) vFile.style.display = "none";
+          }
           applyContactSettings(c);
         }
 

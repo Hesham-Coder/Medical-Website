@@ -1,0 +1,17 @@
+@import "tailwindcss";
+@source "../*.html";
+@source "../js/**/*.js";
+@plugin "@tailwindcss/forms";
+
+@theme {
+  --color-brand-blue-dark: #004A8D;
+  --color-brand-blue-light: #0096D6;
+  --color-brand-red-cta: #B61927;
+  --color-brand-accent-light-blue: #E0F2FE;
+
+  --font-display: "Manrope", sans-serif;
+
+  --radius-xl: 1.5rem;
+  --radius-2xl: 2rem;
+  --radius-3xl: 3rem;
+}

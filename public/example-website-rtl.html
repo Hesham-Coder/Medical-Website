@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="en">
+<!--
+  Complete RTL/LTR Example - Public Website
+  
+  This demonstrates bilingual support on a public-facing webpage.
+  Suitable for corporate websites, e-commerce, or information sites.
+-->
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome - RTL/LTR Ready Website</title>
+    
+    <!-- Bidirectional CSS foundation -->
+    <link rel="stylesheet" href="/rtl-styles.css">
+    
+    <!-- Website-specific styles -->
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Roboto, system-ui, -apple-system, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e9ecef 100%);
+            direction: inherit;
+            text-align: start;
+        }
+        
+        .skip-link {
+            position: absolute;
+            left: -999px;
+            top: 0;
+            background: #0096D6;
+            color: white;
+            padding: 8px 16px;
+            z-index: 9999;
+        }
+        
+        .skip-link:focus {
+            left: 20px;
+        }
+        
+        /* Header with navigation */
+        .site-header {
+            background: white;
+            border-bottom: 1px solid #e5e7eb;
+            padding: 16px 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        
+        .header-wrapper {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 24px;
+        }
+        
+        .logo {
+            font-size: 24px;
+            font-weight: 700;
+            color: #004A8D;
+            text-decoration: none;
+            flex-shrink: 0;
+        }
+        
+        .nav {
+            display: flex;
+            list-style: none;
+            gap: 32px;
+            flex: 1;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .nav a {
+            text-decoration: none;
+            color: #4b5563;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+        
+        .nav a:hover {
+            color: #0096D6;
+        }
+        
+        /* Language switcher in header */
+        .header-lang {
+            flex-shrink: 0;
+            display: flex;
+            gap: 8px;
+        }
+        
+        /* Hero section */
+        .hero {
+            background: linear-gradient(135deg, #004A8D 0%, #0096D6 100%);
+            color: white;
+            padding: 80px 24px;
+            text-align: center;
+        }
+        
+        .hero-wrapper {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .hero h1 {
+            font-size: 48px;
+            font-weight: 700;
+            margin-bottom: 16px;
+            line-height: 1.2;
+        }
+        
+        .hero p {
+            font-size: 18px;
+            opacity: 0.95;
+            margin-bottom: 32px;
+            line-height: 1.6;
+        }
+        
+        .hero .btn {
+            display: inline-block;
+            padding: 12px 32px;
+            background: white;
+            color: #004A8D;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: transform 0.2s;
+        }
+        
+        .hero .btn:hover {
+            transform: scale(1.05);
+        }
+        
+        /* Main content area */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+        
+        /* Cards section */
+        .section {
+            padding: 60px 0;
+        }
+        
+        .section-title {
+            font-size: 36px;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 48px;
+            color: #1a1a1a;
+        }
+        
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 32px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+        }
+        
+        .card-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+        }
+        
+        .card h3 {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: #1a1a1a;
+        }
+        
+        .card p {
+            font-size: 14px;
+            color: #6b7280;
+            line-height: 1.6;
+        }
+        
+        /* Pricing table */
+        .pricing-section {
+            background: #f9fafb;
+            padding: 60px 0;
+        }
+        
+        .pricing-table {
+            max-width: 800px;
+            margin: 48px auto 0;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+        
+        .price-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 24px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        
+        .price-row:last-child {
+            border-bottom: none;
+        }
+        
+        .price-label {
+            font-weight: 600;
+            color: #4b5563;
+        }
+        
+        .price-value {
+            font-size: 20px;
+            font-weight: 700;
+            color: #0096D6;
+            direction: ltr;          /* Prices always LTR */
+            unicode-bidi: isolate;
+            text-align: right;       /* Align right */
+        }
+        
+        /* Contact section */
+        .contact-section {
+            padding: 60px 0;
+            background: white;
+        }
+        
+        .contact-wrapper {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 48px;
+            align-items: start;
+        }
+        
+        .contact-wrapper h2 {
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 24px;
+            color: #1a1a1a;
+        }
+        
+        .contact-info {
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        
+        .contact-info-icon {
+            font-size: 24px;
+            flex-shrink: 0;
+        }
+        
+        .contact-info-text {
+            flex: 1;
+        }
+        
+        .contact-info .label {
+            font-weight: 600;
+            color: #4b5563;
+            display: block;
+            margin-bottom: 4px;
+        }
+        
+        .contact-info .value {
+            color: #1a1a1a;
+            direction: ltr;          /* Contact info always LTR */
+            unicode-bidi: isolate;
+        }
+        
+        .contact-form {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        
+        .form-input {
+            padding: 12px 16px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 14px;
+            direction: inherit;
+            text-align: start;
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: #0096D6;
+            box-shadow: 0 0 0 3px rgba(0, 150, 214, 0.1);
+        }
+        
+        .form-submit {
+            padding: 12px 32px;
+            background: #0096D6;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        
+        .form-submit:hover {
+            background: #0077B6;
+        }
+        
+        /* Footer */
+        .site-footer {
+            background: #1a1a1a;
+            color: #d1d5db;
+            padding: 48px 0 24px;
+            text-align: center;
+            direction: inherit;
+        }
+        
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+        
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+        
+        .footer-links a {
+            color: #d1d5db;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+        
+        .footer-links a:hover {
+            color: #0096D6;
+        }
+        
+        .footer-divider {
+            border-top: 1px solid #374151;
+            margin: 24px 0;
+        }
+        
+        .footer-bottom {
+            font-size: 14px;
+            color: #9ca3af;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header-wrapper {
+                flex-direction: column;
+                gap: 12px;
+            }
+            
+            .nav {
+                order: 3;
+                width: 100%;
+                gap: 16px;
+            }
+            
+            .hero h1 {
+                font-size: 32px;
+            }
+            
+            .hero p {
+                font-size: 16px;
+            }
+            
+            .contact-wrapper {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Skip to content link for accessibility -->
+    <a href="#main-content" class="skip-link">Skip to content</a>
+    
+    <!-- Header -->
+    <header class="site-header">
+        <div class="header-wrapper">
+            <a href="/" class="logo">🌐 Acme Co</a>
+            
+            <nav>
+                <ul class="nav">
+                    <li><a href="#features">Features</a></li>
+                    <li><a href="#pricing">Pricing</a></li>
+                    <li><a href="#contact">Contact</a></li>
+                </ul>
+            </nav>
+            
+            <!-- Language switcher -->
+            <div id="lang-switcher-header" class="header-lang"></div>
+        </div>
+    </header>
+    
+    <!-- Hero Section -->
+    <section class="hero" id="hero">
+        <div class="hero-wrapper">
+            <h1>Welcome to Our Platform</h1>
+            <p>Experience seamless bilingual support - Arabic and English</p>
+            <a href="#features" class="btn">Learn More</a>
+        </div>
+    </section>
+    
+    <!-- Main Content -->
+    <main id="main-content">
+        <!-- Features Section -->
+        <section class="section" id="features">
+            <div class="container">
+                <h2 class="section-title">Our Features</h2>
+                <div class="cards-grid">
+                    <div class="card">
+                        <div class="card-icon">⚡</div>
+                        <h3>Lightning Fast</h3>
+                        <p>Optimized performance for both Arabic and English content delivery.</p>
+                    </div>
+                    <div class="card">
+                        <div class="card-icon">🔒</div>
+                        <h3>Secure</h3>
+                        <p>Enterprise-grade security with support for multilingual data.</p>
+                    </div>
+                    <div class="card">
+                        <div class="card-icon">📱</div>
+                        <h3>Responsive</h3>
+                        <p>Perfect on every device, with proper RTL/LTR layout handling.</p>
+                    </div>
+                    <div class="card">
+                        <div class="card-icon">🌍</div>
+                        <h3>Global</h3>
+                        <p>Support for multiple languages and locales out of the box.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Pricing Section -->
+        <section class="section pricing-section" id="pricing">
+            <div class="container">
+                <h2 class="section-title">Pricing Plans</h2>
+                
+                <div class="pricing-table">
+                    <div class="price-row">
+                        <span class="price-label">Basic Plan</span>
+                        <span class="price-value">299 SAR</span>
+                    </div>
+                    <div class="price-row">
+                        <span class="price-label">Professional Plan</span>
+                        <span class="price-value">799 SAR</span>
+                    </div>
+                    <div class="price-row">
+                        <span class="price-label">Enterprise Plan</span>
+                        <span class="price-value">2,499 SAR</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Contact Section -->
+        <section class="section contact-section" id="contact">
+            <div class="container">
+                <div class="contact-wrapper">
+                    <!-- Contact Information -->
+                    <div>
+                        <h2>Get in Touch</h2>
+                        
+                        <div class="contact-info">
+                            <span class="contact-info-icon">📞</span>
+                            <div class="contact-info-text">
+                                <span class="label">Phone</span>
+                                <span class="value">+966-55-1234-5678</span>
+                            </div>
+                        </div>
+                        
+                        <div class="contact-info">
+                            <span class="contact-info-icon">✉️</span>
+                            <div class="contact-info-text">
+                                <span class="label">Email</span>
+                                <span class="value">contact@example.com</span>
+                            </div>
+                        </div>
+                        
+                        <div class="contact-info">
+                            <span class="contact-info-icon">📍</span>
+                            <div class="contact-info-text">
+                                <span class="label">Address</span>
+                                <span class="value">Riyadh, Saudi Arabia</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Contact Form -->
+                    <form class="contact-form" id="contact-form">
+                        <input 
+                            type="text" 
+                            class="form-input" 
+                            placeholder="Your Name"
+                            dir="inherit"
+                            required
+                        >
+                        <input 
+                            type="email" 
+                            class="form-input" 
+                            placeholder="Your Email"
+                            dir="inherit"
+                            required
+                        >
+                        <textarea 
+                            class="form-input" 
+                            placeholder="Your Message"
+                            rows="4"
+                            dir="inherit"
+                            required
+                        ></textarea>
+                        <button type="submit" class="form-submit">Send Message</button>
+                    </form>
+                </div>
+            </div>
+        </section>
+    </main>
+    
+    <!-- Footer -->
+    <footer class="site-footer">
+        <div class="footer-content">
+            <div class="footer-links">
+                <a href="#privacy">Privacy Policy</a>
+                <a href="#terms">Terms of Service</a>
+                <a href="#cookies">Cookie Policy</a>
+                <a href="#sitemap">Sitemap</a>
+            </div>
+            <div class="footer-divider"></div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 Acme Co. All rights reserved. | RTL/LTR Support Enabled</p>
+            </div>
+        </div>
+    </footer>
+    
+    <!-- Load language helper FIRST -->
+    <script src="/langHelper.js"></script>
+    
+    <!-- Initialize -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Initialize language
+            const lang = langHelper.initializeLanguage();
+            
+            // Create switcher in header
+            const hostHeader = document.getElementById('lang-switcher-header');
+            hostHeader.innerHTML = langHelper.createLanguageSwitcher();
+            langHelper.attachLanguageSwitcherListeners('.lang-switcher');
+            
+            console.log(`Page loaded with language: ${lang}`);
+            
+            // Update prices with number formatting when language changes
+            document.addEventListener('languageChanged', (e) => {
+                updatePriceDisplay();
+            });
+            
+            updatePriceDisplay();
+            
+            // Form submission
+            document.getElementById('contact-form').addEventListener('submit', (e) => {
+                e.preventDefault();
+                alert('Thank you for your message! We will contact you soon.');
+            });
+        });
+        
+        function updatePriceDisplay() {
+            // Prices always display with proper number handling
+            const prices = [
+                { value: 299 },
+                { value: 799 },
+                { value: 2499 },
+            ];
+            
+            // Prices are already marked with class "price-value" with direction: ltr
+            // No action needed - CSS handles it
+        }
+    </script>
+</body>
+</html>

@@ -2,10 +2,11 @@ const express = require('express');
 const fs = require('fs').promises;
 const path = require('path');
 const os = require('os');
-const csurf = require('csurf');
+const { doubleCsrfProtection, generateToken } = require('../middleware/csrf');
 const multer = require('multer');
 const AdmZip = require('adm-zip');
 const { ADMIN_DIR, UPLOADS_DIR, DATA_DIR, BACKUPS_DIR } = require('../lib/config');
+const { processUploadedImage } = require('../lib/imageProcessor');
 const { requireAuth } = require('../middleware/auth');
 const {
   readContent,
@@ -169,7 +170,7 @@ router.get('/api/admin/contacts', requireAuth, async (req, res) => {
   }
 });
 
-router.delete('/api/admin/contacts', requireAuth, csurf(), async (req, res) => {
+router.delete('/api/admin/contacts', requireAuth, doubleCsrfProtection(), async (req, res) => {
   try {
     const deleteAll = String(req.query.all || '').toLowerCase() === 'true';
     if (deleteAll) {
@@ -195,7 +196,7 @@ router.delete('/api/admin/contacts', requireAuth, csurf(), async (req, res) => {
   }
 });
 
-router.delete('/api/admin/contacts/:id', requireAuth, csurf(), async (req, res) => {
+router.delete('/api/admin/contacts/:id', requireAuth, doubleCsrfProtection(), async (req, res) => {
   try {
     const contactId = String(req.params.id || '').trim();
     if (!contactId) {
@@ -213,7 +214,7 @@ router.delete('/api/admin/contacts/:id', requireAuth, csurf(), async (req, res) 
   }
 });
 
-router.post('/api/admin/content', requireAuth, csurf(), async (req, res) => {
+router.post('/api/admin/content', requireAuth, doubleCsrfProtection(), async (req, res) => {
   try {
     const content = req.body;
     if (!content || typeof content !== 'object') {
@@ -235,7 +236,7 @@ router.post('/api/admin/content', requireAuth, csurf(), async (req, res) => {
   }
 });
 
-router.put('/api/admin/contact-settings', requireAuth, csurf(), async (req, res) => {
+router.put('/api/admin/contact-settings', requireAuth, doubleCsrfProtection(), async (req, res) => {
   try {
     const validation = validateContactSettingsPayload(req.body || {});
     if (!validation.success) {
@@ -258,15 +259,17 @@ router.put('/api/admin/contact-settings', requireAuth, csurf(), async (req, res)
   }
 });
 
-router.get('/api/admin/csrf-token', requireAuth, csurf(), (req, res) => {
+router.get('/api/admin/csrf-token', requireAuth, (req, res) => {
   try {
-    res.json({ csrfToken: req.csrfToken() });
+    const token = generateToken(req, res);
+    res.json({ csrfToken: token });
   } catch (e) {
+    logger.error('Error generating CSRF token', { error: e.message });
     res.status(500).json({ error: 'Unable to generate CSRF token' });
   }
 });
 
-router.post('/api/admin/publish', requireAuth, csurf(), async (req, res) => {
+router.post('/api/admin/publish', requireAuth, doubleCsrfProtection(), async (req, res) => {
   try {
     await publishDraftContent();
     await audit('publish_content', { user: req.session.userId || 'unknown' });
@@ -278,13 +281,29 @@ router.post('/api/admin/publish', requireAuth, csurf(), async (req, res) => {
   }
 });
 
-router.post('/api/admin/upload', requireAuth, csurf(), imageUpload.single('file'), (req, res) => {
+router.post('/api/admin/upload', requireAuth, doubleCsrfProtection(), imageUpload.single('file'), async (req, res) => {
   if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
-  const url = '/uploads/' + path.basename(req.file.path);
-  res.json({ success: true, url });
+
+  const originalUrl = '/uploads/' + path.basename(req.file.path);
+
+  try {
+    const variants = await processUploadedImage(req.file);
+    return res.json({
+      success: true,
+      url: variants.webpUrl,
+      originalUrl: variants.originalUrl,
+      avifUrl: variants.avifUrl,
+    });
+  } catch (error) {
+    logger.warn('Falling back to original uploaded image', {
+      error: error.message,
+      file: path.basename(req.file.path),
+    });
+    return res.json({ success: true, url: originalUrl, originalUrl });
+  }
 });
 
-router.post('/api/admin/upload-video', requireAuth, csurf(), videoUpload.single('file'), (req, res) => {
+router.post('/api/admin/upload-video', requireAuth, doubleCsrfProtection(), videoUpload.single('file'), (req, res) => {
   // Set longer timeout for video uploads (10 minutes)
   req.setTimeout(10 * 60 * 1000);
   res.setTimeout(10 * 60 * 1000);
@@ -294,7 +313,7 @@ router.post('/api/admin/upload-video', requireAuth, csurf(), videoUpload.single(
   res.json({ success: true, url });
 });
 
-router.post('/api/admin/restore', requireAuth, restoreLimiter, csurf(), restoreUpload.single('file'), async (req, res) => {
+router.post('/api/admin/restore', requireAuth, restoreLimiter, doubleCsrfProtection(), restoreUpload.single('file'), async (req, res) => {
   // Set longer timeout for restore operations (30 minutes for large backups)
   req.setTimeout(30 * 60 * 1000);
   res.setTimeout(30 * 60 * 1000);
@@ -315,6 +334,20 @@ router.post('/api/admin/restore', requireAuth, restoreLimiter, csurf(), restoreU
       if (entry.isDirectory) continue;
       const rawName = String(entry.entryName || '');
       const normalized = rawName.replace(/\\/g, '/').replace(/^\/+/, '');
+
+      // Reject path traversal sequences
+      if (normalized.includes('..') || path.isAbsolute(rawName)) {
+        logger.warn('Restore: rejected unsafe entry path', { entry: rawName });
+        continue;
+      }
+
+      // Reject symlinks: Unix file type stored in upper 16 bits of entry.attr
+      const unixFileType = (entry.attr >>> 16) & 0xF000;
+      if (unixFileType === 0xA000) {
+        logger.warn('Restore: rejected symlink entry', { entry: rawName });
+        continue;
+      }
+
       if (!(normalized.startsWith('data/') || normalized.startsWith('uploads/'))) continue;
 
       const subPath = normalized.startsWith('data/')
@@ -354,7 +387,7 @@ router.post('/api/admin/restore', requireAuth, restoreLimiter, csurf(), restoreU
 });
 
 // Create backup endpoint
-router.post('/api/admin/backup', requireAuth, csurf(), async (req, res) => {
+router.post('/api/admin/backup', requireAuth, doubleCsrfProtection(), async (req, res) => {
   try {
     const result = await createBackup();
     
@@ -386,7 +419,7 @@ router.post('/api/admin/backup', requireAuth, csurf(), async (req, res) => {
 });
 
 // List backups endpoint
-router.get('/api/admin/backups', requireAuth, csurf(), async (req, res) => {
+router.get('/api/admin/backups', requireAuth, doubleCsrfProtection(), async (req, res) => {
   try {
     const backups = await listBackups();
     
@@ -486,7 +519,7 @@ router.get('/api/admin/posts/id/:id', requireAuth, async (req, res) => {
   }
 });
 
-router.post('/api/admin/posts', requireAuth, csurf(), async (req, res) => {
+router.post('/api/admin/posts', requireAuth, doubleCsrfProtection(), async (req, res) => {
   try {
     const validation = validatePostPayload(req.body || null);
     if (!validation.success) return res.status(400).json({ error: validation.error });
@@ -507,7 +540,7 @@ router.post('/api/admin/posts', requireAuth, csurf(), async (req, res) => {
   }
 });
 
-router.put('/api/admin/posts/:id', requireAuth, csurf(), async (req, res) => {
+router.put('/api/admin/posts/:id', requireAuth, doubleCsrfProtection(), async (req, res) => {
   try {
     const id = String(req.params.id || '').trim();
     if (!id) return res.status(400).json({ error: 'Invalid post id' });
@@ -532,7 +565,7 @@ router.put('/api/admin/posts/:id', requireAuth, csurf(), async (req, res) => {
   }
 });
 
-router.delete('/api/admin/posts/:id', requireAuth, csurf(), async (req, res) => {
+router.delete('/api/admin/posts/:id', requireAuth, doubleCsrfProtection(), async (req, res) => {
   try {
     const id = String(req.params.id || '').trim();
     if (!id) return res.status(400).json({ error: 'Invalid post id' });
@@ -548,7 +581,7 @@ router.delete('/api/admin/posts/:id', requireAuth, csurf(), async (req, res) => 
   }
 });
 
-router.patch('/api/admin/posts/:id/publish', requireAuth, csurf(), async (req, res) => {
+router.patch('/api/admin/posts/:id/publish', requireAuth, doubleCsrfProtection(), async (req, res) => {
   try {
     const id = String(req.params.id || '').trim();
     if (!id) return res.status(400).json({ error: 'Invalid post id' });
@@ -566,7 +599,7 @@ router.patch('/api/admin/posts/:id/publish', requireAuth, csurf(), async (req, r
   }
 });
 
-router.patch('/api/admin/posts/:id/feature', requireAuth, csurf(), async (req, res) => {
+router.patch('/api/admin/posts/:id/feature', requireAuth, doubleCsrfProtection(), async (req, res) => {
   try {
     const id = String(req.params.id || '').trim();
     if (!id) return res.status(400).json({ error: 'Invalid post id' });

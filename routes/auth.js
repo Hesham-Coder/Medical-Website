@@ -1,7 +1,7 @@
 const express = require('express');
 const path = require('path');
 const bcrypt = require('bcrypt');
-const csurf = require('csurf');
+const { doubleCsrfProtection } = require('../middleware/csrf');
 const { ADMIN_DIR } = require('../lib/config');
 const { loginLimiter, credentialUpdateLimiter } = require('../lib/security');
 const { requireAuth } = require('../middleware/auth');
@@ -84,7 +84,7 @@ router.get('/api/auth/check', ensureSessionAvailable, async (req, res) => {
   }
 });
 
-router.put('/api/user/update-credentials', ensureSessionAvailable, requireAuth, credentialUpdateLimiter, csurf(), async (req, res) => {
+router.put('/api/user/update-credentials', ensureSessionAvailable, requireAuth, credentialUpdateLimiter, doubleCsrfProtection(), async (req, res) => {
   try {
     const validation = validateCredentialUpdatePayload(req.body || {});
     if (!validation.success) {

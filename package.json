@@ -4,7 +4,10 @@
   "description": "Secure admin dashboard with JSON storage",
   "main": "server.js",
   "scripts": {
+    "build": "node scripts/build.js",
+    "build:css": "node scripts/build.js",
     "start": "node server.js",
+    "watch:css": "postcss website/src/tailwind.css -o website/css/tailwind.output.css --watch",
     "backup": "node backup.js",
     "restore": "node restore.js"
   },
@@ -16,11 +19,13 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
+    "@mapbox/node-pre-gyp": "^2.0.3",
     "adm-zip": "^0.5.16",
     "bcrypt": "^5.1.1",
     "compression": "^1.8.1",
     "connect-redis": "^8.0.2",
-    "csurf": "^1.2.2",
+    "cookie-parser": "^1.4.7",
+    "csrf-csrf": "^4.0.3",
     "dotenv": "^17.3.1",
     "express": "^4.18.2",
     "express-rate-limit": "^7.1.5",
@@ -29,13 +34,20 @@
     "multer": "^1.4.5-lts.1",
     "nodemailer": "^8.0.1",
     "redis": "^4.7.1",
+    "sharp": "^0.33.5",
     "sortablejs": "^1.15.2",
     "winston": "^3.19.0",
     "zod": "^4.3.6"
   },
   "devDependencies": {
+    "@tailwindcss/forms": "^0.5.9",
+    "@tailwindcss/postcss": "^4.1.18",
     "autoprefixer": "^10.4.24",
     "postcss": "^8.5.6",
+    "postcss-cli": "^11.0.0",
     "tailwindcss": "^4.1.18"
+  },
+  "overrides": {
+    "tar": ">=7.5.7"
   }
 }

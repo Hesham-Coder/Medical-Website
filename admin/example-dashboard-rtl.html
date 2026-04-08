@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+<!-- 
+  Complete RTL/LTR Example - Admin Dashboard
+  
+  Key points:
+  1. dir attribute is on <html> only (not repeated on body/divs)
+  2. Lang and dir sync with JavaScript langHelper.js
+  3. CSS uses logical properties (start/end instead of left/right)
+  4. Numbers are wrapped with Unicode directional markers
+-->
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Bilingual RTL/LTR</title>
+    
+    <!-- Bidirectional CSS foundation -->
+    <link rel="stylesheet" href="/rtl-styles.css">
+    
+    <!-- Dashboard-specific styles -->
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Roboto, system-ui, -apple-system, sans-serif;
+            background: #f5f7fa;
+            color: #1a1a1a;
+            direction: inherit;  /* Inherits from html dir */
+            text-align: start;   /* Respects direction */
+        }
+        
+        /* Header with language switcher */
+        .site-header {
+            background: linear-gradient(135deg, #004A8D, #0096D6);
+            color: white;
+            padding: 16px 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+        
+        .site-header h1 {
+            font-size: 24px;
+            font-weight: 700;
+        }
+        
+        /* Language switcher in header */
+        .header-actions {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+        }
+        
+        /* Main container uses logical properties */
+        .container {
+            max-width: 1200px;
+            margin: 24px auto;
+            padding: 0 24px;
+        }
+        
+        /* Cards with flexbox (auto-respects direction) */
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            margin-bottom: 24px;
+        }
+        
+        .card h2 {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #e5e7eb;
+        }
+        
+        /* Data rows with proper direction */
+        .data-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        
+        .data-row:last-child {
+            border-bottom: none;
+        }
+        
+        .data-label {
+            font-weight: 600;
+            color: #4b5563;
+            flex-shrink: 0;
+        }
+        
+        .data-value {
+            color: #1a1a1a;
+            text-align: end;  /* Aligns right in LTR, left in RTL */
+            flex: 1;
+            padding-inline-start: 16px;  /* Respects direction */
+        }
+        
+        /* Numbers stay LTR even in RTL */
+        .amount,
+        .id,
+        .phone {
+            direction: ltr;
+            unicode-bidi: isolate;
+            font-weight: 600;
+            font-family: 'Courier New', monospace;
+        }
+        
+        /* Grid layout auto-respects direction */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        
+        .stat-box {
+            background: #f8f9fa;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .stat-box .label {
+            font-size: 14px;
+            color: #6b7280;
+            margin-bottom: 8px;
+        }
+        
+        .stat-box .value {
+            font-size: 28px;
+            font-weight: 700;
+            color: #0096D6;
+        }
+        
+        /* Form layout with flexbox */
+        .form-group {
+            margin-bottom: 16px;
+        }
+        
+        .form-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #4b5563;
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 14px;
+            direction: inherit;  /* Respects html dir */
+            text-align: start;   /* Respects direction */
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: #0096D6;
+            box-shadow: 0 0 0 3px rgba(0, 150, 214, 0.1);
+        }
+        
+        /* Special case: phone always LTR */
+        .form-input[type="tel"] {
+            direction: ltr;
+            text-align: ltr;
+        }
+        
+        /* Table respects direction */
+        .table-wrapper {
+            overflow-x: auto;
+            border-radius: 8px;
+            border: 1px solid #e5e7eb;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            direction: inherit;
+        }
+        
+        th {
+            background: #f3f4f6;
+            padding: 12px 16px;
+            text-align: start;  /* Respects direction */
+            font-weight: 600;
+            color: #4b5563;
+            border-bottom: 2px solid #e5e7eb;
+        }
+        
+        td {
+            padding: 12px 16px;
+            border-bottom: 1px solid #e5e7eb;
+            text-align: start;  /* Respects direction */
+        }
+        
+        td.number {
+            direction: ltr;
+            unicode-bidi: isolate;
+            font-family: 'Courier New', monospace;
+            text-align: right;  /* Numbers align right */
+        }
+        
+        /* Button group respects direction */
+        .button-group {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;  /* Naturally respects dir */
+            margin-top: 16px;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .btn-primary {
+            background: #0096D6;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #0077B6;
+        }
+        
+        .btn-secondary {
+            background: #f3f4f6;
+            color: #374151;
+            border: 1px solid #e5e7eb;
+        }
+        
+        .btn-secondary:hover {
+            background: #e5e7eb;
+        }
+        
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .site-header {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 12px;
+            }
+            
+            .header-actions {
+                justify-content: center;
+            }
+            
+            .data-row {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 8px;
+            }
+            
+            .data-value {
+                text-align: start;  /* Restore to start */
+                width: 100%;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .button-group {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header with language switcher -->
+    <header class="site-header">
+        <h1>📊 Admin Dashboard</h1>
+        <div id="lang-switcher-header" class="header-actions"></div>
+    </header>
+    
+    <!-- Main content -->
+    <main class="container">
+        <!-- Statistics Section -->
+        <div class="card">
+            <h2>📈 Quick Stats</h2>
+            <div class="stats-grid">
+                <div class="stat-box">
+                    <div class="label">Total Revenue</div>
+                    <div class="value"><span class="amount">45,250</span> SAR</div>
+                </div>
+                <div class="stat-box">
+                    <div class="label">Active Users</div>
+                    <div class="value"><span class="amount">1,234</span></div>
+                </div>
+                <div class="stat-box">
+                    <div class="label">Orders Today</div>
+                    <div class="value"><span class="amount">89</span></div>
+                </div>
+                <div class="stat-box">
+                    <div class="label">Conversion Rate</div>
+                    <div class="value"><span class="amount">3.2</span>%</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Data Display Section -->
+        <div class="card">
+            <h2>💼 Recent Activity</h2>
+            <div class="data-row">
+                <div class="data-label">Order ID:</div>
+                <div class="data-value"><span class="id">ORD-2024-12345</span></div>
+            </div>
+            <div class="data-row">
+                <div class="data-label">Customer Contact:</div>
+                <div class="data-value"><span class="phone">+966-55-1234-5678</span></div>
+            </div>
+            <div class="data-row">
+                <div class="data-label">Total Amount:</div>
+                <div class="data-value"><span class="amount">1,500.00</span> SAR</div>
+            </div>
+            <div class="data-row">
+                <div class="data-label">Status:</div>
+                <div class="data-value">Completed</div>
+            </div>
+        </div>
+        
+        <!-- Form Section -->
+        <div class="card">
+            <h2>📝 Add New Entry</h2>
+            <form id="demo-form">
+                <div class="form-group">
+                    <label class="form-label">Name</label>
+                    <input type="text" class="form-input" placeholder="Enter name" dir="inherit">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Email</label>
+                    <input type="email" class="form-input" placeholder="Enter email" dir="inherit">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Phone Number</label>
+                    <input type="tel" class="form-input" placeholder="Enter phone (always LTR)">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Amount</label>
+                    <input type="number" class="form-input" placeholder="0.00" step="0.01">
+                </div>
+                
+                <div class="button-group">
+                    <button type="button" class="btn btn-secondary" onclick="resetForm()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                </div>
+            </form>
+        </div>
+        
+        <!-- Table Section -->
+        <div class="card">
+            <h2>📋 Orders List</h2>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Order ID</th>
+                            <th>Customer</th>
+                            <th>Phone</th>
+                            <th class="text-end">Amount</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="orders-body">
+                        <!-- Dynamically populated -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+    
+    <!-- Load language helper FIRST -->
+    <script src="/langHelper.js"></script>
+    
+    <!-- Initialize language system -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Initialize language (restores saved or detects browser)
+            const lang = langHelper.initializeLanguage();
+            
+            // Create language switcher in header
+            const hostHeader = document.getElementById('lang-switcher-header');
+            hostHeader.innerHTML = langHelper.createLanguageSwitcher();
+            langHelper.attachLanguageSwitcherListeners('.lang-switcher');
+            
+            // Populate sample orders with proper number handling
+            populateOrders();
+            
+            // Listen to language changes
+            document.addEventListener('languageChanged', (e) => {
+                console.log('Language switched to:', e.detail.lang);
+                // Any component-specific logic here
+            });
+        });
+        
+        function populateOrders() {
+            const orders = [
+                { id: 'ORD-2024-001', customer: 'Ahmed Mohammed', phone: '+966-55-1111-1111', amount: 2500, status: 'Completed' },
+                { id: 'ORD-2024-002', customer: 'Fatima Ali', phone: '+966-55-2222-2222', amount: 1200, status: 'Pending' },
+                { id: 'ORD-2024-003', customer: 'Omar Hassan', phone: '+966-55-3333-3333', amount: 3500, status: 'Completed' },
+            ];
+            
+            const tbody = document.getElementById('orders-body');
+            tbody.innerHTML = orders.map(order => `
+                <tr>
+                    <td class="number">${order.id}</td>
+                    <td>${order.customer}</td>
+                    <td class="number">${order.phone}</td>
+                    <td class="number text-end">${order.amount.toLocaleString()} SAR</td>
+                    <td>${order.status}</td>
+                </tr>
+            `).join('');
+        }
+        
+        function resetForm() {
+            document.getElementById('demo-form').reset();
+        }
+        
+        // Form submission
+        document.getElementById('demo-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            alert('Form submitted! In production, send to API.');
+        });
+    </script>
+</body>
+</html>

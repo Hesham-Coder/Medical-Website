@@ -5,11 +5,14 @@
  */
 const fs = require('fs').promises;
 const express = require('express');
+const cookieParser = require('cookie-parser');
 const session = require('express-session');
 const compression = require('compression');
 const connectRedis = require('connect-redis');
 const MemoryStore = require('express-session').MemoryStore;
 const logger = require('./lib/logger');
+const { brotliApiCompression } = require('./middleware/brotliCompression');
+const { attachCsrfToken } = require('./middleware/csrf');
 const { initializeFiles } = require('./lib/contentStore');
 const { securityHeaders, blockSensitivePaths } = require('./lib/security');
 const { notFoundHandler, errorHandler } = require('./middleware/errorHandler');
@@ -52,12 +55,40 @@ app.use((req, res, next) => {
 });
 
 app.use(securityHeaders);
+app.use(brotliApiCompression());
 app.use(compression());
 app.use(express.json({ limit: '100kb' }));
 app.use(express.urlencoded({ extended: true, limit: '100kb' }));
 
-if (!SESSION_SECRET) {
-  logger.error('SESSION_SECRET is required. Set it in environment variables.');
+function setImmutableAssetHeaders(res, filePath) {
+  const lowerPath = String(filePath || '').toLowerCase();
+  if (/\.(css|js|mjs|png|jpe?g|gif|webp|avif|svg|ico|woff2?)$/.test(lowerPath)) {
+    res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+  }
+}
+
+// Body / upload limits:
+//   express.json / urlencoded : 100 KB
+//   image uploads             : 5 MB  (imageUpload in routes/admin.js)
+//   video uploads             : 120 MB default, env MAX_VIDEO_UPLOAD_MB overrides
+//   restore backup upload     : 250 MB
+function setUploadsHeaders(res, _filePath) {
+  res.setHeader('Content-Disposition', 'attachment');
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+}
+
+function setWebsiteHeaders(res, filePath) {
+  const lowerPath = String(filePath || '').toLowerCase();
+  if (lowerPath.endsWith('.html')) {
+    res.setHeader('Cache-Control', 'no-cache');
+    return;
+  }
+  setImmutableAssetHeaders(res, filePath);
+}
+
+if (!SESSION_SECRET || SESSION_SECRET.length < 32) {
+  logger.error('SESSION_SECRET is required and must be at least 32 characters. Set it in environment variables.');
   process.exit(1);
 }
 
@@ -96,6 +127,10 @@ async function configureSession() {
     }));
     logger.info('Session store initialized with Redis');
   } catch (error) {
+    if (IS_PROD) {
+      logger.error('Redis is required in production. Refusing to start with MemoryStore.', { error: error.message });
+      process.exit(1);
+    }
     app.locals.redisClient = null;
     app.locals.usingMemoryStore = true;
     app.locals.sessionReady = true;
@@ -169,16 +204,33 @@ function mountAppRoutes() {
   app.use(authRoutes);
   app.use(adminRoutes);
 
-  // Serve uploaded images with cache
+  // Serve uploaded files — force download, block MIME sniffing
   app.use('/uploads', express.static(UPLOADS_DIR, {
-    maxAge: IS_PROD ? '1d' : 0,
-    setHeaders: (res) => { if (IS_PROD) res.setHeader('Cache-Control', 'public, max-age=86400'); },
+    maxAge: '1y',
+    setHeaders: (res, filePath) => {
+      setUploadsHeaders(res, filePath);
+    },
   }));
 
   // Serve only whitelisted static directories
-  app.use('/assets', express.static(PUBLIC_DIR, { maxAge: IS_PROD ? '1d' : 0 }));
-  app.use('/admin-static', express.static(ADMIN_DIR, { maxAge: IS_PROD ? '1d' : 0 }));
-  app.use('/', express.static(WEBSITE_DIR, { maxAge: IS_PROD ? '1d' : 0 }));
+  app.use('/assets', express.static(PUBLIC_DIR, {
+    maxAge: '1y',
+    setHeaders: (res, filePath) => {
+      setImmutableAssetHeaders(res, filePath);
+    },
+  }));
+  app.use('/admin-static', express.static(ADMIN_DIR, {
+    maxAge: '1y',
+    setHeaders: (res, filePath) => {
+      setWebsiteHeaders(res, filePath);
+    },
+  }));
+  app.use('/', express.static(WEBSITE_DIR, {
+    maxAge: '1y',
+    setHeaders: (res, filePath) => {
+      setWebsiteHeaders(res, filePath);
+    },
+  }));
 
   // 404 and error handlers
   app.use(notFoundHandler);
@@ -200,6 +252,8 @@ process.on('uncaughtException', (error) => {
 async function startServer() {
   await initializeFiles();
   await configureSession();
+  app.use(cookieParser());
+  app.use(attachCsrfToken());
   // Session middleware must be registered before the routes that use req.session.
   mountAppRoutes();
   // Bind explicitly to all interfaces for PaaS environments (Railway/Render/etc).

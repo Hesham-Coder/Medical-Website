@@ -1,5 +1,6 @@
 const express = require('express');
 const path = require('path');
+const { promises: fs } = require('fs');
 const { WEBSITE_DIR, SITE_URL } = require('../lib/config');
 const { readPublishedContent, getPublishedContentSnapshot } = require('../lib/contentStore');
 const { queryPublishedPosts, getPublishedPostBySlug, getPublishedPostsSnapshot } = require('../lib/postStore');
@@ -10,6 +11,7 @@ const { audit } = require('../lib/audit');
 const { sendContactEmails } = require('../lib/mailer');
 const { appendContact } = require('../lib/contentStore');
 const { requestIsFresh, setResponseCacheHeaders } = require('../lib/httpCache');
+const { injectSeoContent } = require('../lib/seoInjector');
 const logger = require('../lib/logger');
 
 const router = express.Router();
@@ -90,17 +92,81 @@ function isMobileOrTablet(req) {
   );
 }
 
-router.get('/', (req, res) => {
-  // Mobile/tablet: navigation-driven SPA
-  // Desktop: legacy long-scroll experience
-  // Mobile/tablet uses Tailwind mobile page.
-  const file = isMobileOrTablet(req) ? 'mobile.html' : 'desktop.html';
-  res.sendFile(path.join(WEBSITE_DIR, file));
+/**
+ * Detect language from query param or Accept-Language header
+ * Returns 'ar' or 'en'
+ */
+function detectLanguage(req) {
+  // Check query param (?lang=ar)
+  if (req.query && req.query.lang) {
+    return req.query.lang === 'ar' ? 'ar' : 'en';
+  }
+  
+  // Check Accept-Language header
+  const acceptLang = req.headers['accept-language'] || '';
+  if (acceptLang.includes('ar')) return 'ar';
+  
+  // Default to English
+  return 'en';
+}
+
+/**
+ * Read HTML file and inject SEO tags
+ * Usage: await serveSeoHtmlFile(res, filePath, contentData, lang)
+ */
+async function serveSeoHtmlFile(res, filePath, contentData, lang = 'en') {
+  try {
+    let htmlContent = await fs.readFile(filePath, 'utf-8');
+    
+    // Inject dynamic SEO tags
+    htmlContent = injectSeoContent(htmlContent, contentData, lang);
+    
+    // HTML should revalidate so updated versioned asset URLs are picked up immediately.
+    res.setHeader('Content-Type', 'text/html; charset=utf-8');
+    res.setHeader('Cache-Control', 'no-cache');
+    res.send(htmlContent);
+  } catch (error) {
+    logger.error('Error serving SEO HTML', { error: error.message, filePath });
+    // Fallback to sendFile if injection fails
+    res.sendFile(filePath);
+  }
+}
+
+router.get('/', async (req, res) => {
+  try {
+    // Detect language for SEO tags
+    const lang = detectLanguage(req);
+    
+    // Read published content (has SEO-critical data: hero heading, description, etc.)
+    const contentData = await readPublishedContent();
+    
+    // Mobile/tablet: navigation-driven SPA
+    // Desktop: legacy long-scroll experience
+    // Mobile/tablet uses Tailwind mobile page.
+    const file = isMobileOrTablet(req) ? 'mobile.html' : 'desktop.html';
+    const filePath = path.join(WEBSITE_DIR, file);
+    
+    // Serve HTML with injected SEO tags
+    await serveSeoHtmlFile(res, filePath, contentData, lang);
+  } catch (error) {
+    logger.error('Error in root route', { error: error.message });
+    // Fallback to basic sendFile
+    const file = isMobileOrTablet(req) ? 'mobile.html' : 'desktop.html';
+    res.sendFile(path.join(WEBSITE_DIR, file));
+  }
 });
 
 // Desktop-only legacy experience (keeps old desktop UI).
-router.get('/desktop', (req, res) => {
-  res.sendFile(path.join(WEBSITE_DIR, 'desktop.html'));
+router.get('/desktop', async (req, res) => {
+  try {
+    const lang = detectLanguage(req);
+    const contentData = await readPublishedContent();
+    const filePath = path.join(WEBSITE_DIR, 'desktop.html');
+    await serveSeoHtmlFile(res, filePath, contentData, lang);
+  } catch (error) {
+    logger.error('Error in /desktop route', { error: error.message });
+    res.sendFile(path.join(WEBSITE_DIR, 'desktop.html'));
+  }
 });
 
 router.get('/desktop/posts/:slug', (req, res) => {
@@ -347,6 +413,15 @@ router.post('/api/contacts', contactLimiter, async (req, res) => {
     if (!validation.success) {
       return res.status(400).json({ error: validation.error });
     }
+
+    // Honeypot triggered — silently discard; return a convincing success response
+    if (validation._honeypot) {
+      return res.status(201).json({
+        success: true,
+        message: 'Thank you. We will contact you within 24 hours.',
+      });
+    }
+
     const data = validation.data;
     const record = {
       id: 'c-' + Date.now() + '-' + Math.random().toString(36).slice(2, 9),

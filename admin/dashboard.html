@@ -1,10 +1,11 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" dir="ltr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Content Editor – Admin Dashboard</title>
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
+    <link rel="stylesheet" href="/rtl-styles.css">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -171,7 +172,7 @@
         .toast {
             position: fixed;
             bottom: 24px;
-            right: 24px;
+            inset-inline-end: 24px;
             padding: 12px 20px;
             border-radius: 8px;
             font-size: 14px;
@@ -278,6 +279,34 @@
             border-color: #dc2626;
             box-shadow: 0 0 0 2px rgba(220,38,38,0.12);
         }
+        .lang-switcher {
+            display: flex;
+            gap: 4px;
+            align-items: center;
+            background: rgba(255,255,255,0.15);
+            padding: 6px 10px;
+            border-radius: 6px;
+        }
+        .lang-switcher button {
+            padding: 6px 10px;
+            border: 1px solid rgba(255,255,255,0.3);
+            background: transparent;
+            color: rgba(255,255,255,0.95);
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+        .lang-switcher button:hover {
+            background: rgba(255,255,255,0.2);
+            border-color: rgba(255,255,255,0.5);
+        }
+        .lang-switcher button.active {
+            background: rgba(255,255,255,0.25);
+            color: white;
+            border-color: rgba(255,255,255,0.6);
+        }
     </style>
 </head>
 <body>
@@ -291,6 +320,7 @@
                 <a href="/content.html">Content / News</a>
                 <button type="button" class="logout" id="publishBtn">Publish changes</button>
                 <span id="headerUsername">—</span>
+                <div class="lang-switcher" id="langSwitcher"></div>
                 <button type="button" class="logout" id="logoutBtn">Logout</button>
             </div>
         </div>
@@ -610,9 +640,26 @@
 
         <div class="card">
             <h2>Videos</h2>
-            <p style="font-size: 13px; color: #666; margin-bottom: 16px;">Upload MP4/WebM/OGG. Video preview updates before saving.</p>
+            <p style="font-size: 13px; color: #666; margin-bottom: 16px;">Manage the <strong>Center Overview</strong> video shown on the mobile site. Upload an MP4/WebM/OGG file <em>or</em> paste a YouTube / Vimeo / Facebook URL below. The URL field takes priority when both are set.</p>
+
             <div class="form-group">
-                <label>About section video</label>
+                <label>Center Overview title</label>
+                <input type="text" id="videoCardTitle" placeholder="Center Overview">
+            </div>
+
+            <div class="form-group">
+                <label>Subtitle (shown under the title)</label>
+                <input type="text" id="videoCardSubtitle" placeholder="Watch a short introduction.">
+            </div>
+
+            <div class="form-group">
+                <label>Video URL <span style="font-weight:400; color:#888;">(YouTube / Vimeo / Facebook reel link or embed URL)</span></label>
+                <input type="text" id="videoCardUrl" placeholder="https://www.youtube.com/watch?v=…">
+                <p style="font-size:12px; color:#888; margin-top:4px;">Leave blank to use the uploaded file below instead.</p>
+            </div>
+
+            <div class="form-group">
+                <label>Or upload a video file <span style="font-weight:400; color:#888;">(MP4 / WebM / OGG)</span></label>
                 <div class="drop-zone" id="dropAboutVideo" data-content-key="aboutSection.videoUrl">
                     <div class="drop-label">Drag & drop or click to upload</div>
                     <video class="drop-preview" id="previewAboutVideo" src="" controls style="display: none; width: 100%; border-radius: 8px;"></video>
@@ -785,7 +832,8 @@
                 };
                 if (!Array.isArray(c.certificates)) c.certificates = [];
                 if (!c.aboutSection) c.aboutSection = {};
-                if (!c.aboutSection.videoTitle) c.aboutSection.videoTitle = { en: 'Center Overview', ar: 'Center Overview' };
+                if (!c.aboutSection.videoTitle) c.aboutSection.videoTitle = { en: 'Center Overview', ar: 'نظرة عامة على المركز' };
+                if (!c.aboutSection.videoSubtitle) c.aboutSection.videoSubtitle = { en: 'Watch a short introduction.', ar: 'شاهد مقدمة قصيرة.' };
 
                 if (!c.teamSection) c.teamSection = { heading: 'World-Class Specialists', subheading: 'Our team combines decades of experience with cutting-edge research and compassionate care.' };
                 if (!Array.isArray(c.experts) || c.experts.length === 0) c.experts = DEFAULT_EXPERTS.slice();
@@ -1724,6 +1772,7 @@
                     { id: 'about', label: 'About', fields: [
                         { key: 'aboutSection.heading', label: 'Heading', bilingual: true },
                         { key: 'aboutSection.videoTitle', label: 'Center overview title', bilingual: true },
+                        { key: 'aboutSection.videoSubtitle', label: 'Center overview subtitle', bilingual: true },
                         { key: 'aboutSection.highlightsHeading', label: 'Why choose us heading', bilingual: true },
                         { key: 'aboutSection.paragraphs.0', label: 'Paragraph 1', bilingual: true },
                         { key: 'aboutSection.paragraphs.1', label: 'Paragraph 2', bilingual: true },
@@ -1790,12 +1839,11 @@
                             input.dataset.key = f.key;
                             input.dataset.lang = lang;
                             input.value = getVal(f.key, f.bilingual ? lang : 'en');
-                            // Ensure phone numbers always display LTR
+                            // Phone numbers handled by langHelper bidirectional system
                             var isPhoneField = /contactSettings\.(primaryNavbarNumber|immediateSupportNumber|whatsappSupportNumber|footerGeneralContact)/.test(f.key);
                             if (isPhoneField) {
-                                input.setAttribute('dir', 'ltr');
-                                input.style.direction = 'ltr';
-                                input.style.unicodeBidi = 'isolate';
+                                input.dataset.type = 'phone';
+                                // Numbers will be wrapped by langHelper.wrapNumbersForRTL() when language changes
                             }
                             wrap.appendChild(label);
                             wrap.appendChild(input);
@@ -2627,6 +2675,58 @@
                 if (obj && typeof obj === 'string') setPreview(obj);
             }
             function setupFormRouteUI() {
+                            function setupVideoCardInputs() {
+                                if (!content) return;
+                                if (!content.aboutSection) content.aboutSection = {};
+                                var ab = content.aboutSection;
+
+                                var titleEl    = document.getElementById('videoCardTitle');
+                                var subtitleEl = document.getElementById('videoCardSubtitle');
+                                var urlEl      = document.getElementById('videoCardUrl');
+
+                                // Populate with saved content (English value for the card quick-edit)
+                                if (titleEl) {
+                                    var savedTitle = ab.videoTitle;
+                                    titleEl.value = (savedTitle && (savedTitle.en || savedTitle)) || '';
+                                    titleEl.addEventListener('input', function() {
+                                        if (!content.aboutSection.videoTitle || typeof content.aboutSection.videoTitle !== 'object') {
+                                            content.aboutSection.videoTitle = { en: '', ar: '' };
+                                        }
+                                        content.aboutSection.videoTitle.en = titleEl.value;
+                                        scheduleSave();
+                                    });
+                                }
+
+                                if (subtitleEl) {
+                                    var savedSub = ab.videoSubtitle;
+                                    subtitleEl.value = (savedSub && (savedSub.en || savedSub)) || '';
+                                    subtitleEl.addEventListener('input', function() {
+                                        if (!content.aboutSection.videoSubtitle || typeof content.aboutSection.videoSubtitle !== 'object') {
+                                            content.aboutSection.videoSubtitle = { en: '', ar: '' };
+                                        }
+                                        content.aboutSection.videoSubtitle.en = subtitleEl.value;
+                                        scheduleSave();
+                                    });
+                                }
+
+                                if (urlEl) {
+                                    // Show the saved URL only if it's an embed-type URL (not a file path)
+                                    var savedUrl = typeof ab.videoUrl === 'string' ? ab.videoUrl : (ab.videoUrl && ab.videoUrl.en) || '';
+                                    var isFileUrl = savedUrl && /\.(mp4|webm|ogv|ogg|mov|m4v)(\?|$)/i.test(savedUrl);
+                                    urlEl.value = isFileUrl ? '' : savedUrl;
+                                    urlEl.addEventListener('input', function() {
+                                        var val = urlEl.value.trim();
+                                        if (val) {
+                                            // URL field takes priority – override any uploaded file URL
+                                            content.aboutSection.videoUrl = val;
+                                            scheduleSave();
+                                        }
+                                        // If cleared, leave the existing value (uploaded file) intact
+                                    });
+                                }
+                            }
+
+                            function setupFormRouteUI() {
                 var typeEl = document.getElementById('formRouteType');
                 var valueEl = document.getElementById('formRouteValue');
                 if (!typeEl || !valueEl) return;
@@ -2830,11 +2930,31 @@
                 setupImageUpload('dropHero', 'fileHero', 'previewHero', 'siteInfo.heroImageUrl');
                 setupVideoUpload('dropAboutVideo', 'fileAboutVideo', 'previewAboutVideo', 'aboutSection.videoUrl');
                 setupFormRouteUI();
+                            setupVideoCardInputs();
             }).catch(function(err) {
                 document.getElementById('sectionList').innerHTML = '<li class="loading">Failed to load. <a href="/login.html">Log in again</a>.</li>';
                 console.error(err);
             });
         })();
+    </script>
+
+    <!-- RTL/LTR Language Support -->
+    <script src="/lib/langHelper.js"></script>
+    <script>
+        // Initialize language support after page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            if (typeof window.langHelper !== 'undefined') {
+                // Initialize language helper (loads persisted language from localStorage)
+                window.langHelper.initializeLanguage();
+                
+                // Create and attach language switcher in header
+                var switcherDiv = document.getElementById('langSwitcher');
+                if (switcherDiv) {
+                    switcherDiv.innerHTML = window.langHelper.createLanguageSwitcher();
+                    window.langHelper.attachLanguageSwitcherListeners();
+                }
+            }
+        });
     </script>
 </body>
 </html>
