@@ -1520,8 +1520,8 @@
                                         </div>
                                     </div>
                                     <div>
-                                        <h3 class="font-bold text-lg">Inside Our Center</h3>
-                                        <p class="text-sm text-blue-100">A quick look at our care environment and patient-first approach.</p>
+                                        <h3 id="aboutVideoTitle" class="font-bold text-lg">Inside Our Center</h3>
+                                        <p id="aboutVideoSubtitle" class="text-sm text-blue-100">A quick look at our care environment and patient-first approach.</p>
                                     </div>
                                 </div>
                             </div>
@@ -2993,6 +2993,16 @@
                         aboutVideo.removeAttribute('src');
                         if (aboutControls) aboutControls.classList.add('hidden');
                     }
+                }
+                var aboutVideoTitleEl = document.getElementById('aboutVideoTitle');
+                var aboutVideoSubtitleEl = document.getElementById('aboutVideoSubtitle');
+                if (aboutVideoTitleEl) {
+                    var vtitle = getLocalized(get(c, 'aboutSection.videoTitle'), lang);
+                    if (vtitle) aboutVideoTitleEl.textContent = vtitle;
+                }
+                if (aboutVideoSubtitleEl) {
+                    var vsubtitle = getLocalized(get(c, 'aboutSection.videoSubtitle'), lang);
+                    if (vsubtitle) aboutVideoSubtitleEl.textContent = vsubtitle;
                 }
                 var aboutHighlights = get(c, 'aboutSection.highlights');
                 if (Array.isArray(aboutHighlights)) {

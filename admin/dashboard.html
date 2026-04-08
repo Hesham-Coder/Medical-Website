@@ -2676,8 +2676,7 @@
                 for (var i = 0; i < keys.length && obj != null; i++) obj = obj[keys[i]];
                 if (obj && typeof obj === 'string') setPreview(obj);
             }
-            function setupFormRouteUI() {
-                            function setupVideoCardInputs() {
+            function setupVideoCardInputs() {
                                 if (!content) return;
                                 if (!content.aboutSection) content.aboutSection = {};
                                 var ab = content.aboutSection;
@@ -2728,7 +2727,7 @@
                                 }
                             }
 
-                            function setupFormRouteUI() {
+            function setupFormRouteUI() {
                 var typeEl = document.getElementById('formRouteType');
                 var valueEl = document.getElementById('formRouteValue');
                 if (!typeEl || !valueEl) return;
@@ -2932,7 +2931,7 @@
                 setupImageUpload('dropHero', 'fileHero', 'previewHero', 'siteInfo.heroImageUrl');
                 setupVideoUpload('dropAboutVideo', 'fileAboutVideo', 'previewAboutVideo', 'aboutSection.videoUrl');
                 setupFormRouteUI();
-                            setupVideoCardInputs();
+                setupVideoCardInputs();
             }).catch(function(err) {
                 document.getElementById('sectionList').innerHTML = '<li class="loading">Failed to load. <a href="/login.html">Log in again</a>.</li>';
                 console.error(err);
