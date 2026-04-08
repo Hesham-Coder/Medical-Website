@@ -2,6 +2,8 @@
 <html lang="en" dir="ltr">
   <head>
     <meta charset="UTF-8" />
+    <!-- Anti-FOUC: synchronously set dir/lang BEFORE any CSS is parsed -->
+    <script>(function(){try{var l=localStorage.getItem('lang')||'en';var d=document.documentElement;d.setAttribute('dir',l==='ar'?'rtl':'ltr');d.setAttribute('lang',l==='ar'?'ar':'en');d.classList.add('lang-'+l);}catch(e){}}());</script>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Medical Website</title>
     <meta name="description" content="Evidence-based care with a modern, mobile-first experience." />
@@ -772,6 +774,13 @@
             var specs = document.getElementById("statSpecialists");
             if (specs && c.stats.specialists != null) specs.textContent = String(c.stats.specialists) + "+";
           }
+
+          // Reinforce dir/lang on <html> after content loads (ensures CSS [dir] selectors are correct)
+          var _lang = pickLang();
+          document.documentElement.setAttribute('dir', _lang === 'ar' ? 'rtl' : 'ltr');
+          document.documentElement.setAttribute('lang', _lang === 'ar' ? 'ar' : 'en');
+          document.documentElement.classList.remove('lang-ar', 'lang-en');
+          document.documentElement.classList.add('lang-' + _lang);
 
           // Services + doctors
           renderServices(c.services);

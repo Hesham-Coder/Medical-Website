@@ -2,6 +2,8 @@
 <html lang="en" dir="ltr">
 <head>
     <meta charset="UTF-8">
+    <!-- Anti-FOUC: synchronously set dir/lang BEFORE any CSS is parsed -->
+    <script>(function(){try{var l=localStorage.getItem('app-lang-preference')||localStorage.getItem('lang')||'en';var d=document.documentElement;d.setAttribute('dir',l==='ar'?'rtl':'ltr');d.setAttribute('lang',l==='ar'?'ar':'en');d.classList.add('lang-'+l);}catch(e){}}());</script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Content Editor – Admin Dashboard</title>
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>

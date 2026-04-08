@@ -15,11 +15,12 @@
    Root Level - Direction Cascade
    ======================================== */
 
-html {
-  /* dir="rtl" for Arabic, dir="ltr" for English */
-  /* This cascades to all child elements */
-  direction: inherit;  /* Will be rtl or ltr from dir attribute */
-}
+/* Direction cascade from <html dir> attribute.
+   Explicit attr-selector rules (specificity 0,1,1) beat the UA default
+   and prevent the 'direction: inherit' on root resolving to ltr. */
+html            { direction: ltr; }   /* safe default — overridden below */
+html[dir="rtl"] { direction: rtl; }
+html[dir="ltr"] { direction: ltr; }
 
 body {
   direction: inherit;
