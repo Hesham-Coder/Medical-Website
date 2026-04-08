@@ -313,6 +313,30 @@ router.post('/api/admin/upload-video', requireAuth, doubleCsrfProtection(), vide
   res.json({ success: true, url });
 });
 
+router.delete('/api/admin/upload-video', requireAuth, doubleCsrfProtection(), async (req, res) => {
+  const url = String(req.body && req.body.url ? req.body.url : '');
+  const match = url.match(/^\/uploads\/(vid-[A-Za-z0-9_-]+\.(?:mp4|webm|ogv|ogg|mov|m4v))(?:\?.*)?$/i);
+  if (!match) {
+    return res.status(400).json({ error: 'Invalid video URL' });
+  }
+
+  const filePath = path.join(UPLOADS_DIR, path.basename(match[1]));
+
+  try {
+    await fs.unlink(filePath);
+    return res.json({ success: true });
+  } catch (error) {
+    if (error && error.code === 'ENOENT') {
+      return res.json({ success: true, missing: true });
+    }
+    logger.warn('Failed to delete uploaded video', {
+      error: error.message,
+      file: path.basename(filePath),
+    });
+    return res.status(500).json({ error: 'Failed to delete video file' });
+  }
+});
+
 router.post('/api/admin/restore', requireAuth, restoreLimiter, doubleCsrfProtection(), restoreUpload.single('file'), async (req, res) => {
   // Set longer timeout for restore operations (30 minutes for large backups)
   req.setTimeout(30 * 60 * 1000);
