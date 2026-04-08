@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <!-- Anti-FOUC: synchronously set dir/lang BEFORE any CSS is parsed -->
-    <script>(function(){try{var l=localStorage.getItem('app-lang-preference')||localStorage.getItem('lang')||'en';var d=document.documentElement;d.setAttribute('dir',l==='ar'?'rtl':'ltr');d.setAttribute('lang',l==='ar'?'ar':'en');d.classList.add('lang-'+l);}catch(e){}}());</script>
+    <script>(function(){try{var l=localStorage.getItem('app-lang-preference')||localStorage.getItem('lang')||'en';var lang=l==='ar'?'ar':'en';var d=document.documentElement;d.setAttribute('dir','ltr');d.setAttribute('lang',lang);d.classList.add('lang-'+lang);}catch(e){}}());</script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Content Editor – Admin Dashboard</title>
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
@@ -2945,8 +2945,19 @@
         // Initialize language support after page loads
         document.addEventListener('DOMContentLoaded', function() {
             if (typeof window.langHelper !== 'undefined') {
-                // Initialize language helper (loads persisted language from localStorage)
-                window.langHelper.initializeLanguage();
+                // Dashboard stays LTR even when Arabic is selected.
+                window.langHelper.setLanguage = function(lang) {
+                    var nextLang = lang === 'ar' ? 'ar' : 'en';
+                    var html = document.documentElement;
+                    html.setAttribute('lang', nextLang);
+                    html.setAttribute('dir', 'ltr');
+                    localStorage.setItem('app-lang-preference', nextLang);
+                    document.dispatchEvent(new CustomEvent('languageChanged', {
+                        detail: { lang: nextLang, dir: 'ltr' }
+                    }));
+                };
+
+                window.langHelper.setLanguage(localStorage.getItem('app-lang-preference') || localStorage.getItem('lang') || 'en');
                 
                 // Create and attach language switcher in header
                 var switcherDiv = document.getElementById('langSwitcher');
