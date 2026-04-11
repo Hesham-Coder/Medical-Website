@@ -309,6 +309,213 @@
             color: white;
             border-color: rgba(255,255,255,0.6);
         }
+
+        /* ============================
+           UI Zoom Control Panel
+        ============================ */
+        .zoom-panel {
+            background: linear-gradient(135deg, #f0f7ff 0%, #e8f4fd 100%);
+            border: 1.5px solid #bfdbfe;
+            border-radius: 14px;
+            padding: 20px 22px;
+        }
+        .zoom-panel-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 18px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .zoom-panel-title {
+            font-size: 15px;
+            font-weight: 700;
+            color: #004A8D;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .zoom-panel-title svg {
+            width: 18px;
+            height: 18px;
+            opacity: 0.75;
+        }
+        .zoom-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: #004A8D;
+            color: white;
+            font-size: 18px;
+            font-weight: 800;
+            padding: 6px 14px;
+            border-radius: 999px;
+            min-width: 76px;
+            justify-content: center;
+            letter-spacing: -0.02em;
+            box-shadow: 0 4px 12px rgba(0, 74, 141, 0.25);
+            transition: background 0.2s;
+        }
+        .zoom-slider-wrap {
+            position: relative;
+            padding: 8px 0 24px;
+        }
+        .zoom-slider {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 100%;
+            height: 6px;
+            border-radius: 4px;
+            background: linear-gradient(90deg, #0096D6 var(--zoom-pct, 50%), #d1d5db var(--zoom-pct, 50%));
+            outline: none;
+            cursor: pointer;
+            transition: box-shadow 0.15s;
+        }
+        .zoom-slider:hover {
+            box-shadow: 0 0 0 4px rgba(0, 150, 214, 0.18);
+        }
+        .zoom-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: white;
+            box-shadow: 0 2px 8px rgba(0,74,141,0.28), 0 0 0 3px #0096D6;
+            cursor: grab;
+            transition: transform 0.15s, box-shadow 0.15s;
+        }
+        .zoom-slider::-webkit-slider-thumb:active {
+            cursor: grabbing;
+            transform: scale(1.15);
+            box-shadow: 0 4px 14px rgba(0,74,141,0.38), 0 0 0 4px #0096D6;
+        }
+        .zoom-slider::-moz-range-thumb {
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: white;
+            box-shadow: 0 2px 8px rgba(0,74,141,0.28), 0 0 0 3px #0096D6;
+            cursor: grab;
+            border: none;
+        }
+        .zoom-ticks {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 6px;
+            font-size: 11px;
+            color: #64748b;
+            font-weight: 500;
+        }
+        .zoom-presets {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 4px;
+        }
+        .zoom-preset-btn {
+            padding: 8px 16px;
+            border-radius: 999px;
+            border: 1.5px solid #bfdbfe;
+            background: white;
+            color: #004A8D;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.18s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .zoom-preset-btn:hover {
+            border-color: #0096D6;
+            background: #e0f2fe;
+            transform: translateY(-1px);
+            box-shadow: 0 3px 8px rgba(0, 150, 214, 0.18);
+        }
+        .zoom-preset-btn.active {
+            background: #004A8D;
+            border-color: #004A8D;
+            color: white;
+            box-shadow: 0 4px 12px rgba(0, 74, 141, 0.3);
+        }
+        .zoom-preset-icon { font-size: 14px; }
+        .zoom-actions {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            margin-top: 16px;
+            flex-wrap: wrap;
+        }
+        .zoom-save-btn {
+            background: linear-gradient(135deg, #004A8D, #0096D6);
+            color: white;
+            border: none;
+            padding: 10px 22px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0,74,141,0.25);
+            transition: all 0.18s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .zoom-save-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 16px rgba(0,74,141,0.35);
+        }
+        .zoom-save-btn:active { transform: none; }
+        .zoom-reset-btn {
+            background: white;
+            color: #64748b;
+            border: 1.5px solid #e2e8f0;
+            padding: 10px 18px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.18s;
+        }
+        .zoom-reset-btn:hover {
+            border-color: #94a3b8;
+            color: #1e293b;
+            background: #f8fafc;
+        }
+        .zoom-status-msg {
+            font-size: 12px;
+            color: #64748b;
+            min-height: 18px;
+            transition: color 0.2s;
+        }
+        .zoom-status-msg.success { color: #166534; }
+        .zoom-status-msg.error { color: #b91c1c; }
+        .zoom-live-preview {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 14px;
+            padding: 10px 14px;
+            background: white;
+            border-radius: 10px;
+            border: 1px solid #e2e8f0;
+            font-size: 12px;
+            color: #64748b;
+        }
+        .zoom-preview-bar {
+            flex: 1;
+            height: 4px;
+            background: #e2e8f0;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .zoom-preview-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #0096D6, #004A8D);
+            border-radius: 4px;
+            transition: width 0.2s;
+        }
     </style>
 </head>
 <body>
@@ -410,6 +617,85 @@
                 <button type="button" class="btn-secondary" id="contactsNextBtn">Next</button>
             </div>
         </div>
+
+        <!-- ============================
+             🎛️ UI Zoom Control Panel
+        ============================= -->
+        <div class="card" id="zoomControlCard">
+            <div class="zoom-panel">
+                <div class="zoom-panel-header">
+                    <div class="zoom-panel-title">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/><path d="M11 8v6M8 11h6"/></svg>
+                        Website UI Scale
+                    </div>
+                    <span class="zoom-badge" id="zoomPercentDisplay" aria-live="polite" aria-label="Current zoom level">100%</span>
+                </div>
+
+                <p style="font-size:13px;color:#475569;margin-bottom:16px;">Control the global font-size scale of the public website. This adjusts UI density without breaking layouts. Changes are saved to the server and cached on visitors' browsers.</p>
+
+                <!-- Slider -->
+                <div class="zoom-slider-wrap">
+                    <input
+                        type="range"
+                        id="zoomSlider"
+                        class="zoom-slider"
+                        min="0.70"
+                        max="1.15"
+                        step="0.01"
+                        value="1"
+                        aria-label="UI scale slider (70% to 115%)"
+                        aria-valuemin="70"
+                        aria-valuemax="115"
+                        aria-valuenow="100"
+                        aria-valuetext="100%"
+                    >
+                    <div class="zoom-ticks">
+                        <span>70%</span>
+                        <span>80%</span>
+                        <span>90%</span>
+                        <span>100%</span>
+                        <span>110%</span>
+                        <span>115%</span>
+                    </div>
+                </div>
+
+                <!-- Preset Buttons -->
+                <div style="font-size:12px;font-weight:600;color:#64748b;margin-bottom:10px;text-transform:uppercase;letter-spacing:0.04em;">Quick Presets</div>
+                <div class="zoom-presets" role="group" aria-label="Zoom presets">
+                    <button type="button" class="zoom-preset-btn" data-scale="0.9" id="presetCompact">
+                        <span class="zoom-preset-icon">📐</span> Compact <span style="opacity:0.6;font-size:11px;">(90%)</span>
+                    </button>
+                    <button type="button" class="zoom-preset-btn" data-scale="1.0" id="presetDefault">
+                        <span class="zoom-preset-icon">⚖️</span> Default <span style="opacity:0.6;font-size:11px;">(100%)</span>
+                    </button>
+                    <button type="button" class="zoom-preset-btn" data-scale="1.1" id="presetLarge">
+                        <span class="zoom-preset-icon">♿</span> Accessible <span style="opacity:0.6;font-size:11px;">(110%)</span>
+                    </button>
+                </div>
+
+                <!-- Live Visual Preview -->
+                <div class="zoom-live-preview" aria-hidden="true">
+                    <span style="font-weight:600;color:#334155;">Scale</span>
+                    <div class="zoom-preview-bar">
+                        <div class="zoom-preview-fill" id="zoomPreviewFill" style="width:50%;"></div>
+                    </div>
+                    <span id="zoomPreviewLabel" style="min-width:36px;text-align:right;font-weight:700;color:#004A8D;">100%</span>
+                </div>
+
+                <!-- Actions -->
+                <div class="zoom-actions">
+                    <button type="button" class="zoom-save-btn" id="zoomSaveBtn" aria-label="Save zoom setting">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                        Save to Server
+                    </button>
+                    <button type="button" class="zoom-reset-btn" id="zoomResetBtn" aria-label="Reset zoom to default (100%)">
+                        ↺ Reset to Default
+                    </button>
+                    <div class="zoom-status-msg" id="zoomStatusMsg" role="status" aria-live="polite"></div>
+                </div>
+            </div>
+        </div>
+
         <div class="card">
             <h2>Page sections</h2>
             <p style="font-size: 13px; color: #666; margin-bottom: 12px;">Drag to reorder. Toggle to show or hide a section on the website. Changes save automatically.</p>
@@ -3150,6 +3436,215 @@
                 }
             }
         });
+    </script>
+
+    <!-- ========================================================
+         🎛️  ZOOM CONTROL PANEL — JavaScript
+    ======================================================== -->
+    <script>
+    (function() {
+        'use strict';
+
+        // ── Constants (must match lib/settingsStore.js) ──────────
+        var UI_SCALE_MIN     = 0.70;  // 70%
+        var UI_SCALE_MAX     = 1.15;  // 115%
+        var UI_SCALE_DEFAULT = 1.0;   // 100%
+
+        var slider       = document.getElementById('zoomSlider');
+        var badge        = document.getElementById('zoomPercentDisplay');
+        var previewFill  = document.getElementById('zoomPreviewFill');
+        var previewLabel = document.getElementById('zoomPreviewLabel');
+        var saveBtn      = document.getElementById('zoomSaveBtn');
+        var resetBtn     = document.getElementById('zoomResetBtn');
+        var statusMsg    = document.getElementById('zoomStatusMsg');
+        var presetBtns   = document.querySelectorAll('.zoom-preset-btn');
+
+        if (!slider) return; // Panel not present — bail safely
+
+        // ── Private CSRF token (owned by THIS script) ────────────
+        // Cannot access the csrfToken inside the main IIFE closure,
+        // so we fetch it ourselves from the same endpoint.
+        var _zoomCsrfToken = null;
+
+        function fetchZoomCsrf() {
+            return fetch('/api/admin/csrf-token', {
+                credentials: 'same-origin',
+                headers: { Accept: 'application/json' }
+            })
+            .then(function(r) { return r.ok ? r.json() : Promise.reject('CSRF fetch failed: ' + r.status); })
+            .then(function(d) {
+                _zoomCsrfToken = (d && d.csrfToken) ? d.csrfToken : null;
+            })
+            .catch(function() {
+                _zoomCsrfToken = null;
+            });
+        }
+
+        // ── Helpers ──────────────────────────────────────────────
+        function clamp(v) {
+            return Math.min(UI_SCALE_MAX, Math.max(UI_SCALE_MIN, v));
+        }
+
+        function toPercent(scale) {
+            return Math.round(scale * 100) + '%';
+        }
+
+        /** Map scale (0.70–1.15) to fill width percentage (0–100) */
+        function scaleToPct(scale) {
+            return ((clamp(scale) - UI_SCALE_MIN) / (UI_SCALE_MAX - UI_SCALE_MIN)) * 100;
+        }
+
+        function setStatus(msg, type, autoClearMs) {
+            if (!statusMsg) return;
+            statusMsg.textContent = msg;
+            statusMsg.className = 'zoom-status-msg' + (type ? ' ' + type : '');
+            if (autoClearMs) {
+                setTimeout(function() {
+                    if (statusMsg.textContent === msg) {
+                        statusMsg.textContent = '';
+                        statusMsg.className = 'zoom-status-msg';
+                    }
+                }, autoClearMs);
+            }
+        }
+
+        /** Sync all UI controls to a given scale value */
+        function syncUI(scale) {
+            var safe = clamp(parseFloat(scale) || UI_SCALE_DEFAULT);
+            var pct  = toPercent(safe);
+            var fillPct   = scaleToPct(safe);
+            var sliderPct = scaleToPct(safe); // same calculation, reusing
+
+            slider.value = safe;
+            if (badge)        badge.textContent = pct;
+            if (previewLabel) previewLabel.textContent = pct;
+            if (previewFill)  previewFill.style.width = fillPct + '%';
+
+            // Drive the CSS gradient fill on the track
+            slider.style.setProperty('--zoom-pct', sliderPct.toFixed(1) + '%');
+
+            // ARIA
+            slider.setAttribute('aria-valuenow', Math.round(safe * 100));
+            slider.setAttribute('aria-valuetext', pct);
+
+            // Highlight matching preset
+            presetBtns.forEach(function(btn) {
+                var ps = parseFloat(btn.getAttribute('data-scale'));
+                btn.classList.toggle('active', Math.abs(ps - safe) < 0.005);
+            });
+        }
+
+        // ── Load current scale from server ───────────────────────
+        function loadScale() {
+            fetch('/api/admin/settings/ui-scale', {
+                credentials: 'same-origin',
+                headers: { Accept: 'application/json' }
+            })
+            .then(function(r) { return r.ok ? r.json() : Promise.reject('HTTP ' + r.status); })
+            .then(function(data) {
+                var scale = data && data.ui_scale != null ? parseFloat(data.ui_scale) : UI_SCALE_DEFAULT;
+                syncUI(scale);
+                setStatus('Loaded: ' + toPercent(scale), '', 3000);
+            })
+            .catch(function() {
+                try {
+                    var cached = parseFloat(localStorage.getItem('ui-scale'));
+                    if (!isNaN(cached)) syncUI(cached);
+                } catch(e) {}
+                setStatus('Could not load scale from server.', 'error', 4000);
+            });
+        }
+
+        // ── Save scale to server ─────────────────────────────────
+        function saveScale(scale) {
+            var safe = Math.round(clamp(parseFloat(scale) || UI_SCALE_DEFAULT) * 100) / 100;
+
+            saveBtn.disabled = true;
+            saveBtn.textContent = 'Saving…';
+            setStatus('');
+
+            // Always fetch a fresh CSRF token before each write
+            fetchZoomCsrf().then(function() {
+                if (!_zoomCsrfToken) {
+                    throw new Error('Could not obtain security token — please refresh the page.');
+                }
+                return fetch('/api/admin/settings/ui-scale', {
+                    method: 'PATCH',
+                    credentials: 'same-origin',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept':        'application/json',
+                        'X-CSRF-Token':  _zoomCsrfToken
+                    },
+                    body: JSON.stringify({ ui_scale: safe })
+                });
+            }).then(function(r) {
+                return r.json().then(function(data) {
+                    if (!r.ok || !data.success) throw new Error((data && data.error) || 'Save failed (HTTP ' + r.status + ')');
+                    return data;
+                });
+            }).then(function(data) {
+                var saved = data.ui_scale != null ? parseFloat(data.ui_scale) : safe;
+                syncUI(saved);
+                // Live preview on admin page
+                document.documentElement.style.setProperty('--ui-scale', saved);
+                document.documentElement.style.fontSize = 'calc(16px * ' + saved + ')';
+                // Persist to localStorage so website picks it up immediately
+                try { localStorage.setItem('ui-scale', saved); } catch(e) {}
+                setStatus('✓ Saved — scale set to ' + toPercent(saved), 'success', 4000);
+            }).catch(function(err) {
+                setStatus('✗ ' + (err && err.message ? err.message : 'Save failed'), 'error', 6000);
+            }).then(function() {
+                // always runs (finally polyfill)
+                saveBtn.disabled = false;
+                saveBtn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg> Save to Server';
+            });
+        }
+
+        // ── Event Listeners ───────────────────────────────────────
+
+        slider.addEventListener('input', function() {
+            syncUI(parseFloat(slider.value));
+        });
+
+        presetBtns.forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                var scale = parseFloat(btn.getAttribute('data-scale'));
+                if (!isNaN(scale)) syncUI(scale);
+            });
+        });
+
+        if (saveBtn) {
+            saveBtn.addEventListener('click', function() {
+                saveScale(parseFloat(slider.value));
+            });
+        }
+
+        if (resetBtn) {
+            resetBtn.addEventListener('click', function() {
+                syncUI(UI_SCALE_DEFAULT);
+                setStatus('Reset to 100%. Click "Save to Server" to apply.', '', 5000);
+            });
+        }
+
+        // ── Init ─────────────────────────────────────────────────
+        // 1. Apply cached value immediately (no flicker)
+        try {
+            var cached = parseFloat(localStorage.getItem('ui-scale'));
+            if (!isNaN(cached)) syncUI(cached);
+        } catch(e) {}
+
+        // 2. Prefetch CSRF token so first save is instant
+        fetchZoomCsrf();
+
+        // 3. Load authoritative scale from server
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', loadScale);
+        } else {
+            loadScale();
+        }
+
+    })();
     </script>
 </body>
 </html>

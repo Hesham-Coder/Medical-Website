@@ -36,6 +36,7 @@ const {
 const { createBackup, restoreBackup, listBackups } = require('../lib/backupStore');
 const { audit } = require('../lib/audit');
 const { invalidateUsersCache } = require('../lib/userStore');
+const { getUiScale, setUiScale, UI_SCALE_MIN, UI_SCALE_MAX, invalidateSettingsCache } = require('../lib/settingsStore');
 const logger = require('../lib/logger');
 const { restoreLimiter } = require('../lib/security');
 
@@ -396,6 +397,7 @@ router.post('/api/admin/restore', requireAuth, restoreLimiter, doubleCsrfProtect
     invalidateContentCaches();
     invalidatePostsCache();
     invalidateUsersCache();
+    invalidateSettingsCache();
 
     res.json({
       success: true,
@@ -672,6 +674,42 @@ router.patch('/api/admin/posts/:id/feature', requireAuth, doubleCsrfProtection()
   } catch (error) {
     logger.error('Error toggling feature', { error: error.message });
     res.status(500).json({ error: 'Failed to toggle feature state' });
+  }
+});
+
+// ─── UI Scale Settings ─────────────────────────────────────────────────────
+
+router.get('/api/admin/settings/ui-scale', requireAuth, async (req, res) => {
+  try {
+    const scale = await getUiScale();
+    res.json({ ui_scale: scale });
+  } catch (error) {
+    logger.error('Error reading ui_scale', { error: error.message });
+    res.status(500).json({ error: 'Failed to read UI scale setting' });
+  }
+});
+
+router.patch('/api/admin/settings/ui-scale', requireAuth, doubleCsrfProtection(), async (req, res) => {
+  try {
+    const raw = req.body && req.body.ui_scale;
+    const parsed = parseFloat(raw);
+    if (isNaN(parsed)) {
+      return res.status(400).json({ error: 'ui_scale must be a number' });
+    }
+    if (parsed < UI_SCALE_MIN || parsed > UI_SCALE_MAX) {
+      return res.status(400).json({
+        error: `ui_scale must be between ${UI_SCALE_MIN} and ${UI_SCALE_MAX}`,
+      });
+    }
+    const saved = await setUiScale(parsed);
+    await audit('update_ui_scale', {
+      user: req.session.userId || 'unknown',
+      ui_scale: saved,
+    });
+    res.json({ success: true, ui_scale: saved });
+  } catch (error) {
+    logger.error('Error updating ui_scale', { error: error.message });
+    res.status(500).json({ error: 'Failed to update UI scale setting' });
   }
 });
 

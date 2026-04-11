@@ -13,6 +13,8 @@ const { appendContact } = require('../lib/contentStore');
 const { requestIsFresh, setResponseCacheHeaders } = require('../lib/httpCache');
 const { injectSeoContent } = require('../lib/seoInjector');
 const logger = require('../lib/logger');
+const { getUiScale } = require('../lib/settingsStore');
+
 
 const router = express.Router();
 const SITEMAP_BASE_URL = SITE_URL || 'https://www.waleedarafat.org';
@@ -93,44 +95,105 @@ function isMobileOrTablet(req) {
 }
 
 /**
- * Detect language from query param or Accept-Language header
- * Returns 'ar' or 'en'
+ * Detect language from cookie (server-readable), query param, or Accept-Language header.
+ * Priority order (highest → lowest):
+ *   1. ?lang= query param  (explicit one-time override)
+ *   2. 'lang' cookie       (persisted user preference, set by client on language switch)
+ *   3. Accept-Language header (browser hint)
+ *   4. 'ar' default        (this is an Arabic-first website)
+ * Returns 'ar' or 'en'.
  */
 function detectLanguage(req) {
-  // Check query param (?lang=ar)
+  // 1. Explicit query override (?lang=en / ?lang=ar)
   if (req.query && req.query.lang) {
-    return req.query.lang === 'ar' ? 'ar' : 'en';
+    return req.query.lang === 'en' ? 'en' : 'ar';
   }
-  
-  // Check Accept-Language header
+
+  // 2. Cookie — set by client after a manual language switch (persists across requests)
+  const cookieLang = req.cookies && req.cookies['lang'];
+  if (cookieLang === 'en' || cookieLang === 'ar') {
+    return cookieLang;
+  }
+
+  // 3. Accept-Language header hint
   const acceptLang = req.headers['accept-language'] || '';
-  if (acceptLang.includes('ar')) return 'ar';
-  
-  // Default to English
-  return 'en';
+  // If browser explicitly lists English and NOT Arabic, serve English
+  if (acceptLang && !acceptLang.toLowerCase().includes('ar')) {
+    if (acceptLang.toLowerCase().includes('en')) return 'en';
+  }
+  if (acceptLang.toLowerCase().includes('ar')) return 'ar';
+
+  // 4. Default: Arabic (this is an Arabic-first medical website)
+  return 'ar';
 }
 
 /**
- * Read HTML file and inject SEO tags
- * Usage: await serveSeoHtmlFile(res, filePath, contentData, lang)
+ * Read HTML file, inject the server-determined lang/dir into the <html> tag,
+ * and inject SEO tags — all before the response is sent to the browser.
+ * This guarantees zero RTL/LTR flicker because the correct direction is
+ * embedded in the raw HTML, not set by JavaScript after parsing.
  */
-async function serveSeoHtmlFile(res, filePath, contentData, lang = 'en') {
+async function serveSeoHtmlFile(res, filePath, contentData, lang = 'ar') {
   try {
     let htmlContent = await fs.readFile(filePath, 'utf-8');
-    
-    // Inject dynamic SEO tags
+
+    // ── 1. Inject lang/dir into the <html> opening tag (server-side, before first byte) ──
+    // This replaces whatever static default is in the HTML file with the server-determined value.
+    const dir = lang === 'ar' ? 'rtl' : 'ltr';
+    const htmlLang = lang === 'ar' ? 'ar' : 'en';
+    // Match <html ...> with any attributes, replace lang= and dir= in place (or add if missing)
+    htmlContent = htmlContent.replace(
+      /(<html\b[^>]*?)\s+lang="[^"]*"/i,
+      `$1 lang="${htmlLang}"`
+    );
+    htmlContent = htmlContent.replace(
+      /(<html\b[^>]*?)\s+dir="[^"]*"/i,
+      `$1 dir="${dir}"`
+    );
+    // If lang or dir were absent entirely, add them after <html
+    if (!htmlContent.match(/lang="(ar|en)"/i)) {
+      htmlContent = htmlContent.replace(/(<html\b)/i, `$1 lang="${htmlLang}"`);
+    }
+    if (!htmlContent.match(/dir="(rtl|ltr)"/i)) {
+      htmlContent = htmlContent.replace(/(<html\b)/i, `$1 dir="${dir}"`);
+    }
+    // Also inject a lang-class on <html> so CSS selectors like html.lang-ar work
+    // Add/replace class on html element to include the lang class
+    htmlContent = htmlContent.replace(
+      /(<html\b[^>]*?)\s+class="([^"]*)"/i,
+      (match, prefix, cls) => {
+        const cleaned = cls.replace(/\blang-(ar|en)\b/g, '').trim();
+        return `${prefix} class="${cleaned ? cleaned + ' ' : ''}lang-${lang}"`;
+      }
+    );
+
+    // ── 2. Inject dynamic SEO tags ────────────────────────────────────────────────────────
     htmlContent = injectSeoContent(htmlContent, contentData, lang);
-    
-    // HTML should revalidate so updated versioned asset URLs are picked up immediately.
+
     res.setHeader('Content-Type', 'text/html; charset=utf-8');
     res.setHeader('Cache-Control', 'no-cache');
     res.send(htmlContent);
   } catch (error) {
     logger.error('Error serving SEO HTML', { error: error.message, filePath });
-    // Fallback to sendFile if injection fails
     res.sendFile(filePath);
   }
 }
+
+// ── Language persistence endpoint ──────────────────────────────────────────
+// Called by client JS after the user switches language.
+// Writes a server-readable cookie so the next page load gets the right dir/lang baked in.
+router.post('/api/lang', (req, res) => {
+  const body = req.body || {};
+  const lang = body.lang === 'en' ? 'en' : 'ar';
+  res.cookie('lang', lang, {
+    maxAge: 365 * 24 * 60 * 60 * 1000, // 1 year (ms)
+    httpOnly: false,
+    sameSite: 'lax',
+    secure: process.env.NODE_ENV === 'production',
+    path: '/',
+  });
+  res.json({ ok: true, lang });
+});
 
 router.get('/', async (req, res) => {
   try {
@@ -443,6 +506,19 @@ router.post('/api/contacts', contactLimiter, async (req, res) => {
   } catch (err) {
     logger.error('Contact submission error', { error: err.message });
     res.status(500).json({ error: 'Unable to submit. Please try again or call us.' });
+  }
+});
+
+// Public endpoint: returns the current ui_scale. No auth required (website needs it on load).
+// Returns a short-lived cached value to avoid hammering the filesystem.
+router.get('/api/settings/ui-scale', async (req, res) => {
+  try {
+    const scale = await getUiScale();
+    res.setHeader('Cache-Control', 'public, max-age=30, stale-while-revalidate=120');
+    res.json({ ui_scale: scale });
+  } catch (error) {
+    logger.error('Error reading public ui_scale', { error: error.message });
+    res.json({ ui_scale: 1.0 }); // safe fallback — never break users
   }
 });
 

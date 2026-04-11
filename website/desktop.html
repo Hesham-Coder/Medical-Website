@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ar" dir="rtl" class="light">
 
 <head>
@@ -24,8 +24,43 @@
     <meta name="twitter:description"
         content="Coordinated, evidence‑based cancer care in Alexandria with multidisciplinary specialists and supportive services.">
     <script>
-        (function () { var lang = localStorage.getItem('lang') || 'ar'; var d = document.documentElement; d.setAttribute('dir', lang === 'ar' ? 'rtl' : 'ltr'); d.setAttribute('lang', lang === 'ar' ? 'ar' : 'en'); d.classList.add('lang-' + lang); })();
+        (function () { var lang = localStorage.getItem('lang') || 'ar'; var d = document.documentElement; d.setAttribute('dir', lang === 'ar' ? 'rtl' : 'ltr'); d.setAttribute('lang', lang === 'ar' ? 'ar' : 'en'); d.classList.remove('lang-ar', 'lang-en'); d.classList.add('lang-' + lang); })();
         
+    </script>
+
+    <!-- ⚡ UI Scale Bootstrap: apply cached scale immediately (no layout shift), then sync from server -->
+    <script>
+    (function() {
+      var MIN = 0.70, MAX = 1.15, DEFAULT = 1.0;
+      function clamp(v) { return Math.min(MAX, Math.max(MIN, v)); }
+      function applyScale(s) {
+        var v = parseFloat(s);
+        var safe = isNaN(v) ? DEFAULT : clamp(v);
+        document.documentElement.style.setProperty('--ui-scale', safe);
+        document.documentElement.style.fontSize = 'calc(16px * ' + safe + ')';
+      }
+      // 1) Immediately apply cached scale → zero layout shift
+      try {
+        var cached = localStorage.getItem('ui-scale');
+        if (cached) applyScale(cached);
+      } catch(e) {}
+      // 2) Async sync from server (after page load to avoid blocking render)
+      function syncFromServer() {
+        fetch('/api/settings/ui-scale', { headers: { Accept: 'application/json' } })
+          .then(function(r) { return r.ok ? r.json() : Promise.reject(); })
+          .then(function(d) {
+            var scale = d && d.ui_scale != null ? d.ui_scale : DEFAULT;
+            applyScale(scale);
+            try { localStorage.setItem('ui-scale', scale); } catch(e) {}
+          })
+          .catch(function() {});
+      }
+      if (document.readyState === 'loading') {
+        window.addEventListener('DOMContentLoaded', syncFromServer);
+      } else {
+        syncFromServer();
+      }
+    })();
     </script>
 
     <!-- External Resources -->
@@ -3206,7 +3241,19 @@
             function switchLanguage(lang) {
                 if (!lang || lang === currentLang) return;
                 localStorage.setItem('lang', lang);
-                window.location.reload();
+                // Persist as a server-readable cookie so the next page load gets
+                // the correct direction baked into the HTML (zero flicker).
+                try {
+                    fetch('/api/lang', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ lang: lang })
+                    }).catch(function() {}).finally(function() {
+                        window.location.reload();
+                    });
+                } catch(e) {
+                    window.location.reload();
+                }
             }
             var EXPERT_GRADIENTS = ['from-blue-100 to-blue-50', 'from-red-100 to-red-50', 'from-green-100 to-green-50', 'from-purple-100 to-purple-50', 'from-orange-100 to-orange-50', 'from-cyan-100 to-cyan-50'];
             var EXPERT_BADGES = ['bg-brand-blue-light', 'bg-brand-red-cta', 'bg-green-600', 'bg-purple-600', 'bg-orange-600', 'bg-cyan-600'];

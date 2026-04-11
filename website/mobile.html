@@ -1,9 +1,11 @@
 <!doctype html>
-<html lang="en" dir="ltr">
+<html lang="ar" dir="rtl" class="lang-ar">
   <head>
     <meta charset="UTF-8" />
     <!-- Anti-FOUC: synchronously set dir/lang BEFORE any CSS is parsed -->
-    <script>(function(){try{var l=localStorage.getItem('lang')||'en';var d=document.documentElement;d.setAttribute('dir',l==='ar'?'rtl':'ltr');d.setAttribute('lang',l==='ar'?'ar':'en');d.classList.add('lang-'+l);}catch(e){}}());</script>
+    <script>(function(){try{var l=localStorage.getItem('lang')||'ar';var d=document.documentElement;d.setAttribute('dir',l==='ar'?'rtl':'ltr');d.setAttribute('lang',l==='ar'?'ar':'en');d.classList.remove('lang-ar','lang-en');d.classList.add('lang-'+l);}catch(e){}}());</script>
+    <!-- ⚡ UI Scale Bootstrap -->
+    <script>(function(){var MIN=0.70,MAX=1.15,DEFAULT=1.0;function clamp(v){return Math.min(MAX,Math.max(MIN,v));}function applyScale(s){var v=parseFloat(s);var safe=isNaN(v)?DEFAULT:clamp(v);document.documentElement.style.setProperty('--ui-scale',safe);document.documentElement.style.fontSize='calc(16px * '+safe+')';}try{var c=localStorage.getItem('ui-scale');if(c)applyScale(c);}catch(e){}function sync(){fetch('/api/settings/ui-scale',{headers:{Accept:'application/json'}}).then(function(r){return r.ok?r.json():Promise.reject();}).then(function(d){var s=d&&d.ui_scale!=null?d.ui_scale:DEFAULT;applyScale(s);try{localStorage.setItem('ui-scale',s);}catch(e){}}).catch(function(){});}if(document.readyState==='loading'){window.addEventListener('DOMContentLoaded',sync);}else{sync();}})();</script>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Medical Website</title>
     <meta name="description" content="Evidence-based care with a modern, mobile-first experience." />
