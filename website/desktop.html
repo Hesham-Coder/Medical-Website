@@ -361,24 +361,43 @@
 
         .whatsapp-widget {
             position: fixed;
-            right: 24px;
+            /* Use logical properties: inset-inline-end works for both LTR (right) and RTL (left) */
+            inset-inline-end: 24px;
             bottom: 24px;
-            z-index: 70;
-            display: inline-flex;
+            z-index: 9000;
+            display: flex;
             align-items: center;
             justify-content: center;
             width: 64px;
             height: 64px;
-            border-radius: 999px;
-            background: linear-gradient(135deg, #25D366, #128C7E);
+            box-sizing: border-box;
+            border-radius: 50%;
+            aspect-ratio: 1 / 1;
+            flex-shrink: 0;
+            background: linear-gradient(135deg, #25D366 0%, #128C7E 100%);
             color: #fff;
-            box-shadow: 0 18px 38px rgba(18, 140, 126, 0.28);
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            text-decoration: none;
+            box-shadow: 0 8px 32px rgba(18, 140, 126, 0.38), 0 2px 8px rgba(0,0,0,0.12);
+            transition: transform 0.22s cubic-bezier(.34,1.56,.64,1), box-shadow 0.22s ease;
+            /* Entrance animation */
+            animation: waEnter 0.55s cubic-bezier(.34,1.56,.64,1) both;
         }
 
-        .whatsapp-widget:hover {
-            transform: translateY(-2px) scale(1.02);
-            box-shadow: 0 24px 44px rgba(18, 140, 126, 0.34);
+        @keyframes waEnter {
+            from { opacity: 0; transform: scale(0.55) translateY(20px); }
+            to   { opacity: 1; transform: scale(1) translateY(0); }
+        }
+
+        .whatsapp-widget:hover,
+        .whatsapp-widget:focus-visible {
+            transform: translateY(-3px) scale(1.08);
+            box-shadow: 0 16px 40px rgba(18, 140, 126, 0.42), 0 2px 8px rgba(0,0,0,0.14);
+            outline: none;
+        }
+
+        .whatsapp-widget:focus-visible {
+            outline: 3px solid #25D366;
+            outline-offset: 3px;
         }
 
         .whatsapp-widget::before,
@@ -387,46 +406,85 @@
             position: absolute;
             inset: 0;
             border-radius: inherit;
-            border: 1px solid rgba(37, 211, 102, 0.42);
+            border: 2px solid rgba(37, 211, 102, 0.5);
             animation: whatsappPulse 2.6s ease-out infinite;
+            pointer-events: none;
         }
 
         .whatsapp-widget::after {
-            animation-delay: 1.2s;
+            animation-delay: 1.3s;
         }
 
         @keyframes whatsappPulse {
-            0% { transform: scale(1); opacity: 0.72; }
-            100% { transform: scale(1.32); opacity: 0; }
+            0%   { transform: scale(1);    opacity: 0.7; }
+            100% { transform: scale(1.55); opacity: 0; }
         }
 
         .whatsapp-widget svg {
-            width: 30px;
-            height: 30px;
+            width: 36px;
+            height: 36px;
             position: relative;
             z-index: 1;
+            flex-shrink: 0;
+            display: block;
+            aspect-ratio: 1 / 1;
+            align-self: center;
+        }
+
+        /* Tooltip */
+        .whatsapp-widget .wa-tooltip {
+            position: absolute;
+            inset-inline-end: calc(100% + 12px);
+            top: 50%;
+            transform: translateY(-50%);
+            white-space: nowrap;
+            background: #111827;
+            color: #fff;
+            font-size: 13px;
+            font-weight: 500;
+            padding: 7px 13px;
+            border-radius: 8px;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.18s ease, transform 0.18s ease;
+            transform: translateY(-50%) translateX(6px);
+            box-shadow: 0 4px 16px rgba(0,0,0,0.22);
+        }
+        .whatsapp-widget .wa-tooltip::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            inset-inline-start: 100%;
+            transform: translateY(-50%);
+            border: 5px solid transparent;
+            border-inline-start-color: #111827;
+            border-inline-end: none;
+        }
+        .whatsapp-widget:hover .wa-tooltip,
+        .whatsapp-widget:focus-visible .wa-tooltip {
+            opacity: 1;
+            transform: translateY(-50%) translateX(0);
         }
 
         @media (max-width: 1024px) {
             .whatsapp-widget {
-                right: 16px;
-                bottom: calc(env(safe-area-inset-bottom, 0px) + 92px);
+                inset-inline-end: 16px;
+                bottom: calc(env(safe-area-inset-bottom, 0px) + 88px);
                 width: 58px;
                 height: 58px;
             }
+            .whatsapp-widget svg { width: 32px; height: 32px; }
+            /* Hide tooltip on touch devices — no hover state */
+            .whatsapp-widget .wa-tooltip { display: none; }
         }
 
         @media (max-width: 480px) {
             .whatsapp-widget {
-                right: 14px;
+                inset-inline-end: 14px;
                 width: 54px;
                 height: 54px;
             }
-
-            .whatsapp-widget svg {
-                width: 26px;
-                height: 26px;
-            }
+            .whatsapp-widget svg { width: 30px; height: 30px; }
         }
 
         /* Parallax effect */
@@ -2128,14 +2186,17 @@
     <a
         id="whatsappWidget"
         class="whatsapp-widget"
-        href="#"
+        href="https://wa.me/201120800011"
         target="_blank"
         rel="noopener noreferrer"
-        aria-label="Open WhatsApp chat"
-        title="Chat on WhatsApp">
-        <svg viewBox="0 0 448 512" aria-hidden="true" focusable="false">
-            <path fill="currentColor" d="M380.9 97.1C339 55.1 283.2 32 223.9 32 100.3 32 0 132.3 0 255.9c0 39.5 10.3 78.1 29.8 112.2L0 480l114.7-30.1c32.4 17.7 69 27 109.2 27h.1c123.6 0 223.9-100.3 223.9-223.9 0-59.3-23.1-115-65-156zm-157 341.6h-.1c-33.4 0-66.1-8.9-94.7-25.7l-6.8-4-68.1 17.9 18.2-66.4-4.4-6.9c-18-28.7-27.5-61.9-27.5-96.2 0-98.3 80-178.3 178.4-178.3 47.7 0 92.6 18.6 126.4 52.4s52.3 78.8 52.3 126.5c0 98.2-80 178.2-178.3 178.2zm101.5-138.9c-5.5-2.8-32.8-16.1-37.9-17.9-5.1-1.9-8.8-2.8-12.5 2.8-3.7 5.5-14.3 17.9-17.6 21.5-3.2 3.7-6.5 4.1-12 .9-32.6-16.3-54-29.1-75.5-66-5.7-9.8 5.7-9.1 16.3-30.3 1.8-3.7.9-6.9-.5-9.7-1.4-2.8-12.5-30.1-17.1-41.2-4.5-10.8-9.1-9.3-12.5-9.5-3.2-.2-6.9-.2-10.6-.2s-9.7 1.4-14.8 6.9c-5.1 5.5-19.4 19-19.4 46.3s19.9 53.7 22.6 57.4c2.8 3.7 39.1 59.8 94.8 83.8 13.2 5.7 23.5 9.1 31.5 11.7 13.2 4.2 25.3 3.6 34.8 2.2 10.6-1.6 32.8-13.4 37.4-26.3 4.6-12.9 4.6-24 3.2-26.3-1.3-2.3-5-3.7-10.5-6.5z"></path>
+        aria-label="تواصل معنا عبر واتساب — Chat with us on WhatsApp"
+        title="Chat with us on WhatsApp"
+    >
+        <!-- Official WhatsApp SVG logo -->
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" aria-hidden="true" focusable="false" fill="currentColor">
+            <path d="M13.601 2.326A7.85 7.85 0 0 0 7.994 0C3.627 0 .068 3.558.064 7.926c0 1.399.366 2.76 1.057 3.965L0 16l4.204-1.102a7.9 7.9 0 0 0 3.79.965h.004c4.368 0 7.926-3.558 7.93-7.93A7.9 7.9 0 0 0 13.6 2.326zM7.994 14.521a6.6 6.6 0 0 1-3.356-.92l-.24-.144-2.494.654.666-2.433-.156-.251a6.56 6.56 0 0 1-1.007-3.505c0-3.626 2.957-6.584 6.591-6.584a6.56 6.56 0 0 1 4.66 1.931 6.56 6.56 0 0 1 1.928 4.66c-.004 3.639-2.961 6.592-6.592 6.592m3.615-4.934c-.197-.099-1.17-.578-1.353-.646-.182-.065-.315-.099-.445.099-.133.197-.513.646-.627.775-.114.133-.232.148-.43.05-.197-.1-.836-.308-1.592-.985-.59-.525-.985-1.175-1.103-1.372-.114-.198-.011-.304.088-.403.087-.088.197-.232.296-.346.1-.114.133-.198.198-.33.065-.134.034-.248-.015-.347-.05-.099-.445-1.076-.612-1.47-.16-.389-.323-.335-.445-.34-.114-.007-.247-.007-.38-.007a.73.73 0 0 0-.529.247c-.182.198-.691.677-.691 1.654s.71 1.916.81 2.049c.098.133 1.394 2.132 3.383 2.992.47.205.84.326 1.129.418.475.152.904.129 1.246.08.38-.058 1.171-.48 1.338-.943.164-.464.164-.86.114-.943-.049-.084-.182-.133-.38-.232"/>
         </svg>
+        <span class="wa-tooltip">Chat with us on WhatsApp</span>
     </a>
 
     <!-- ========================================
@@ -2821,28 +2882,19 @@
                 return String(value || '').replace(/\D+/g, '');
             }
 
+            /**
+             * Build an official WhatsApp URL.
+             * https://wa.me/<number>?text=<message>
+             * Works universally: opens WhatsApp app on mobile, WhatsApp Web on desktop.
+             * wa.me is WhatsApp's official short-link service and is the recommended format.
+             * DO NOT use web.whatsapp.com/send — that is the deprecated desktop-only endpoint.
+             */
             function buildWhatsAppUrl(phone, message) {
                 var digits = digitsOnly(phone);
-                if (!digits) return '#';
-                
-                // Detect if mobile or desktop
-                var isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-                
-                var url;
-                if (isMobile) {
-                    // Mobile: use wa.me protocol
-                    url = 'https://wa.me/' + digits + '?text=' + encodeURIComponent(String(message || '').trim());
-                } else {
-                    // Desktop: use WhatsApp Web
-                    url = 'https://web.whatsapp.com/send?phone=' + digits + '&text=' + encodeURIComponent(String(message || '').trim());
-                }
-                
-                console.log('✓ WhatsApp URL generated:', { 
-                    phone: phone, 
-                    digits: digits, 
-                    isMobile: isMobile,
-                    url: url 
-                });
+                if (!digits) return 'https://wa.me/201120800011'; // hardcoded fallback
+                var text = String(message || '').trim();
+                var url = 'https://wa.me/' + digits;
+                if (text) url += '?text=' + encodeURIComponent(text);
                 return url;
             }
 
@@ -2889,10 +2941,14 @@
 
                 var widget = document.getElementById('whatsappWidget');
                 if (widget) {
-                    var widgetHref = buildWhatsAppUrl(settings.whatsapp, settings.whatsappMessage);
-                    widget.setAttribute('href', widgetHref);
-                    widget.style.display = digitsOnly(settings.whatsapp) ? 'inline-flex' : 'none';
-                    console.log('🟢 WhatsApp Widget set:', { href: widgetHref, visible: digitsOnly(settings.whatsapp) ? 'yes' : 'no' });
+                    var waPhone = settings.whatsapp;
+                    var waMsg   = settings.whatsappMessage;
+                    var waHref  = buildWhatsAppUrl(waPhone, waMsg);
+                    widget.setAttribute('href', waHref);
+                    // Update aria-label with the live message for screen readers
+                    var ariaLang = (currentLang === 'ar') ? 'تواصل معنا عبر واتساب' : 'Chat with us on WhatsApp';
+                    widget.setAttribute('aria-label', ariaLang);
+                    widget.style.display = digitsOnly(waPhone) ? 'inline-flex' : 'none';
                 }
             }
 
