@@ -541,6 +541,144 @@
             <p style="font-size: 13px; color: #666; margin-bottom: 12px;">Manage News, What&apos;s New, and Articles from the dedicated content section.</p>
             <a href="/content.html" class="btn-primary" style="display: inline-block; text-decoration: none;">Open Content Dashboard</a>
         </div>
+
+        <!-- ============================
+             🔍 SEO Management Panel
+        ============================= -->
+        <div class="card" id="seoSettingsCard">
+            <h2>🔍 SEO Settings</h2>
+            <p style="font-size:13px;color:#666;margin-bottom:16px;">
+                Control all SEO metadata from here. Changes take effect after you click <strong>Save SEO</strong> and then <strong>Publish changes</strong>.
+            </p>
+
+            <!-- SERP Preview Banner -->
+            <div id="serpPreview" style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:16px 18px;margin-bottom:18px;">
+                <div style="font-size:11px;color:#64748b;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:8px;">Google Search Preview</div>
+                <div style="font-size:13px;color:#1558d6;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:600px;" id="serpTitle">Comprehensive Cancer Center | Evidence-Based Cancer Care</div>
+                <div style="font-size:12px;color:#006621;margin:2px 0;" id="serpUrl">https://www.waleedarafat.org/</div>
+                <div style="font-size:13px;color:#4d5156;line-height:1.5;max-width:600px;" id="serpDesc">Comprehensive Cancer Center provides coordinated, evidence-based cancer care in Alexandria...</div>
+            </div>
+
+            <!-- Language Tabs for SEO -->
+            <div class="lang-tabs" id="seoLangTabs">
+                <button class="active" data-seo-lang="en" type="button">English</button>
+                <button data-seo-lang="ar" type="button">العربية</button>
+            </div>
+
+            <!-- English SEO Fields -->
+            <div class="lang-panel active" id="seo-panel-en">
+                <div class="form-group">
+                    <label>
+                        Meta Title (English)
+                        <span style="font-weight:400;color:#64748b;font-size:11px;"> — Google shows ~60 chars</span>
+                        <span id="seoTitleEnCount" style="float:right;font-size:11px;color:#64748b;">0/70</span>
+                    </label>
+                    <input type="text" id="seoTitleEn" maxlength="70" placeholder="e.g. Comprehensive Cancer Center | Evidence-Based Cancer Care in Alexandria">
+                    <div style="height:4px;background:#e2e8f0;border-radius:4px;margin-top:6px;overflow:hidden;">
+                        <div id="seoTitleEnBar" style="height:100%;border-radius:4px;width:0%;background:#22c55e;transition:width 0.2s,background 0.2s;"></div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>
+                        Meta Description (English)
+                        <span style="font-weight:400;color:#64748b;font-size:11px;"> — Google shows ~155 chars</span>
+                        <span id="seoDescEnCount" style="float:right;font-size:11px;color:#64748b;">0/165</span>
+                    </label>
+                    <textarea id="seoDescEn" maxlength="165" rows="3" placeholder="Concise description of the page for search engine results..."></textarea>
+                    <div style="height:4px;background:#e2e8f0;border-radius:4px;margin-top:6px;overflow:hidden;">
+                        <div id="seoDescEnBar" style="height:100%;border-radius:4px;width:0%;background:#22c55e;transition:width 0.2s,background 0.2s;"></div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Keywords (English) <span style="font-weight:400;color:#64748b;font-size:11px;">— comma-separated, 5–10 keywords</span></label>
+                    <input type="text" id="seoKeywordsEn" placeholder="cancer center Alexandria, oncology Egypt, chemotherapy Alexandria">
+                </div>
+            </div>
+
+            <!-- Arabic SEO Fields -->
+            <div class="lang-panel" id="seo-panel-ar">
+                <div class="form-group">
+                    <label>
+                        Meta Title (Arabic)
+                        <span id="seoTitleArCount" style="float:right;font-size:11px;color:#64748b;">0/80</span>
+                    </label>
+                    <input type="text" id="seoTitleAr" maxlength="80" dir="rtl" placeholder="مثال: مركز شامل لعلاج الأورام | رعاية قائمة على الدليل">
+                    <div style="height:4px;background:#e2e8f0;border-radius:4px;margin-top:6px;overflow:hidden;">
+                        <div id="seoTitleArBar" style="height:100%;border-radius:4px;width:0%;background:#22c55e;transition:width 0.2s,background 0.2s;"></div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>
+                        Meta Description (Arabic)
+                        <span id="seoDescArCount" style="float:right;font-size:11px;color:#64748b;">0/180</span>
+                    </label>
+                    <textarea id="seoDescAr" maxlength="180" rows="3" dir="rtl" placeholder="وصف مختصر للصفحة يظهر في نتائج محركات البحث..."></textarea>
+                    <div style="height:4px;background:#e2e8f0;border-radius:4px;margin-top:6px;overflow:hidden;">
+                        <div id="seoDescArBar" style="height:100%;border-radius:4px;width:0%;background:#22c55e;transition:width 0.2s,background 0.2s;"></div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Keywords (Arabic)</label>
+                    <input type="text" id="seoKeywordsAr" dir="rtl" placeholder="مركز أورام الاسكندرية، علاج السرطان مصر، كيماوي الإسكندرية">
+                </div>
+            </div>
+
+            <!-- Social / OG Image -->
+            <div class="form-group" style="margin-top:8px;">
+                <label>Social Share Image (OG Image) <span style="font-weight:400;color:#64748b;font-size:11px;">— recommended size: 1200×630px</span></label>
+                <div style="display:flex;gap:14px;align-items:flex-start;flex-wrap:wrap;">
+                    <div class="drop-zone" id="dropSeoOgImage" style="flex:1;min-width:220px;max-width:340px;">
+                        <div class="drop-label">Drag &amp; drop or click to upload</div>
+                        <img class="drop-preview" id="previewSeoOgImage" src="" alt="" style="display:none;max-height:100px;">
+                        <input type="file" id="fileSeoOgImage" accept="image/*">
+                    </div>
+                    <!-- Live social card preview -->
+                    <div style="flex:1;min-width:220px;">
+                        <div style="font-size:11px;color:#64748b;font-weight:700;text-transform:uppercase;letter-spacing:0.04em;margin-bottom:6px;">WhatsApp / Facebook Preview</div>
+                        <div id="ogCardPreview" style="border:1px solid #e2e8f0;border-radius:10px;overflow:hidden;max-width:320px;font-family:sans-serif;box-shadow:0 2px 8px rgba(0,0,0,0.06);">
+                            <div id="ogCardImg" style="height:120px;background:#e2e8f0;background-size:cover;background-position:center;"></div>
+                            <div style="padding:10px 12px;background:white;">
+                                <div style="font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:0.04em;">waleedarafat.org</div>
+                                <div id="ogCardTitle" style="font-size:13px;font-weight:700;color:#0f172a;margin:3px 0;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">CCC Title</div>
+                                <div id="ogCardDesc" style="font-size:12px;color:#64748b;line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">Description...</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <input type="hidden" id="seoOgImageUrl" value="">
+            </div>
+
+            <!-- Advanced SEO -->
+            <details style="margin-top:8px;">
+                <summary style="cursor:pointer;font-size:13px;font-weight:600;color:#374151;padding:8px 0;border-top:1px solid #eee;">Advanced SEO Options</summary>
+                <div style="margin-top:12px;">
+                    <div class="form-group">
+                        <label>Twitter Handle <span style="font-weight:400;color:#64748b;font-size:11px;">— @username</span></label>
+                        <input type="text" id="seoTwitterHandle" placeholder="@cccofegypt" style="max-width:250px;">
+                    </div>
+                    <div class="form-group">
+                        <label>Robots Directive</label>
+                        <select id="seoRobotsDirective" style="width:100%;padding:10px 12px;border:1px solid #ddd;border-radius:6px;font-size:14px;">
+                            <option value="index,follow">index,follow (Default — allow indexing)</option>
+                            <option value="noindex,follow">noindex,follow — block indexing, allow link following</option>
+                            <option value="noindex,nofollow">noindex,nofollow — block everything</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Canonical URL Override <span style="font-weight:400;color:#64748b;font-size:11px;">— leave blank to use page URL</span></label>
+                        <input type="url" id="seoCanonicalOverride" placeholder="https://www.waleedarafat.org/">
+                    </div>
+                </div>
+            </details>
+
+            <!-- Actions -->
+            <div style="display:flex;gap:10px;align-items:center;margin-top:18px;flex-wrap:wrap;">
+                <button type="button" class="btn-primary" id="seoSaveBtn">Save SEO Settings</button>
+                <button type="button" class="btn-secondary" id="seoRefreshBtn">↺ Reload</button>
+                <span style="font-size:13px;color:#64748b;" id="seoStatusMsg"></span>
+            </div>
+        </div>
+
         <div class="card">
             <h2>Account Settings</h2>
             <div class="account-grid">
@@ -3644,6 +3782,284 @@
             loadScale();
         }
 
+    })();
+    </script>
+
+    <!-- ============================
+         🔍 SEO Panel JavaScript
+    ============================= -->
+    <script>
+    (function () {
+        'use strict';
+
+        // ── Helpers ──────────────────────────────────────────────────────────
+        function q(id) { return document.getElementById(id); }
+
+        function setBar(barEl, countEl, current, max) {
+            if (!barEl || !countEl) return;
+            const pct = Math.min(100, Math.round((current / max) * 100));
+            barEl.style.width = pct + '%';
+            countEl.textContent = current + '/' + max;
+            if (pct < 60) barEl.style.background = '#facc15';       // yellow: too short
+            else if (pct <= 90) barEl.style.background = '#22c55e'; // green: ideal
+            else if (pct <= 100) barEl.style.background = '#f97316'; // orange: getting long
+            else barEl.style.background = '#ef4444';                  // red: too long
+        }
+
+        function updateSerpPreview() {
+            const titleEl = q('seoTitleEn');
+            const descEl  = q('seoDescEn');
+            if (!titleEl || !descEl) return;
+            const title = titleEl.value.trim() || 'Comprehensive Cancer Center | Evidence-Based Cancer Care';
+            const desc  = descEl.value.trim() || 'Comprehensive Cancer Center provides coordinated, evidence-based cancer care in Alexandria...';
+            if (q('serpTitle')) q('serpTitle').textContent = title;
+            if (q('serpDesc'))  q('serpDesc').textContent  = desc;
+        }
+
+        function updateOgCardPreview() {
+            const titleEl  = q('seoTitleEn');
+            const descEl   = q('seoDescEn');
+            const imageUrl = (q('seoOgImageUrl') || {}).value || '';
+            if (q('ogCardTitle')) q('ogCardTitle').textContent = (titleEl && titleEl.value.trim()) || SITE_NAME_CONST;
+            if (q('ogCardDesc'))  q('ogCardDesc').textContent  = (descEl && descEl.value.trim()) || '';
+            if (q('ogCardImg') && imageUrl) {
+                q('ogCardImg').style.backgroundImage = 'url(' + imageUrl + ')';
+            }
+        }
+
+        // ── Constants ─────────────────────────────────────────────────────────
+        var SITE_NAME_CONST = 'Comprehensive Cancer Center';
+        var csrfToken = null;
+
+        // ── Fetch CSRF ────────────────────────────────────────────────────────
+        async function fetchSeoCsrf() {
+            try {
+                var r = await fetch('/api/admin/csrf-token', { credentials: 'include' });
+                var d = await r.json();
+                csrfToken = d.csrfToken || null;
+            } catch(e) { csrfToken = null; }
+        }
+
+        // ── Load SEO data from server ─────────────────────────────────────────
+        async function loadSeoSettings() {
+            try {
+                var r = await fetch('/api/admin/seo', { credentials: 'include' });
+                if (!r.ok) throw new Error('HTTP ' + r.status);
+                var seo = await r.json();
+                populateSeoFields(seo);
+            } catch(e) {
+                if (q('seoStatusMsg')) {
+                    q('seoStatusMsg').textContent = 'Could not load SEO settings.';
+                    q('seoStatusMsg').style.color = '#b91c1c';
+                }
+            }
+        }
+
+        function populateSeoFields(seo) {
+            if (!seo) return;
+
+            // Title
+            var mt = seo.metaTitle || {};
+            if (q('seoTitleEn')) q('seoTitleEn').value = typeof mt === 'string' ? mt : (mt.en || '');
+            if (q('seoTitleAr')) q('seoTitleAr').value = typeof mt === 'object' ? (mt.ar || '') : '';
+
+            // Description
+            var md = seo.metaDescription || {};
+            if (q('seoDescEn')) q('seoDescEn').value = typeof md === 'string' ? md : (md.en || '');
+            if (q('seoDescAr')) q('seoDescAr').value = typeof md === 'object' ? (md.ar || '') : '';
+
+            // Keywords
+            var kw = seo.keywords || {};
+            if (q('seoKeywordsEn')) q('seoKeywordsEn').value = typeof kw === 'string' ? kw : (kw.en || '');
+            if (q('seoKeywordsAr')) q('seoKeywordsAr').value = typeof kw === 'object' ? (kw.ar || '') : '';
+
+            // OG Image
+            if (seo.ogImage && q('seoOgImageUrl')) {
+                q('seoOgImageUrl').value = seo.ogImage;
+                var prev = q('previewSeoOgImage');
+                if (prev && seo.ogImage) { prev.src = seo.ogImage; prev.style.display = ''; }
+                if (q('ogCardImg')) q('ogCardImg').style.backgroundImage = 'url(' + seo.ogImage + ')';
+            }
+
+            // Twitter handle
+            if (seo.twitterHandle && q('seoTwitterHandle')) q('seoTwitterHandle').value = seo.twitterHandle;
+
+            // Robots
+            if (seo.robotsDirective && q('seoRobotsDirective')) {
+                var sel = q('seoRobotsDirective');
+                for (var i = 0; i < sel.options.length; i++) {
+                    if (sel.options[i].value === seo.robotsDirective) { sel.selectedIndex = i; break; }
+                }
+            }
+
+            // Canonical override
+            if (seo.canonicalOverride && q('seoCanonicalOverride')) q('seoCanonicalOverride').value = seo.canonicalOverride;
+
+            // Trigger counters
+            ['seoTitleEn','seoDescEn','seoTitleAr','seoDescAr'].forEach(function(id) {
+                var el = q(id);
+                if (el) el.dispatchEvent(new Event('input'));
+            });
+
+            updateSerpPreview();
+            updateOgCardPreview();
+        }
+
+        // ── Save SEO settings ─────────────────────────────────────────────────
+        async function saveSeoSettings() {
+            var btn = q('seoSaveBtn');
+            var msg = q('seoStatusMsg');
+            if (btn) { btn.disabled = true; btn.textContent = 'Saving…'; }
+            if (msg) { msg.textContent = ''; msg.style.color = '#64748b'; }
+
+            try {
+                await fetchSeoCsrf();
+                if (!csrfToken) throw new Error('CSRF token unavailable');
+
+                var titleEn = (q('seoTitleEn') || {}).value || '';
+                var titleAr = (q('seoTitleAr') || {}).value || '';
+                var descEn  = (q('seoDescEn') || {}).value || '';
+                var descAr  = (q('seoDescAr') || {}).value || '';
+                var kwEn    = (q('seoKeywordsEn') || {}).value || '';
+                var kwAr    = (q('seoKeywordsAr') || {}).value || '';
+                var ogImg   = (q('seoOgImageUrl') || {}).value || '';
+                var twHandle = (q('seoTwitterHandle') || {}).value || '';
+                var robotsEl = q('seoRobotsDirective');
+                var robots  = robotsEl ? robotsEl.value : 'index,follow';
+                var canonEl = q('seoCanonicalOverride');
+                var canon   = canonEl ? canonEl.value.trim() : '';
+
+                var payload = {
+                    metaTitle:       { en: titleEn, ar: titleAr },
+                    metaDescription: { en: descEn,  ar: descAr  },
+                    keywords:        { en: kwEn,    ar: kwAr    },
+                    ogImage:         ogImg,
+                    twitterHandle:   twHandle,
+                    robotsDirective: robots,
+                    canonicalOverride: canon,
+                };
+
+                var r = await fetch('/api/admin/seo', {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json', 'x-csrf-token': csrfToken },
+                    credentials: 'include',
+                    body: JSON.stringify(payload),
+                });
+                var d = await r.json();
+                if (!r.ok) throw new Error(d.error || 'Save failed');
+                if (msg) { msg.textContent = '✅ Saved! Remember to publish.'; msg.style.color = '#166534'; }
+            } catch(err) {
+                if (msg) { msg.textContent = '❌ ' + err.message; msg.style.color = '#b91c1c'; }
+            } finally {
+                if (btn) { btn.disabled = false; btn.textContent = 'Save SEO Settings'; }
+            }
+        }
+
+        // ── OG Image Upload ───────────────────────────────────────────────────
+        function setupOgImageDrop() {
+            var drop   = q('dropSeoOgImage');
+            var file   = q('fileSeoOgImage');
+            var prev   = q('previewSeoOgImage');
+            var hidden = q('seoOgImageUrl');
+            var card   = q('ogCardImg');
+            if (!drop || !file) return;
+
+            drop.addEventListener('click', function() { file.click(); });
+            drop.addEventListener('dragover', function(e) { e.preventDefault(); drop.classList.add('dragover'); });
+            drop.addEventListener('dragleave', function() { drop.classList.remove('dragover'); });
+            drop.addEventListener('drop', function(e) {
+                e.preventDefault(); drop.classList.remove('dragover');
+                handleOgFile(e.dataTransfer.files[0]);
+            });
+            file.addEventListener('change', function() { handleOgFile(file.files[0]); });
+
+            async function handleOgFile(f) {
+                if (!f || !/^image\//.test(f.type)) return;
+                // Show local preview instantly
+                var reader = new FileReader();
+                reader.onload = function(e) {
+                    if (prev) { prev.src = e.target.result; prev.style.display = ''; }
+                    if (card)  card.style.backgroundImage = 'url(' + e.target.result + ')';
+                };
+                reader.readAsDataURL(f);
+
+                // Upload to server
+                try {
+                    await fetchSeoCsrf();
+                    var fd = new FormData();
+                    fd.append('file', f);
+                    var r = await fetch('/api/admin/upload', {
+                        method: 'POST',
+                        headers: { 'x-csrf-token': csrfToken || '' },
+                        credentials: 'include',
+                        body: fd,
+                    });
+                    var d = await r.json();
+                    var url = d.url || d.originalUrl || '';
+                    if (url && hidden) hidden.value = url;
+                    updateOgCardPreview();
+                } catch(e) {
+                    console.warn('OG image upload failed', e);
+                }
+            }
+        }
+
+        // ── Rich character counters ───────────────────────────────────────────
+        function setupCounters() {
+            [
+                { inputId: 'seoTitleEn',  barId: 'seoTitleEnBar',  countId: 'seoTitleEnCount',  max: 70  },
+                { inputId: 'seoDescEn',   barId: 'seoDescEnBar',   countId: 'seoDescEnCount',   max: 165 },
+                { inputId: 'seoTitleAr',  barId: 'seoTitleArBar',  countId: 'seoTitleArCount',  max: 80  },
+                { inputId: 'seoDescAr',   barId: 'seoDescArBar',   countId: 'seoDescArCount',   max: 180 },
+            ].forEach(function(cfg) {
+                var el = q(cfg.inputId);
+                if (!el) return;
+                el.addEventListener('input', function() {
+                    setBar(q(cfg.barId), q(cfg.countId), el.value.length, cfg.max);
+                    if (cfg.inputId === 'seoTitleEn' || cfg.inputId === 'seoDescEn') {
+                        updateSerpPreview();
+                        updateOgCardPreview();
+                    }
+                });
+            });
+        }
+
+        // ── Lang tab switching ────────────────────────────────────────────────
+        function setupSeoLangTabs() {
+            var tabs = q('seoLangTabs');
+            if (!tabs) return;
+            tabs.querySelectorAll('[data-seo-lang]').forEach(function(btn) {
+                btn.addEventListener('click', function() {
+                    tabs.querySelectorAll('[data-seo-lang]').forEach(function(b) { b.classList.remove('active'); });
+                    btn.classList.add('active');
+                    var lang = btn.getAttribute('data-seo-lang');
+                    ['en','ar'].forEach(function(l) {
+                        var panel = q('seo-panel-' + l);
+                        if (panel) panel.classList.toggle('active', l === lang);
+                    });
+                });
+            });
+        }
+
+        // ── Init ──────────────────────────────────────────────────────────────
+        function initSeoPanel() {
+            setupCounters();
+            setupSeoLangTabs();
+            setupOgImageDrop();
+
+            var saveBtn = q('seoSaveBtn');
+            var reloadBtn = q('seoRefreshBtn');
+            if (saveBtn) saveBtn.addEventListener('click', saveSeoSettings);
+            if (reloadBtn) reloadBtn.addEventListener('click', loadSeoSettings);
+
+            loadSeoSettings();
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initSeoPanel);
+        } else {
+            initSeoPanel();
+        }
     })();
     </script>
 </body>

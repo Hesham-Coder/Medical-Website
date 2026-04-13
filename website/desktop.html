@@ -71,6 +71,12 @@
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
         rel="stylesheet">
 
+    <!-- Critical font preloads (reduce render-blocking) -->
+    <link rel="preload" as="font" crossorigin="anonymous"
+        href="https://fonts.gstatic.com/s/tajawal/v9/Iura6YBj_oCad4k1rzaLCr5IlLA.woff2" type="font/woff2">
+    <link rel="preload" as="font" crossorigin="anonymous"
+        href="https://fonts.gstatic.com/s/manrope/v15/xn7_YHE41ni1AdIRqAuZuw1Bx9mbZk59FO_F87jxeN8.woff2" type="font/woff2">
+
     <!-- Attention-Guided Navigation CSS -->
     <link rel="stylesheet" href="/css/attention-guided-nav.css?v=3771ae62">
     <link rel="stylesheet" href="/css/tailwind.output.css?v=6c0316a5">
@@ -359,107 +365,132 @@
             body { padding-bottom: 78px; }
         }
 
+        /* ---------- WHATSAPP AAA WIDGET ---------- */
         .whatsapp-widget {
             position: fixed;
-            /* Use logical properties: inset-inline-end works for both LTR (right) and RTL (left) */
-            inset-inline-end: 24px;
-            bottom: 24px;
+            inset-inline-end: 32px;
+            bottom: 32px;
             z-index: 9000;
+            
+            /* Strict Shape Enforcements (Perfect Circle) */
+            width: 64px;
+            height: 64px;
+            min-width: 64px;
+            min-height: 64px;
+            max-width: 64px;
+            max-height: 64px;
+            box-sizing: border-box;
+            border-radius: 50%;
+            overflow: visible; /* Allows glowing pseudo/tooltip */
+            
+            /* Flex layout for accurate SVG centering */
             display: flex;
             align-items: center;
             justify-content: center;
-            width: 64px;
-            height: 64px;
-            box-sizing: border-box;
-            border-radius: 50%;
-            aspect-ratio: 1 / 1;
-            flex-shrink: 0;
+            
+            /* Visual styling */
+            background: #25D366; /* Official Green */
             background: linear-gradient(135deg, #25D366 0%, #128C7E 100%);
-            color: #fff;
+            color: #ffffff;
+            box-shadow: 0 8px 24px rgba(37, 211, 102, 0.35), 0 2px 8px rgba(0,0,0,0.1);
+            
+            /* Interaction */
             text-decoration: none;
-            box-shadow: 0 8px 32px rgba(18, 140, 126, 0.38), 0 2px 8px rgba(0,0,0,0.12);
-            transition: transform 0.22s cubic-bezier(.34,1.56,.64,1), box-shadow 0.22s ease;
-            /* Entrance animation */
-            animation: waEnter 0.55s cubic-bezier(.34,1.56,.64,1) both;
+            transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+            
+            /* Force GPU handling */
+            will-change: transform, box-shadow;
+            transform: translateZ(0); /* Start at 0 */
+            
+            /* Entrance */
+            animation: waEnter 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) both;
         }
 
         @keyframes waEnter {
-            from { opacity: 0; transform: scale(0.55) translateY(20px); }
-            to   { opacity: 1; transform: scale(1) translateY(0); }
+            from { opacity: 0; transform: scale(0.6) translateY(20px) translateZ(0); }
+            to   { opacity: 1; transform: scale(1) translateY(0) translateZ(0); }
         }
 
         .whatsapp-widget:hover,
         .whatsapp-widget:focus-visible {
-            transform: translateY(-3px) scale(1.08);
-            box-shadow: 0 16px 40px rgba(18, 140, 126, 0.42), 0 2px 8px rgba(0,0,0,0.14);
+            transform: translateY(-4px) scale(1.06) translateZ(0);
+            box-shadow: 0 16px 36px rgba(18, 140, 126, 0.45), 0 4px 12px rgba(0,0,0,0.15);
             outline: none;
         }
 
-        .whatsapp-widget:focus-visible {
-            outline: 3px solid #25D366;
-            outline-offset: 3px;
+        .whatsapp-widget:active {
+            transform: translateY(0px) scale(0.98) translateZ(0);
         }
 
-        .whatsapp-widget::before,
+        .whatsapp-widget:focus-visible {
+            outline: 3px solid rgba(37, 211, 102, 0.6);
+            outline-offset: 4px;
+        }
+
+        /* SVG Strict Sizing (~55% of container) */
+        .whatsapp-widget svg {
+            width: 36px !important;
+            height: 36px !important;
+            min-width: 36px !important;
+            min-height: 36px !important;
+            max-width: 36px !important;
+            max-height: 36px !important;
+            display: block;
+            margin: auto;
+            flex-shrink: 0;
+            fill: currentColor;
+            z-index: 2;
+        }
+
+        /* Pulse effect removing size distortion */
         .whatsapp-widget::after {
             content: '';
             position: absolute;
             inset: 0;
-            border-radius: inherit;
-            border: 2px solid rgba(37, 211, 102, 0.5);
-            animation: whatsappPulse 2.6s ease-out infinite;
+            border-radius: 50%;
+            border: 2px solid rgba(37, 211, 102, 0.6);
+            animation: whatsappPulse 2.5s ease-out infinite;
             pointer-events: none;
-        }
-
-        .whatsapp-widget::after {
-            animation-delay: 1.3s;
+            z-index: 1;
         }
 
         @keyframes whatsappPulse {
-            0%   { transform: scale(1);    opacity: 0.7; }
-            100% { transform: scale(1.55); opacity: 0; }
+            0%   { transform: scale(1); opacity: 0.8; }
+            100% { transform: scale(1.6); opacity: 0; }
         }
 
-        .whatsapp-widget svg {
-            width: 36px;
-            height: 36px;
-            position: relative;
-            z-index: 1;
-            flex-shrink: 0;
-            display: block;
-            aspect-ratio: 1 / 1;
-            align-self: center;
-        }
-
-        /* Tooltip */
+        /* Tooltip AAA alignment */
         .whatsapp-widget .wa-tooltip {
             position: absolute;
-            inset-inline-end: calc(100% + 12px);
+            inset-inline-end: 100%;
+            margin-inline-end: 16px;
             top: 50%;
-            transform: translateY(-50%);
+            transform: translateY(-50%) translateX(10px);
             white-space: nowrap;
             background: #111827;
-            color: #fff;
+            color: #ffffff;
             font-size: 13px;
-            font-weight: 500;
-            padding: 7px 13px;
+            font-weight: 600;
+            padding: 8px 14px;
             border-radius: 8px;
             pointer-events: none;
             opacity: 0;
-            transition: opacity 0.18s ease, transform 0.18s ease;
-            transform: translateY(-50%) translateX(6px);
-            box-shadow: 0 4px 16px rgba(0,0,0,0.22);
+            transition: opacity 0.25s ease, transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+            box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+            z-index: 10;
+            letter-spacing: 0.02em;
         }
+        
         .whatsapp-widget .wa-tooltip::after {
             content: '';
             position: absolute;
             top: 50%;
             inset-inline-start: 100%;
             transform: translateY(-50%);
-            border: 5px solid transparent;
+            border: 6px solid transparent;
             border-inline-start-color: #111827;
-            border-inline-end: none;
         }
+
         .whatsapp-widget:hover .wa-tooltip,
         .whatsapp-widget:focus-visible .wa-tooltip {
             opacity: 1;
@@ -468,23 +499,37 @@
 
         @media (max-width: 1024px) {
             .whatsapp-widget {
-                inset-inline-end: 16px;
-                bottom: calc(env(safe-area-inset-bottom, 0px) + 88px);
-                width: 58px;
-                height: 58px;
+                inset-inline-end: 24px;
+                bottom: calc(env(safe-area-inset-bottom, 0px) + 24px); /* Reset spacing avoiding overlap */
+                width: 60px;
+                height: 60px;
+                min-width: 60px;
+                min-height: 60px;
             }
-            .whatsapp-widget svg { width: 32px; height: 32px; }
-            /* Hide tooltip on touch devices — no hover state */
+            .whatsapp-widget svg { 
+                width: 32px !important; 
+                height: 32px !important; 
+                min-width: 32px !important;
+                min-height: 32px !important;
+            }
             .whatsapp-widget .wa-tooltip { display: none; }
         }
 
         @media (max-width: 480px) {
             .whatsapp-widget {
-                inset-inline-end: 14px;
-                width: 54px;
-                height: 54px;
+                inset-inline-end: 16px;
+                bottom: calc(env(safe-area-inset-bottom, 0px) + 20px);
+                width: 56px;
+                height: 56px;
+                min-width: 56px;
+                min-height: 56px;
             }
-            .whatsapp-widget svg { width: 30px; height: 30px; }
+            .whatsapp-widget svg { 
+                width: 30px !important; 
+                height: 30px !important;
+                min-width: 30px !important;
+                min-height: 30px !important;
+            }
         }
 
         /* Parallax effect */
@@ -1399,7 +1444,9 @@
                 <div class="relative hidden lg:block perspective-container animate-slide-in-right">
                     <div class="relative z-10 animate-float">
                         <img src="./485279495_1084203800391025_2931703889426917655_n.jpg"
-                            data-content-src="siteInfo.heroImageUrl" alt="Medical Team"
+                            data-content-src="siteInfo.heroImageUrl" alt="فريق أطباء مركز شامل لعلاج الأورام — Comprehensive Cancer Center Medical Team"
+                            width="600" height="600"
+                            fetchpriority="high"
                             class="rounded-3xl shadow-2xl border-8 border-white card-3d">
                     </div>
 
@@ -2898,16 +2945,8 @@
                 return url;
             }
 
-            function applyContactSettings(c, lang) {
+                function applyContactSettings(c, lang) {
                 var settings = getContactSettings(c, lang);
-                console.log('📞 Contact Settings Applied:', {
-                    lang: lang,
-                    primary: settings.primary,
-                    immediate: settings.immediate,
-                    whatsapp: settings.whatsapp,
-                    footer: settings.footer,
-                    whatsappMessage: settings.whatsappMessage
-                });
                 
                 document.querySelectorAll('[data-contact-source]').forEach(function (el) {
                     var source = el.getAttribute('data-contact-source') || 'primary';
@@ -2930,12 +2969,10 @@
                     if (kind === 'whatsapp') {
                         var href = buildWhatsAppUrl(value, settings.whatsappMessage);
                         el.setAttribute('href', href);
-                        console.log('🟢 WhatsApp link set:', { source: source, number: value, href: href });
                     } else {
                         var digits = digitsOnly(value);
                         var href = digits ? ('tel:' + digits) : '#';
                         el.setAttribute('href', href);
-                        console.log('📱 Tel link set:', { source: source, number: value, href: href });
                     }
                 });
 

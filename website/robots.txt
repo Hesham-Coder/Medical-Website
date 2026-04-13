@@ -1,10 +1,18 @@
 User-agent: *
 Allow: /
 Disallow: /admin/
+Disallow: /admin
 Disallow: /login.html
 Disallow: /dashboard.html
 Disallow: /referral.html
 Disallow: /api/
+Crawl-delay: 5
 
-Sitemap: /sitemap.xml
-Host: /
+# Faster crawl for major search engines
+User-agent: Googlebot
+Crawl-delay: 0
+
+User-agent: Bingbot
+Crawl-delay: 1
+
+Sitemap: https://www.waleedarafat.org/sitemap.xml

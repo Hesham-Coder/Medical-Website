@@ -713,4 +713,100 @@ router.patch('/api/admin/settings/ui-scale', requireAuth, doubleCsrfProtection()
   }
 });
 
+// ─── SEO Settings ──────────────────────────────────────────────────────────
+
+/**
+ * GET /api/admin/seo
+ * Returns the seo section of the current draft content.
+ */
+router.get('/api/admin/seo', requireAuth, async (req, res) => {
+  try {
+    const content = await readContent();
+    res.json((content && content.seo) || {});
+  } catch (error) {
+    logger.error('Error reading SEO settings', { error: error.message });
+    res.status(500).json({ error: 'Failed to read SEO settings' });
+  }
+});
+
+/**
+ * PUT /api/admin/seo
+ * Saves SEO settings into the seo section of draft content.
+ * The front-end sends only the seo object; we merge it into existing content.
+ */
+router.put('/api/admin/seo', requireAuth, doubleCsrfProtection(), async (req, res) => {
+  try {
+    const incoming = req.body;
+    if (!incoming || typeof incoming !== 'object') {
+      return res.status(400).json({ error: 'Invalid SEO payload' });
+    }
+
+    // Sanitize: only allow known seo fields to prevent prototype pollution
+    const ALLOWED_SEO_KEYS = [
+      'metaTitle', 'metaDescription', 'ogImage', 'ogImageAlt',
+      'twitterHandle', 'robotsDirective', 'canonicalOverride',
+      'noindex', 'keywords', 'faqItems',
+    ];
+    const seo = {};
+    for (const key of ALLOWED_SEO_KEYS) {
+      if (Object.prototype.hasOwnProperty.call(incoming, key)) {
+        seo[key] = incoming[key];
+      }
+    }
+
+    // Validate bilingual string fields
+    const bilingualFields = ['metaTitle', 'metaDescription', 'ogImageAlt', 'keywords'];
+    for (const field of bilingualFields) {
+      if (field in seo) {
+        const val = seo[field];
+        if (typeof val !== 'string' && typeof val !== 'object') {
+          return res.status(400).json({ error: `Field ${field} must be a string or bilingual object` });
+        }
+      }
+    }
+
+    // Validate metaTitle length (Google shows ~60 chars)
+    if (seo.metaTitle) {
+      const titleEn = typeof seo.metaTitle === 'string' ? seo.metaTitle : (seo.metaTitle.en || '');
+      const titleAr = typeof seo.metaTitle === 'object' ? (seo.metaTitle.ar || '') : '';
+      if (titleEn.length > 70) {
+        return res.status(400).json({ error: 'English meta title must be 70 characters or fewer' });
+      }
+      if (titleAr.length > 80) {
+        return res.status(400).json({ error: 'Arabic meta title must be 80 characters or fewer' });
+      }
+    }
+
+    // Validate metaDescription length (Google shows ~160 chars)
+    if (seo.metaDescription) {
+      const descEn = typeof seo.metaDescription === 'string' ? seo.metaDescription : (seo.metaDescription.en || '');
+      const descAr = typeof seo.metaDescription === 'object' ? (seo.metaDescription.ar || '') : '';
+      if (descEn.length > 165) {
+        return res.status(400).json({ error: 'English meta description must be 165 characters or fewer' });
+      }
+      if (descAr.length > 180) {
+        return res.status(400).json({ error: 'Arabic meta description must be 180 characters or fewer' });
+      }
+    }
+
+    // Read current content and merge seo section
+    const content = await readContent();
+    content.seo = Object.assign({}, content.seo || {}, seo);
+
+    await writeDraftContent(content);
+
+    await audit('update_seo_settings', {
+      user: req.session.userId || 'unknown',
+      fields: Object.keys(seo),
+    });
+
+    logger.info('SEO settings updated', { user: req.session.userId || 'unknown' });
+    res.json({ success: true, message: 'SEO settings saved.', seo: content.seo });
+  } catch (error) {
+    logger.error('Error saving SEO settings', { error: error.message });
+    res.status(500).json({ error: 'Failed to save SEO settings' });
+  }
+});
+
 module.exports = router;
+

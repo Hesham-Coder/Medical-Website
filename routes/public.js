@@ -11,7 +11,7 @@ const { audit } = require('../lib/audit');
 const { sendContactEmails } = require('../lib/mailer');
 const { appendContact } = require('../lib/contentStore');
 const { requestIsFresh, setResponseCacheHeaders } = require('../lib/httpCache');
-const { injectSeoContent } = require('../lib/seoInjector');
+const { injectSeoContent, injectPostSeoContent } = require('../lib/seoInjector');
 const logger = require('../lib/logger');
 const { getUiScale } = require('../lib/settingsStore');
 
@@ -130,45 +130,39 @@ function detectLanguage(req) {
 /**
  * Read HTML file, inject the server-determined lang/dir into the <html> tag,
  * and inject SEO tags — all before the response is sent to the browser.
- * This guarantees zero RTL/LTR flicker because the correct direction is
- * embedded in the raw HTML, not set by JavaScript after parsing.
+ * pageContext: { type: 'home'|'team'|'services'|..., post, posts }
  */
-async function serveSeoHtmlFile(res, filePath, contentData, lang = 'ar') {
+async function serveSeoHtmlFile(res, filePath, contentData, lang = 'ar', pageContext = null) {
   try {
     let htmlContent = await fs.readFile(filePath, 'utf-8');
 
-    // ── 1. Inject lang/dir into the <html> opening tag (server-side, before first byte) ──
-    // This replaces whatever static default is in the HTML file with the server-determined value.
+    // ── 1. Inject lang/dir into the <html> opening tag ──
     const dir = lang === 'ar' ? 'rtl' : 'ltr';
     const htmlLang = lang === 'ar' ? 'ar' : 'en';
-    // Match <html ...> with any attributes, replace lang= and dir= in place (or add if missing)
     htmlContent = htmlContent.replace(
-      /(<html\b[^>]*?)\s+lang="[^"]*"/i,
+      /(\<html\b[^>]*)\s+lang="[^"]*"/i,
       `$1 lang="${htmlLang}"`
     );
     htmlContent = htmlContent.replace(
-      /(<html\b[^>]*?)\s+dir="[^"]*"/i,
+      /(\<html\b[^>]*)\s+dir="[^"]*"/i,
       `$1 dir="${dir}"`
     );
-    // If lang or dir were absent entirely, add them after <html
     if (!htmlContent.match(/lang="(ar|en)"/i)) {
-      htmlContent = htmlContent.replace(/(<html\b)/i, `$1 lang="${htmlLang}"`);
+      htmlContent = htmlContent.replace(/(\<html\b)/i, `$1 lang="${htmlLang}"`);
     }
     if (!htmlContent.match(/dir="(rtl|ltr)"/i)) {
-      htmlContent = htmlContent.replace(/(<html\b)/i, `$1 dir="${dir}"`);
+      htmlContent = htmlContent.replace(/(\<html\b)/i, `$1 dir="${dir}"`);
     }
-    // Also inject a lang-class on <html> so CSS selectors like html.lang-ar work
-    // Add/replace class on html element to include the lang class
     htmlContent = htmlContent.replace(
-      /(<html\b[^>]*?)\s+class="([^"]*)"/i,
+      /(\<html\b[^>]*)\s+class="([^"]*)"/i,
       (match, prefix, cls) => {
         const cleaned = cls.replace(/\blang-(ar|en)\b/g, '').trim();
         return `${prefix} class="${cleaned ? cleaned + ' ' : ''}lang-${lang}"`;
       }
     );
 
-    // ── 2. Inject dynamic SEO tags ────────────────────────────────────────────────────────
-    htmlContent = injectSeoContent(htmlContent, contentData, lang);
+    // ── 2. Inject dynamic SEO tags + per-page structured data ──
+    htmlContent = injectSeoContent(htmlContent, contentData, lang, pageContext);
 
     res.setHeader('Content-Type', 'text/html; charset=utf-8');
     res.setHeader('Cache-Control', 'no-cache');
@@ -197,49 +191,65 @@ router.post('/api/lang', (req, res) => {
 
 router.get('/', async (req, res) => {
   try {
-    // Detect language for SEO tags
     const lang = detectLanguage(req);
-    
-    // Read published content (has SEO-critical data: hero heading, description, etc.)
     const contentData = await readPublishedContent();
-    
-    // Mobile/tablet: navigation-driven SPA
-    // Desktop: legacy long-scroll experience
-    // Mobile/tablet uses Tailwind mobile page.
     const file = isMobileOrTablet(req) ? 'mobile.html' : 'desktop.html';
     const filePath = path.join(WEBSITE_DIR, file);
-    
-    // Serve HTML with injected SEO tags
-    await serveSeoHtmlFile(res, filePath, contentData, lang);
+    await serveSeoHtmlFile(res, filePath, contentData, lang, { type: 'home' });
   } catch (error) {
     logger.error('Error in root route', { error: error.message });
-    // Fallback to basic sendFile
     const file = isMobileOrTablet(req) ? 'mobile.html' : 'desktop.html';
     res.sendFile(path.join(WEBSITE_DIR, file));
   }
 });
 
-// Desktop-only legacy experience (keeps old desktop UI).
+// Desktop-only legacy experience.
 router.get('/desktop', async (req, res) => {
   try {
     const lang = detectLanguage(req);
     const contentData = await readPublishedContent();
     const filePath = path.join(WEBSITE_DIR, 'desktop.html');
-    await serveSeoHtmlFile(res, filePath, contentData, lang);
+    await serveSeoHtmlFile(res, filePath, contentData, lang, { type: 'home' });
   } catch (error) {
     logger.error('Error in /desktop route', { error: error.message });
     res.sendFile(path.join(WEBSITE_DIR, 'desktop.html'));
   }
 });
 
-router.get('/desktop/posts/:slug', (req, res) => {
-  res.sendFile(path.join(WEBSITE_DIR, 'post-desktop.html'));
+router.get('/desktop/posts/:slug', async (req, res) => {
+  try {
+    const lang = detectLanguage(req);
+    const slug = String(req.params.slug || '').trim().toLowerCase();
+    const contentData = await readPublishedContent();
+    const post = slug ? await getPublishedPostBySlug(slug) : null;
+    const filePath = path.join(WEBSITE_DIR, 'post-desktop.html');
+    let html = await fs.readFile(filePath, 'utf-8');
+    html = injectPostSeoContent(html, post, contentData, lang);
+    res.setHeader('Content-Type', 'text/html; charset=utf-8');
+    res.setHeader('Cache-Control', 'no-cache');
+    res.send(html);
+  } catch (error) {
+    logger.error('Error in /desktop/posts/:slug', { error: error.message });
+    res.sendFile(path.join(WEBSITE_DIR, 'post-desktop.html'));
+  }
 });
 
-router.get('/posts/:slug', (req, res) => {
-  // Serve the stable standalone post page on all devices.
-  // The mobile SPA post bootstrap currently depends on missing modules.
-  res.sendFile(path.join(WEBSITE_DIR, 'post-desktop.html'));
+router.get('/posts/:slug', async (req, res) => {
+  try {
+    const lang = detectLanguage(req);
+    const slug = String(req.params.slug || '').trim().toLowerCase();
+    const contentData = await readPublishedContent();
+    const post = slug ? await getPublishedPostBySlug(slug) : null;
+    const filePath = path.join(WEBSITE_DIR, 'post-desktop.html');
+    let html = await fs.readFile(filePath, 'utf-8');
+    html = injectPostSeoContent(html, post, contentData, lang);
+    res.setHeader('Content-Type', 'text/html; charset=utf-8');
+    res.setHeader('Cache-Control', 'no-cache');
+    res.send(html);
+  } catch (error) {
+    logger.error('Error in /posts/:slug', { error: error.message });
+    res.sendFile(path.join(WEBSITE_DIR, 'post-desktop.html'));
+  }
 });
 
 router.get('/posts', (req, res) => {
@@ -247,7 +257,17 @@ router.get('/posts', (req, res) => {
   res.redirect('/news');
 });
 
-// Navigation-driven routes (SPA). Keep server-side routing stable on refresh/deep links.
+// Navigation-driven routes (SPA). Pass correct page context per route.
+const PAGE_TYPE_MAP = {
+  '/services': 'services',
+  '/team': 'team',
+  '/stories': 'home',
+  '/news': 'news',
+  '/updates': 'updates',
+  '/articles': 'articles',
+  '/about': 'about',
+  '/contact': 'contact',
+};
 [
   '/services',
   '/team',
@@ -258,24 +278,43 @@ router.get('/posts', (req, res) => {
   '/about',
   '/contact',
 ].forEach((p) => {
-  router.get(p, (req, res) => {
+  router.get(p, async (req, res) => {
     if (isMobileOrTablet(req)) {
-      // Mobile page uses in-page anchors.
       const anchor = p === '/services' ? '#services' : p === '/team' ? '#doctors' : p === '/stories' ? '#news' : p === '/news' ? '#news' : p === '/articles' ? '#news' : p === '/updates' ? '#news' : p === '/about' ? '#video' : '#contact';
       return res.redirect('/' + anchor);
     }
-    // Desktop legacy: keep it on /desktop
-    const desktopAnchor = p === '/services' ? '#services' : p === '/team' ? '#team' : p === '/stories' ? '#testimonials' : p === '/news' ? '#news' : p === '/updates' ? '#news' : p === '/articles' ? '#articles' : p === '/about' ? '#about' : '#contact';
-    return res.redirect('/desktop' + desktopAnchor);
+    try {
+      const lang = detectLanguage(req);
+      const contentData = await readPublishedContent();
+      const filePath = path.join(WEBSITE_DIR, 'desktop.html');
+      const pageType = PAGE_TYPE_MAP[p] || 'home';
+      await serveSeoHtmlFile(res, filePath, contentData, lang, { type: pageType });
+    } catch (error) {
+      logger.error('Error serving SPA route ' + p, { error: error.message });
+      const desktopAnchor = p === '/services' ? '#services' : p === '/team' ? '#team' : p === '/stories' ? '#testimonials' : p === '/news' ? '#news' : p === '/updates' ? '#news' : p === '/articles' ? '#articles' : p === '/about' ? '#about' : '#contact';
+      return res.redirect('/desktop' + desktopAnchor);
+    }
   });
 });
 
 router.get('/robots.txt', (req, res) => {
   res.type('text/plain');
   res.send(
-    'User-agent: *\nAllow: /\nDisallow: /admin/\nDisallow: /login.html\nDisallow: /dashboard.html\nDisallow: /referral.html\nDisallow: /api/\n\nSitemap: ' +
-    SITEMAP_BASE_URL +
-    '/sitemap.xml\n'
+    'User-agent: *\n' +
+    'Allow: /\n' +
+    'Disallow: /admin/\n' +
+    'Disallow: /admin\n' +
+    'Disallow: /login.html\n' +
+    'Disallow: /dashboard.html\n' +
+    'Disallow: /referral.html\n' +
+    'Disallow: /api/\n' +
+    'Crawl-delay: 5\n\n' +
+    '# Faster crawl for major search engines\n' +
+    'User-agent: Googlebot\n' +
+    'Crawl-delay: 0\n\n' +
+    'User-agent: Bingbot\n' +
+    'Crawl-delay: 1\n\n' +
+    'Sitemap: ' + SITEMAP_BASE_URL + '/sitemap.xml\n'
   );
 });
 

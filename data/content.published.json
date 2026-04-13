@@ -1,11 +1,11 @@
 {
   "siteInfo": {
     "title": {
-      "en": "SATT",
+      "en": "Comprehensive Cancer Center",
       "ar": "مركز شامل لعلاج الأورام"
     },
     "tagline": {
-      "en": "Hello FRom another ",
+      "en": "Evidence-based multidisciplinary cancer care",
       "ar": "طب متقدم ورعاية إنسانية متكاملة."
     },
     "heroHeading": {
@@ -31,7 +31,7 @@
     "heroImageUrl": "/uploads/img-1770764937645-dg1cvg.jpg",
     "logoUrl": "/uploads/img-1770765094009-eigrur.jpg",
     "logoName": {
-      "en": "SATT",
+      "en": "Comprehensive Cancer Center",
       "ar": "مركز شامل لعلاج الأورام"
     }
   },
@@ -275,7 +275,7 @@
     },
     "highlightsHeading": {
       "en": "Why Choose Us",
-      "ar": "????? ???????"
+      "ar": "لماذا تختارنا"
     },
     "subheading": {
       "en": "Share a few details and our patient coordination team will call you back to discuss appointment options. This form is not for emergencies.",
@@ -297,7 +297,7 @@
     },
     "highlightsHeading": {
       "en": "Why Choose Us",
-      "ar": "????? ???????"
+      "ar": "لماذا تختارنا"
     },
     "subheading": {
       "en": "A dedicated coordinator will help you understand the next appropriate steps and connect you with the right specialist.",
@@ -423,7 +423,7 @@
     },
     "highlightsHeading": {
       "en": "Why Choose Us",
-      "ar": "????? ???????"
+      "ar": "لماذا تختارنا"
     },
     "subheading": {
       "en": "Our consultants hold recognized board certifications and many years of experience in their subspecialties.",
@@ -498,7 +498,7 @@
     },
     "highlightsHeading": {
       "en": "Why Choose Us",
-      "ar": "????? ???????"
+      "ar": "لماذا تختارنا"
     },
     "subheading": {
       "en": "Real feedback from patients and families we have supported.",
