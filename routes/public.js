@@ -11,10 +11,8 @@ const { audit } = require('../lib/audit');
 const { sendContactEmails } = require('../lib/mailer');
 const { appendContact } = require('../lib/contentStore');
 const { requestIsFresh, setResponseCacheHeaders } = require('../lib/httpCache');
-const { injectSeoContent, injectPostSeoContent } = require('../lib/seoInjector');
+const { injectSeoContent } = require('../lib/seoInjector');
 const logger = require('../lib/logger');
-const { getUiScale } = require('../lib/settingsStore');
-
 
 const router = express.Router();
 const SITEMAP_BASE_URL = SITE_URL || 'https://www.waleedarafat.org';
@@ -95,161 +93,90 @@ function isMobileOrTablet(req) {
 }
 
 /**
- * Detect language from cookie (server-readable), query param, or Accept-Language header.
- * Priority order (highest → lowest):
- *   1. ?lang= query param  (explicit one-time override)
- *   2. 'lang' cookie       (persisted user preference, set by client on language switch)
- *   3. Accept-Language header (browser hint)
- *   4. 'ar' default        (this is an Arabic-first website)
- * Returns 'ar' or 'en'.
+ * Detect language from query param or Accept-Language header
+ * Returns 'ar' or 'en'
  */
 function detectLanguage(req) {
-  // 1. Explicit query override (?lang=en / ?lang=ar)
+  // Check query param (?lang=ar)
   if (req.query && req.query.lang) {
-    return req.query.lang === 'en' ? 'en' : 'ar';
+    return req.query.lang === 'ar' ? 'ar' : 'en';
   }
-
-  // 2. Cookie — set by client after a manual language switch (persists across requests)
-  const cookieLang = req.cookies && req.cookies['lang'];
-  if (cookieLang === 'en' || cookieLang === 'ar') {
-    return cookieLang;
-  }
-
-  // 3. Accept-Language header hint
+  
+  // Check Accept-Language header
   const acceptLang = req.headers['accept-language'] || '';
-  // If browser explicitly lists English and NOT Arabic, serve English
-  if (acceptLang && !acceptLang.toLowerCase().includes('ar')) {
-    if (acceptLang.toLowerCase().includes('en')) return 'en';
-  }
-  if (acceptLang.toLowerCase().includes('ar')) return 'ar';
-
-  // 4. Default: Arabic (this is an Arabic-first medical website)
-  return 'ar';
+  if (acceptLang.includes('ar')) return 'ar';
+  
+  // Default to English
+  return 'en';
 }
 
 /**
- * Read HTML file, inject the server-determined lang/dir into the <html> tag,
- * and inject SEO tags — all before the response is sent to the browser.
- * pageContext: { type: 'home'|'team'|'services'|..., post, posts }
+ * Read HTML file and inject SEO tags
+ * Usage: await serveSeoHtmlFile(res, filePath, contentData, lang)
  */
-async function serveSeoHtmlFile(res, filePath, contentData, lang = 'ar', pageContext = null) {
+async function serveSeoHtmlFile(res, filePath, contentData, lang = 'en') {
   try {
     let htmlContent = await fs.readFile(filePath, 'utf-8');
-
-    // ── 1. Inject lang/dir into the <html> opening tag ──
-    const dir = lang === 'ar' ? 'rtl' : 'ltr';
-    const htmlLang = lang === 'ar' ? 'ar' : 'en';
-    htmlContent = htmlContent.replace(
-      /(\<html\b[^>]*)\s+lang="[^"]*"/i,
-      `$1 lang="${htmlLang}"`
-    );
-    htmlContent = htmlContent.replace(
-      /(\<html\b[^>]*)\s+dir="[^"]*"/i,
-      `$1 dir="${dir}"`
-    );
-    if (!htmlContent.match(/lang="(ar|en)"/i)) {
-      htmlContent = htmlContent.replace(/(\<html\b)/i, `$1 lang="${htmlLang}"`);
-    }
-    if (!htmlContent.match(/dir="(rtl|ltr)"/i)) {
-      htmlContent = htmlContent.replace(/(\<html\b)/i, `$1 dir="${dir}"`);
-    }
-    htmlContent = htmlContent.replace(
-      /(\<html\b[^>]*)\s+class="([^"]*)"/i,
-      (match, prefix, cls) => {
-        const cleaned = cls.replace(/\blang-(ar|en)\b/g, '').trim();
-        return `${prefix} class="${cleaned ? cleaned + ' ' : ''}lang-${lang}"`;
-      }
-    );
-
-    // ── 2. Inject dynamic SEO tags + per-page structured data ──
-    htmlContent = injectSeoContent(htmlContent, contentData, lang, pageContext);
-
+    
+    // Inject dynamic SEO tags
+    htmlContent = injectSeoContent(htmlContent, contentData, lang);
+    
+    // HTML should revalidate so updated versioned asset URLs are picked up immediately.
     res.setHeader('Content-Type', 'text/html; charset=utf-8');
     res.setHeader('Cache-Control', 'no-cache');
     res.send(htmlContent);
   } catch (error) {
     logger.error('Error serving SEO HTML', { error: error.message, filePath });
+    // Fallback to sendFile if injection fails
     res.sendFile(filePath);
   }
 }
 
-// ── Language persistence endpoint ──────────────────────────────────────────
-// Called by client JS after the user switches language.
-// Writes a server-readable cookie so the next page load gets the right dir/lang baked in.
-router.post('/api/lang', (req, res) => {
-  const body = req.body || {};
-  const lang = body.lang === 'en' ? 'en' : 'ar';
-  res.cookie('lang', lang, {
-    maxAge: 365 * 24 * 60 * 60 * 1000, // 1 year (ms)
-    httpOnly: false,
-    sameSite: 'lax',
-    secure: process.env.NODE_ENV === 'production',
-    path: '/',
-  });
-  res.json({ ok: true, lang });
-});
-
 router.get('/', async (req, res) => {
   try {
+    // Detect language for SEO tags
     const lang = detectLanguage(req);
+    
+    // Read published content (has SEO-critical data: hero heading, description, etc.)
     const contentData = await readPublishedContent();
+    
+    // Mobile/tablet: navigation-driven SPA
+    // Desktop: legacy long-scroll experience
+    // Mobile/tablet uses Tailwind mobile page.
     const file = isMobileOrTablet(req) ? 'mobile.html' : 'desktop.html';
     const filePath = path.join(WEBSITE_DIR, file);
-    await serveSeoHtmlFile(res, filePath, contentData, lang, { type: 'home' });
+    
+    // Serve HTML with injected SEO tags
+    await serveSeoHtmlFile(res, filePath, contentData, lang);
   } catch (error) {
     logger.error('Error in root route', { error: error.message });
+    // Fallback to basic sendFile
     const file = isMobileOrTablet(req) ? 'mobile.html' : 'desktop.html';
     res.sendFile(path.join(WEBSITE_DIR, file));
   }
 });
 
-// Desktop-only legacy experience.
+// Desktop-only legacy experience (keeps old desktop UI).
 router.get('/desktop', async (req, res) => {
   try {
     const lang = detectLanguage(req);
     const contentData = await readPublishedContent();
     const filePath = path.join(WEBSITE_DIR, 'desktop.html');
-    await serveSeoHtmlFile(res, filePath, contentData, lang, { type: 'home' });
+    await serveSeoHtmlFile(res, filePath, contentData, lang);
   } catch (error) {
     logger.error('Error in /desktop route', { error: error.message });
     res.sendFile(path.join(WEBSITE_DIR, 'desktop.html'));
   }
 });
 
-router.get('/desktop/posts/:slug', async (req, res) => {
-  try {
-    const lang = detectLanguage(req);
-    const slug = String(req.params.slug || '').trim().toLowerCase();
-    const contentData = await readPublishedContent();
-    const post = slug ? await getPublishedPostBySlug(slug) : null;
-    const filePath = path.join(WEBSITE_DIR, 'post-desktop.html');
-    let html = await fs.readFile(filePath, 'utf-8');
-    html = injectPostSeoContent(html, post, contentData, lang);
-    res.setHeader('Content-Type', 'text/html; charset=utf-8');
-    res.setHeader('Cache-Control', 'no-cache');
-    res.send(html);
-  } catch (error) {
-    logger.error('Error in /desktop/posts/:slug', { error: error.message });
-    res.sendFile(path.join(WEBSITE_DIR, 'post-desktop.html'));
-  }
+router.get('/desktop/posts/:slug', (req, res) => {
+  res.sendFile(path.join(WEBSITE_DIR, 'post-desktop.html'));
 });
 
-router.get('/posts/:slug', async (req, res) => {
-  try {
-    const lang = detectLanguage(req);
-    const slug = String(req.params.slug || '').trim().toLowerCase();
-    const contentData = await readPublishedContent();
-    const post = slug ? await getPublishedPostBySlug(slug) : null;
-    const filePath = path.join(WEBSITE_DIR, 'post-desktop.html');
-    let html = await fs.readFile(filePath, 'utf-8');
-    html = injectPostSeoContent(html, post, contentData, lang);
-    res.setHeader('Content-Type', 'text/html; charset=utf-8');
-    res.setHeader('Cache-Control', 'no-cache');
-    res.send(html);
-  } catch (error) {
-    logger.error('Error in /posts/:slug', { error: error.message });
-    res.sendFile(path.join(WEBSITE_DIR, 'post-desktop.html'));
-  }
+router.get('/posts/:slug', (req, res) => {
+  // Serve the stable standalone post page on all devices.
+  // The mobile SPA post bootstrap currently depends on missing modules.
+  res.sendFile(path.join(WEBSITE_DIR, 'post-desktop.html'));
 });
 
 router.get('/posts', (req, res) => {
@@ -257,17 +184,7 @@ router.get('/posts', (req, res) => {
   res.redirect('/news');
 });
 
-// Navigation-driven routes (SPA). Pass correct page context per route.
-const PAGE_TYPE_MAP = {
-  '/services': 'services',
-  '/team': 'team',
-  '/stories': 'home',
-  '/news': 'news',
-  '/updates': 'updates',
-  '/articles': 'articles',
-  '/about': 'about',
-  '/contact': 'contact',
-};
+// Navigation-driven routes (SPA). Keep server-side routing stable on refresh/deep links.
 [
   '/services',
   '/team',
@@ -278,43 +195,24 @@ const PAGE_TYPE_MAP = {
   '/about',
   '/contact',
 ].forEach((p) => {
-  router.get(p, async (req, res) => {
+  router.get(p, (req, res) => {
     if (isMobileOrTablet(req)) {
+      // Mobile page uses in-page anchors.
       const anchor = p === '/services' ? '#services' : p === '/team' ? '#doctors' : p === '/stories' ? '#news' : p === '/news' ? '#news' : p === '/articles' ? '#news' : p === '/updates' ? '#news' : p === '/about' ? '#video' : '#contact';
       return res.redirect('/' + anchor);
     }
-    try {
-      const lang = detectLanguage(req);
-      const contentData = await readPublishedContent();
-      const filePath = path.join(WEBSITE_DIR, 'desktop.html');
-      const pageType = PAGE_TYPE_MAP[p] || 'home';
-      await serveSeoHtmlFile(res, filePath, contentData, lang, { type: pageType });
-    } catch (error) {
-      logger.error('Error serving SPA route ' + p, { error: error.message });
-      const desktopAnchor = p === '/services' ? '#services' : p === '/team' ? '#team' : p === '/stories' ? '#testimonials' : p === '/news' ? '#news' : p === '/updates' ? '#news' : p === '/articles' ? '#articles' : p === '/about' ? '#about' : '#contact';
-      return res.redirect('/desktop' + desktopAnchor);
-    }
+    // Desktop legacy: keep it on /desktop
+    const desktopAnchor = p === '/services' ? '#services' : p === '/team' ? '#team' : p === '/stories' ? '#testimonials' : p === '/news' ? '#news' : p === '/updates' ? '#news' : p === '/articles' ? '#articles' : p === '/about' ? '#about' : '#contact';
+    return res.redirect('/desktop' + desktopAnchor);
   });
 });
 
 router.get('/robots.txt', (req, res) => {
   res.type('text/plain');
   res.send(
-    'User-agent: *\n' +
-    'Allow: /\n' +
-    'Disallow: /admin/\n' +
-    'Disallow: /admin\n' +
-    'Disallow: /login.html\n' +
-    'Disallow: /dashboard.html\n' +
-    'Disallow: /referral.html\n' +
-    'Disallow: /api/\n' +
-    'Crawl-delay: 5\n\n' +
-    '# Faster crawl for major search engines\n' +
-    'User-agent: Googlebot\n' +
-    'Crawl-delay: 0\n\n' +
-    'User-agent: Bingbot\n' +
-    'Crawl-delay: 1\n\n' +
-    'Sitemap: ' + SITEMAP_BASE_URL + '/sitemap.xml\n'
+    'User-agent: *\nAllow: /\nDisallow: /admin/\nDisallow: /login.html\nDisallow: /dashboard.html\nDisallow: /referral.html\nDisallow: /api/\n\nSitemap: ' +
+    SITEMAP_BASE_URL +
+    '/sitemap.xml\n'
   );
 });
 
@@ -545,19 +443,6 @@ router.post('/api/contacts', contactLimiter, async (req, res) => {
   } catch (err) {
     logger.error('Contact submission error', { error: err.message });
     res.status(500).json({ error: 'Unable to submit. Please try again or call us.' });
-  }
-});
-
-// Public endpoint: returns the current ui_scale. No auth required (website needs it on load).
-// Returns a short-lived cached value to avoid hammering the filesystem.
-router.get('/api/settings/ui-scale', async (req, res) => {
-  try {
-    const scale = await getUiScale();
-    res.setHeader('Cache-Control', 'public, max-age=30, stale-while-revalidate=120');
-    res.json({ ui_scale: scale });
-  } catch (error) {
-    logger.error('Error reading public ui_scale', { error: error.message });
-    res.json({ ui_scale: 1.0 }); // safe fallback — never break users
   }
 });
 
