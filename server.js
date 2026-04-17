@@ -72,8 +72,13 @@ function setImmutableAssetHeaders(res, filePath) {
 //   image uploads             : 5 MB  (imageUpload in routes/admin.js)
 //   video uploads             : 120 MB default, env MAX_VIDEO_UPLOAD_MB overrides
 //   restore backup upload     : 250 MB
-function setUploadsHeaders(res, _filePath) {
-  res.setHeader('Content-Disposition', 'attachment');
+function setUploadsHeaders(res, filePath) {
+  const lowerPath = String(filePath || '').toLowerCase();
+  // OG images should be served inline so social crawlers can fetch them
+  const isOgImage = lowerPath.includes('seo-og-image') || lowerPath.includes('og-image');
+  if (!isOgImage) {
+    res.setHeader('Content-Disposition', 'attachment');
+  }
   res.setHeader('X-Content-Type-Options', 'nosniff');
   res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
 }
