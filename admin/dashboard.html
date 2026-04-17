@@ -653,6 +653,10 @@
                 <summary style="cursor:pointer;font-size:13px;font-weight:600;color:#374151;padding:8px 0;border-top:1px solid #eee;">Advanced SEO Options</summary>
                 <div style="margin-top:12px;">
                     <div class="form-group">
+                        <label>Facebook App ID <span style="font-weight:400;color:#64748b;font-size:11px;"> — Optional</span></label>
+                        <input type="text" id="seoFbAppId" placeholder="e.g. 123456789012345" style="max-width:250px;">
+                    </div>
+                    <div class="form-group">
                         <label>Twitter Handle <span style="font-weight:400;color:#64748b;font-size:11px;">— @username</span></label>
                         <input type="text" id="seoTwitterHandle" placeholder="@cccofegypt" style="max-width:250px;">
                     </div>
@@ -3884,6 +3888,9 @@
             // Twitter handle
             if (seo.twitterHandle && q('seoTwitterHandle')) q('seoTwitterHandle').value = seo.twitterHandle;
 
+            // FB App ID
+            if (seo.fbAppId && q('seoFbAppId')) q('seoFbAppId').value = seo.fbAppId;
+
             // Robots
             if (seo.robotsDirective && q('seoRobotsDirective')) {
                 var sel = q('seoRobotsDirective');
@@ -3924,6 +3931,7 @@
                 var kwAr    = (q('seoKeywordsAr') || {}).value || '';
                 var ogImg   = (q('seoOgImageUrl') || {}).value || '';
                 var twHandle = (q('seoTwitterHandle') || {}).value || '';
+                var fbAppId = (q('seoFbAppId') || {}).value || '';
                 var robotsEl = q('seoRobotsDirective');
                 var robots  = robotsEl ? robotsEl.value : 'index,follow';
                 var canonEl = q('seoCanonicalOverride');
@@ -3935,6 +3943,7 @@
                     keywords:        { en: kwEn,    ar: kwAr    },
                     ogImage:         ogImg,
                     twitterHandle:   twHandle,
+                    fbAppId:         fbAppId,
                     robotsDirective: robots,
                     canonicalOverride: canon,
                 };
