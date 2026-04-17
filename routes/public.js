@@ -106,8 +106,8 @@ function detectLanguage(req) {
   const acceptLang = req.headers['accept-language'] || '';
   if (acceptLang.includes('ar')) return 'ar';
   
-  // Default to English
-  return 'en';
+  // Default to Arabic
+  return 'ar';
 }
 
 /**
