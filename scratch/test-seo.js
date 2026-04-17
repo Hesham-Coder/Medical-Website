@@ -9,8 +9,18 @@ const dataDir = path.join(ROOT, 'data');
 const html = fs.readFileSync(path.join(websiteDir, 'desktop.html'), 'utf8');
 const content = JSON.parse(fs.readFileSync(path.join(dataDir, 'content.published.json'), 'utf8'));
 
-console.log('--- RUNNING INJECTION ---');
 const result = injectSeoContent(html, content, 'ar');
+
+// TEST CASE: Force a .webp ogImage to test fallback
+const contentWithWebp = JSON.parse(JSON.stringify(content));
+contentWithWebp.seo.ogImage = '/uploads/test-image.webp';
+const resultWebp = injectSeoContent(html, contentWithWebp, 'ar');
+const ogImageMatchWebp = resultWebp.match(/<meta property="og:image" content="(.*?)">/i);
+
+console.log('--- TEST: FALLBACK FROM WEBP ---');
+console.log('INPUT: /uploads/test-image.webp');
+console.log('OUTPUT:', ogImageMatchWebp ? ogImageMatchWebp[1] : 'NOT FOUND');
+
 const headEnd = result.indexOf('</head>');
 
 console.log('--- SEARCHING FOR TAGS ---');
