@@ -74,9 +74,9 @@ function setImmutableAssetHeaders(res, filePath) {
 //   restore backup upload     : 250 MB
 function setUploadsHeaders(res, filePath) {
   const lowerPath = String(filePath || '').toLowerCase();
-  // OG images should be served inline so social crawlers can fetch them
-  const isOgImage = lowerPath.includes('seo-og-image') || lowerPath.includes('og-image');
-  if (!isOgImage) {
+  // Images should be served inline so social crawlers and browsers can display them
+  const isImage = /\.(jpe?g|png|gif|webp|avif|svg|ico)$/i.test(lowerPath);
+  if (!isImage) {
     res.setHeader('Content-Disposition', 'attachment');
   }
   res.setHeader('X-Content-Type-Options', 'nosniff');
