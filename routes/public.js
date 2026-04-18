@@ -11,7 +11,7 @@ const { audit } = require('../lib/audit');
 const { sendContactEmails } = require('../lib/mailer');
 const { appendContact } = require('../lib/contentStore');
 const { requestIsFresh, setResponseCacheHeaders } = require('../lib/httpCache');
-const { injectSeoContent } = require('../lib/seoInjector');
+const { injectSeoContent, resolveOgImageUrl, getCanonicalSiteUrl } = require('../lib/seoInjector');
 const logger = require('../lib/logger');
 
 const router = express.Router();
@@ -328,6 +328,45 @@ router.get('/posts', (req, res) => {
   });
 });
 
+/**
+ * /default-og.jpg — stable, bookmarkable alias for the OG fallback image.
+ * Social crawlers and Phase 5 fallback always resolve here if the dashboard
+ * image is missing, invalid, or from a wrong domain.
+ * Redirects to the real file so uploads/ Cache-Control headers apply.
+ */
+router.get('/default-og.jpg', (req, res) => {
+  res.redirect(301, '/uploads/og-premium.jpg');
+});
+
+/**
+ * /og-health — Phase 8 debug endpoint (unauthenticated, read-only).
+ * Returns a JSON report of the current OG image pipeline state.
+ * Safe to expose publicly: no secrets, no mutation.
+ */
+router.get('/og-health', async (req, res) => {
+  try {
+    const contentData = await readPublishedContent();
+    const seoData = (contentData && contentData.seo) || {};
+    const canonicalSiteUrl = getCanonicalSiteUrl();
+    const rawOgImage = seoData.ogImage
+      || (contentData.siteInfo && contentData.siteInfo.heroImageUrl)
+      || '';
+    const report = resolveOgImageUrl(rawOgImage, canonicalSiteUrl);
+    res.json({
+      dashboard_value: report.dashboardValue,
+      final_url: report.finalOgImageUrl,
+      is_valid: !report.fallbackUsed,
+      source_of_truth: 'dashboard (content.published.json)',
+      fallback_used: report.fallbackUsed,
+      issues_found: report.issuesFound,
+      canonical_site_url: canonicalSiteUrl,
+      checked_at: new Date().toISOString(),
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 router.get('/robots.txt', (req, res) => {
   res.type('text/plain');
   const lines = [
@@ -384,13 +423,13 @@ router.get('/sitemap.xml', async (req, res) => {
     const contentData = contentSnapshot && contentSnapshot.data ? contentSnapshot.data : {};
     const seoData = contentData.seo || {};
 
-    // Resolve the canonical OG image (guaranteed JPEG via imageProcessor)
-    let realOgImage = seoData.ogImage
+    // Resolve the canonical OG image using the same validated pipeline as
+    // seoInjector.js — enforces correct domain, JPEG extension, and fallback.
+    const canonicalSiteUrl = getCanonicalSiteUrl();
+    const rawOgImage = seoData.ogImage
       || (contentData.siteInfo && contentData.siteInfo.heroImageUrl)
-      || '/uploads/seo-og-image.jpg';
-    // Force .jpg extension so Content-Type is always image/jpeg
-    realOgImage = realOgImage.replace(/\.(webp|avif|png|gif|jpeg|svg|bmp|tiff?)$/i, '.jpg');
-    const realOgImageAbs = toAbsoluteUrl(realOgImage);
+      || '';
+    const { finalOgImageUrl: realOgImageAbs } = resolveOgImageUrl(rawOgImage, canonicalSiteUrl);
 
     const postsSnapshot = await getPublishedPostsSnapshot();
     const sitemapKey = `${today}:${postsSnapshot.metadata.etag}:${realOgImageAbs}`;
