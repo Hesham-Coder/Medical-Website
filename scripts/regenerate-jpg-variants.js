@@ -57,6 +57,10 @@ async function run() {
   try {
     files = await fs.readdir(UPLOADS_DIR);
   } catch (err) {
+    if (err.code === 'ENOENT') {
+      console.log(`ℹ️ Uploads directory not found at ${UPLOADS_DIR}. Skipping regeneration.`);
+      process.exit(0);
+    }
     console.error(`❌ Cannot read uploads directory: ${err.message}`);
     process.exit(1);
   }
