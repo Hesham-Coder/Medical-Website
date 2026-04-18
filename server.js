@@ -97,6 +97,18 @@ if (!SESSION_SECRET || SESSION_SECRET.length < 32) {
   process.exit(1);
 }
 
+// Domain Identity Sanity Check (Critical for SEO & Canonical correctness)
+const { SITE_URL } = require('./lib/config');
+const EXPECTED_DOMAIN = 'waleedarafat.org';
+if (SITE_URL.includes('comprehensivecancercenter.com')) {
+  logger.warn('⚠️ DOMAIN IDENTITY MISMATCH DETECTED!');
+  logger.warn(`Current SITE_URL: ${SITE_URL}`);
+  logger.warn(`Expected Domain: ${EXPECTED_DOMAIN}`);
+  logger.warn('Please update the SITE_URL environment variable to prevent SEO dilution and canonical errors.');
+} else {
+  logger.info(`Server Identity: ${SITE_URL}`);
+}
+
 async function configureSession() {
   try {
     const redisClient = createRedisConnection();
