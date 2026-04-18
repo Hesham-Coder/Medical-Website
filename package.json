@@ -9,7 +9,8 @@
     "start": "node server.js",
     "watch:css": "postcss website/src/tailwind.css -o website/css/tailwind.output.css --watch",
     "backup": "node backup.js",
-    "restore": "node restore.js"
+    "restore": "node restore.js",
+    "fix:images": "node scripts/regenerate-jpg-variants.js"
   },
   "keywords": [
     "admin",
