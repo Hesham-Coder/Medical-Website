@@ -743,7 +743,7 @@ router.put('/api/admin/seo', requireAuth, doubleCsrfProtection(), async (req, re
 
     // Sanitize: only allow known seo fields to prevent prototype pollution
     const ALLOWED_SEO_KEYS = [
-      'metaTitle', 'metaDescription', 'ogImage', 'ogImageAlt',
+      'metaTitle', 'metaDescription', 'ogImage', 'ogImageAlt', 'socialShareImage',
       'twitterHandle', 'fbAppId', 'robotsDirective', 'canonicalOverride',
       'noindex', 'keywords', 'faqItems',
     ];

@@ -13,6 +13,9 @@ const { appendContact } = require('../lib/contentStore');
 const { requestIsFresh, setResponseCacheHeaders } = require('../lib/httpCache');
 const { injectSeoContent, resolveOgImageUrl, getCanonicalSiteUrl } = require('../lib/seoInjector');
 const logger = require('../lib/logger');
+const http = require('http');
+const https = require('https');
+const { URL } = require('url');
 
 const router = express.Router();
 const SITEMAP_BASE_URL = SITE_URL || 'https://www.waleedarafat.org';
@@ -339,26 +342,61 @@ router.get('/default-og.jpg', (req, res) => {
 });
 
 /**
+ * Helper to perform a HEAD request to verify an image URL.
+ */
+function checkImageUrl(imageUrl) {
+  return new Promise((resolve) => {
+    try {
+      const parsed = new URL(imageUrl);
+      const client = parsed.protocol === 'https:' ? https : http;
+      const req = client.request(imageUrl, { method: 'HEAD', timeout: 5000 }, (res) => {
+        resolve({
+          statusCode: res.statusCode,
+          contentType: res.headers['content-type'],
+        });
+      });
+      req.on('error', () => resolve({ statusCode: 0, contentType: 'connection-error' }));
+      req.on('timeout', () => { req.destroy(); resolve({ statusCode: 0, contentType: 'timeout' }); });
+      req.end();
+    } catch (e) {
+      resolve({ statusCode: 0, contentType: 'invalid-url' });
+    }
+  });
+}
+
+/**
  * /og-health — Phase 8 debug endpoint (unauthenticated, read-only).
  * Returns a JSON report of the current OG image pipeline state.
- * Safe to expose publicly: no secrets, no mutation.
  */
 router.get('/og-health', async (req, res) => {
   try {
     const contentData = await readPublishedContent();
     const seoData = (contentData && contentData.seo) || {};
     const canonicalSiteUrl = getCanonicalSiteUrl();
-    const rawOgImage = seoData.ogImage
+    const rawOgImage = seoData.socialShareImage || seoData.ogImage
       || (contentData.siteInfo && contentData.siteInfo.heroImageUrl)
       || '';
+    
     const report = resolveOgImageUrl(rawOgImage, canonicalSiteUrl);
+    
+    // Live validation (Phase 3)
+    const liveCheck = await checkImageUrl(report.finalOgImageUrl);
+    
+    const isValid = !report.fallbackUsed && 
+                    liveCheck.statusCode === 200 && 
+                    (liveCheck.contentType || '').startsWith('image/');
+
     res.json({
       dashboard_value: report.dashboardValue,
       final_url: report.finalOgImageUrl,
-      is_valid: !report.fallbackUsed,
+      status_code: liveCheck.statusCode,
+      content_type: liveCheck.contentType,
+      is_valid: isValid,
       source_of_truth: 'dashboard (content.published.json)',
-      fallback_used: report.fallbackUsed,
-      issues_found: report.issuesFound,
+      fallback_used: report.fallbackUsed || (liveCheck.statusCode !== 200),
+      issues_found: report.issuesFound.concat(
+        liveCheck.statusCode !== 200 ? [`HTTP check failed with status ${liveCheck.statusCode}`] : []
+      ),
       canonical_site_url: canonicalSiteUrl,
       checked_at: new Date().toISOString(),
     });

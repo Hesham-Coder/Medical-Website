@@ -645,7 +645,7 @@
                         </div>
                     </div>
                 </div>
-                <input type="hidden" id="seoOgImageUrl" value="">
+                <input type="hidden" id="seoSocialShareImageUrl" value="">
             </div>
 
             <!-- Advanced SEO -->
@@ -3823,7 +3823,7 @@
         function updateOgCardPreview() {
             const titleEl  = q('seoTitleEn');
             const descEl   = q('seoDescEn');
-            const imageUrl = (q('seoOgImageUrl') || {}).value || '';
+            const imageUrl = (q('seoSocialShareImageUrl') || {}).value || '';
             if (q('ogCardTitle')) q('ogCardTitle').textContent = (titleEl && titleEl.value.trim()) || SITE_NAME_CONST;
             if (q('ogCardDesc'))  q('ogCardDesc').textContent  = (descEl && descEl.value.trim()) || '';
             if (q('ogCardImg') && imageUrl) {
@@ -3877,12 +3877,13 @@
             if (q('seoKeywordsEn')) q('seoKeywordsEn').value = typeof kw === 'string' ? kw : (kw.en || '');
             if (q('seoKeywordsAr')) q('seoKeywordsAr').value = typeof kw === 'object' ? (kw.ar || '') : '';
 
-            // OG Image
-            if (seo.ogImage && q('seoOgImageUrl')) {
-                q('seoOgImageUrl').value = seo.ogImage;
+            // Social Share Image
+            const ssImg = seo.socialShareImage || seo.ogImage;
+            if (ssImg && q('seoSocialShareImageUrl')) {
+                q('seoSocialShareImageUrl').value = ssImg;
                 var prev = q('previewSeoOgImage');
-                if (prev && seo.ogImage) { prev.src = seo.ogImage; prev.style.display = ''; }
-                if (q('ogCardImg')) q('ogCardImg').style.backgroundImage = 'url(' + seo.ogImage + ')';
+                if (prev) { prev.src = ssImg; prev.style.display = ''; }
+                if (q('ogCardImg')) q('ogCardImg').style.backgroundImage = 'url(' + ssImg + ')';
             }
 
             // Twitter handle
@@ -3929,7 +3930,7 @@
                 var descAr  = (q('seoDescAr') || {}).value || '';
                 var kwEn    = (q('seoKeywordsEn') || {}).value || '';
                 var kwAr    = (q('seoKeywordsAr') || {}).value || '';
-                var ogImg   = (q('seoOgImageUrl') || {}).value || '';
+                var socialImg = (q('seoSocialShareImageUrl') || {}).value || '';
                 var twHandle = (q('seoTwitterHandle') || {}).value || '';
                 var fbAppId = (q('seoFbAppId') || {}).value || '';
                 var robotsEl = q('seoRobotsDirective');
@@ -3941,7 +3942,8 @@
                     metaTitle:       { en: titleEn, ar: titleAr },
                     metaDescription: { en: descEn,  ar: descAr  },
                     keywords:        { en: kwEn,    ar: kwAr    },
-                    ogImage:         ogImg,
+                    socialShareImage: socialImg,
+                    ogImage:          socialImg, // Keep both for safety during migration
                     twitterHandle:   twHandle,
                     fbAppId:         fbAppId,
                     robotsDirective: robots,
@@ -3969,7 +3971,7 @@
             var drop   = q('dropSeoOgImage');
             var file   = q('fileSeoOgImage');
             var prev   = q('previewSeoOgImage');
-            var hidden = q('seoOgImageUrl');
+            var hidden = q('seoSocialShareImageUrl');
             var card   = q('ogCardImg');
             if (!drop || !file) return;
 
