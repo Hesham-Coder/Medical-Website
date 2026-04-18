@@ -45,11 +45,10 @@
     })();
     </script>
 
-    <!-- External Resources -->
+    <!-- External Resources: single combined Google Fonts request (saves one render-blocking round-trip) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
         rel="stylesheet">
 
@@ -1113,6 +1112,62 @@
             </div>
         </div>
     </div>
+    <!--
+      GOOGLEBOT STATIC FALLBACK
+      ============================================================
+      This <noscript> block is intentionally placed right after the
+      page loader. Googlebot does not execute JavaScript on the first
+      crawl pass, so without this block the indexed content would be
+      just "Loading content 0%". With this block, Google indexes:
+        - Primary H1 (brand keyword)
+        - Location signal (Alexandria, Egypt)
+        - Services list (topical oncology keywords)
+        - E-E-A-T signals (board-certified, multidisciplinary)
+        - Contact information
+      The block is visually hidden for JS users (parent div is removed
+      by JS once loading completes). CSS opacity:0 prevents flash.
+      ============================================================
+    -->
+    <noscript>
+      <style>.seo-fallback{font-family:sans-serif;max-width:900px;margin:0 auto;padding:2rem;direction:ltr}.seo-fallback h1{font-size:2rem;color:#004A8D;margin-bottom:.5rem}.seo-fallback h2{font-size:1.25rem;color:#0096D6;margin:.5rem 0}.seo-fallback ul{padding-inline-start:1.5rem}.seo-fallback li{margin:.25rem 0}.seo-fallback p{color:#334155;line-height:1.6}</style>
+      <div class="seo-fallback" aria-label="Site content summary for non-JavaScript browsers">
+        <p style="color:#0096D6;font-weight:bold;text-transform:uppercase;letter-spacing:.08em;font-size:.85rem">Expert Oncology Care in Alexandria, Egypt</p>
+        <h1>Comprehensive Cancer Center</h1>
+        <p>Our multidisciplinary oncology team designs individualized care plans using current clinical guidelines, advanced diagnostics, and whole-person support. Located at 644 El Horreya Road, Gianaclis, Alexandria, Egypt.</p>
+
+        <h2>Comprehensive Cancer Care Services</h2>
+        <p>From diagnosis and treatment planning to survivorship and supportive care, our team coordinates every step of your journey.</p>
+        <ul>
+          <li>Medical Oncology &amp; Chemotherapy</li>
+          <li>Radiation Oncology</li>
+          <li>Surgical Oncology</li>
+          <li>Immunotherapy &amp; Targeted Therapy</li>
+          <li>Genetic Counseling</li>
+          <li>Palliative &amp; Supportive Care</li>
+          <li>Cancer Screening &amp; Early Detection</li>
+        </ul>
+
+        <h2>World-Class Specialists</h2>
+        <p>Our board-certified oncology and surgery consultants follow up-to-date clinical guidelines and work as a multidisciplinary team to design treatment plans that are medically appropriate, safe, and aligned with what matters most to you.</p>
+        <ul>
+          <li>Board-certified oncology and surgery consultants</li>
+          <li>Coordinated care pathway from first visit to follow-up</li>
+          <li>Integrated supportive and palliative care services</li>
+          <li>Access to appropriate clinical research when available</li>
+        </ul>
+
+        <h2>Contact Us</h2>
+        <ul>
+          <li>Address: 644 El Horreya Road, Gianaclis, Alexandria, Egypt</li>
+          <li>Phone: <a href="tel:+201120800011">+20 11 2080 0011</a></li>
+          <li>WhatsApp: <a href="https://wa.me/201120800011">+20 11 2080 0011</a></li>
+          <li>Email: <a href="mailto:info@comprehensivecancercenter.com">info@comprehensivecancercenter.com</a></li>
+          <li>Hours: Monday–Friday 08:00–18:00 | Saturday 09:00–14:00</li>
+        </ul>
+
+        <p><em>If you are experiencing a medical emergency, call your local emergency number immediately. This website does not provide medical diagnosis or treatment recommendations.</em></p>
+      </div>
+    </noscript>
     <nav id="timelineNav" class="timeline-nav" aria-label="Section timeline navigation">
         <div class="scroll-track lg:hidden"></div>
     </nav>

@@ -37,30 +37,78 @@ function escapeXml(value) {
     .replace(/'/g, '&apos;');
 }
 
+/**
+ * Like escapeXml but also strips newlines, tabs and carriage returns.
+ * Use for ANY field pulled from CMS data that goes into sitemap XML —
+ * newlines inside <loc> or <title> break the XML parser.
+ */
+function escapeXmlSanitized(value) {
+  return escapeXml(
+    String(value || '').replace(/[\r\n\t\u0000-\u001F\u007F]+/g, ' ').trim()
+  );
+}
+
+/**
+ * Returns true if the given URL is a valid self-hosted image
+ * (i.e. not a Facebook CDN, reel, or other external unstable URL).
+ * Sitemap image:loc must point to a crawlable, stable, public image.
+ */
+function isSelfHostedImageUrl(url) {
+  if (!url || typeof url !== 'string') return false;
+  if (/\/\/(www\.)?facebook\.com|fbcdn\.net|scontent\.|fb\.com/.test(url)) return false;
+  if (!/\.(jpe?g|png|gif|webp|avif|svg)$/i.test(url)) return false;
+  return true;
+}
+
+/**
+ * Returns an absolute URL: if path starts with http it is returned as-is,
+ * otherwise it is prefixed with SITEMAP_BASE_URL.
+ */
+function toAbsoluteUrl(path) {
+  if (!path || typeof path !== 'string') return '';
+  return path.startsWith('http') ? path : `${SITEMAP_BASE_URL.replace(/\/$/, '')}${path}`;
+}
+
 function toDateOnly(value) {
   const parsed = new Date(value);
   if (Number.isNaN(parsed.getTime())) return new Date().toISOString().slice(0, 10);
   return parsed.toISOString().slice(0, 10);
 }
 
+/**
+ * Build image sitemap XML. Returns empty string if imageLoc is not a
+ * stable, self-hosted image URL (blocks Facebook CDN, reels, etc.).
+ */
 function buildImageXml(imageLoc, imageTitle, imageCaption) {
+  const absLoc = toAbsoluteUrl(imageLoc);
+  if (!isSelfHostedImageUrl(absLoc)) return '';
   return (
     '    <image:image>\n' +
-    '      <image:loc>' + escapeXml(imageLoc) + '</image:loc>\n' +
-    '      <image:title>' + escapeXml(imageTitle) + '</image:title>\n' +
-    '      <image:caption>' + escapeXml(imageCaption) + '</image:caption>\n' +
+    '      <image:loc>' + escapeXmlSanitized(absLoc) + '</image:loc>\n' +
+    '      <image:title>' + escapeXmlSanitized(imageTitle) + '</image:title>\n' +
+    '      <image:caption>' + escapeXmlSanitized(imageCaption) + '</image:caption>\n' +
     '    </image:image>\n'
   );
 }
 
+/**
+ * Build video sitemap XML.
+ * Uses <video:content_loc> (correct for direct MP4 files) and absolute URLs.
+ */
 function buildVideoXml(videoUrl, title, description, thumbnailLoc) {
   if (!videoUrl) return '';
+  const absVideoUrl = toAbsoluteUrl(videoUrl);
+  const absThumbnail = toAbsoluteUrl(thumbnailLoc);
+  // Only include thumbnail if it is a stable, self-hosted image
+  const thumbXml = isSelfHostedImageUrl(absThumbnail)
+    ? '      <video:thumbnail_loc>' + escapeXmlSanitized(absThumbnail) + '</video:thumbnail_loc>\n'
+    : '';
   return (
     '    <video:video>\n' +
-    '      <video:thumbnail_loc>' + escapeXml(thumbnailLoc) + '</video:thumbnail_loc>\n' +
-    '      <video:title>' + escapeXml(title) + '</video:title>\n' +
-    '      <video:description>' + escapeXml(description) + '</video:description>\n' +
-    '      <video:player_loc>' + escapeXml(videoUrl) + '</video:player_loc>\n' +
+    thumbXml +
+    '      <video:title>' + escapeXmlSanitized(title) + '</video:title>\n' +
+    '      <video:description>' + escapeXmlSanitized(description) + '</video:description>\n' +
+    '      <video:content_loc>' + escapeXmlSanitized(absVideoUrl) + '</video:content_loc>\n' +
     '    </video:video>\n'
   );
 }
@@ -97,17 +145,27 @@ function isMobileOrTablet(req) {
  * Returns 'ar' or 'en'
  */
 function detectLanguage(req) {
-  // Check query param (?lang=ar)
+  // Check explicit query param (?lang=ar or ?lang=en)
   if (req.query && req.query.lang) {
     return req.query.lang === 'ar' ? 'ar' : 'en';
   }
-  
-  // Check Accept-Language header
+
+  // Check Accept-Language header — only switch to Arabic if Arabic is
+  // explicitly preferred AND has higher quality than English.
+  // Googlebot sends no Accept-Language header, so it correctly falls
+  // through to the default English, ensuring Googlebot indexes English content.
   const acceptLang = req.headers['accept-language'] || '';
-  if (acceptLang.includes('ar')) return 'ar';
-  
-  // Default to Arabic
-  return 'ar';
+  if (acceptLang) {
+    // Parse quality values for ar and en
+    const arMatch = acceptLang.match(/\bar(?:-\w+)?(?:;q=([\d.]+))?/i);
+    const enMatch = acceptLang.match(/\ben(?:-\w+)?(?:;q=([\d.]+))?/i);
+    const arQ = arMatch ? parseFloat(arMatch[1] != null ? arMatch[1] : '1') : 0;
+    const enQ = enMatch ? parseFloat(enMatch[1] != null ? enMatch[1] : '1') : 0;
+    if (arQ > 0 && arQ > enQ) return 'ar';
+  }
+
+  // Default to English (Googlebot, undefined user-agent, no header)
+  return 'en';
 }
 
 /**
@@ -156,8 +214,12 @@ router.get('/', async (req, res) => {
   }
 });
 
-// Desktop-only legacy experience (keeps old desktop UI).
+// Desktop-only legacy experience.
+// Marked noindex to prevent duplicate-content competition with /
+// (both routes serve desktop.html with identical content).
 router.get('/desktop', async (req, res) => {
+  // Tell search engines to ignore this URL — the canonical is /
+  res.setHeader('X-Robots-Tag', 'noindex, nofollow');
   try {
     const lang = detectLanguage(req);
     const contentData = await readPublishedContent();
@@ -240,7 +302,10 @@ router.get('/posts', (req, res) => {
   res.redirect('/news');
 });
 
-// Navigation-driven routes (SPA). Keep server-side routing stable on refresh/deep links.
+// Navigation-driven section routes.
+// These are SPA deep-links / anchor redirects — they do NOT have unique
+// indexable content. Mark all as noindex to prevent cannibalisation of /.
+// Long-term: replace with dedicated SSR pages with unique metadata.
 [
   '/services',
   '/team',
@@ -252,12 +317,12 @@ router.get('/posts', (req, res) => {
   '/contact',
 ].forEach((p) => {
   router.get(p, (req, res) => {
+    // Prevent indexing — these routes only redirect to anchor links
+    res.setHeader('X-Robots-Tag', 'noindex');
     if (isMobileOrTablet(req)) {
-      // Mobile page uses in-page anchors.
       const anchor = p === '/services' ? '#services' : p === '/team' ? '#doctors' : p === '/stories' ? '#news' : p === '/news' ? '#news' : p === '/articles' ? '#news' : p === '/updates' ? '#news' : p === '/about' ? '#video' : '#contact';
       return res.redirect('/' + anchor);
     }
-    // Desktop legacy: keep it on /desktop
     const desktopAnchor = p === '/services' ? '#services' : p === '/team' ? '#team' : p === '/stories' ? '#testimonials' : p === '/news' ? '#news' : p === '/updates' ? '#news' : p === '/articles' ? '#articles' : p === '/about' ? '#about' : '#contact';
     return res.redirect('/desktop' + desktopAnchor);
   });
@@ -300,22 +365,35 @@ router.get('/robots.txt', (req, res) => {
 router.get('/sitemap.xml', async (req, res) => {
   const base = SITEMAP_BASE_URL.replace(/\/$/, '');
   const today = new Date().toISOString().slice(0, 10);
+
+  // Only include real, indexable routes:
+  // - /desktop is excluded (noindex duplicate of /)
+  // - /services, /team, etc. are excluded (noindex anchor-redirects)
+  // All core URL image slots use the real OG image from content, not
+  // phantom placeholder filenames that do not exist on disk.
   const routeTemplates = [
-    { path: '/', changefreq: 'daily', priority: '1.0', imageKey: 'home' },
-    { path: '/desktop', changefreq: 'monthly', priority: '0.5', imageKey: 'desktop' },
-    { path: '/news', changefreq: 'weekly', priority: '0.8', imageKey: 'news' },
-    { path: '/services', changefreq: 'weekly', priority: '0.7', imageKey: 'services' },
-    { path: '/team', changefreq: 'monthly', priority: '0.6', imageKey: 'team' },
-    { path: '/stories', changefreq: 'weekly', priority: '0.7', imageKey: 'stories' },
-    { path: '/updates', changefreq: 'weekly', priority: '0.7', imageKey: 'updates' },
-    { path: '/articles', changefreq: 'weekly', priority: '0.7', imageKey: 'articles' },
-    { path: '/about', changefreq: 'monthly', priority: '0.5', imageKey: 'about' },
-    { path: '/contact', changefreq: 'monthly', priority: '0.5', imageKey: 'contact' },
+    { path: '/',        changefreq: 'daily',   priority: '1.0', imageKey: 'home' },
+    { path: '/news',    changefreq: 'weekly',  priority: '0.8', imageKey: 'news' },
+    { path: '/articles',changefreq: 'weekly',  priority: '0.7', imageKey: 'articles' },
+    { path: '/updates', changefreq: 'weekly',  priority: '0.7', imageKey: 'updates' },
   ];
 
   try {
+    // Read published content so we can use the real OG image for core pages
+    const contentSnapshot = await getPublishedContentSnapshot().catch(() => null);
+    const contentData = contentSnapshot && contentSnapshot.data ? contentSnapshot.data : {};
+    const seoData = contentData.seo || {};
+
+    // Resolve the canonical OG image (guaranteed JPEG via imageProcessor)
+    let realOgImage = seoData.ogImage
+      || (contentData.siteInfo && contentData.siteInfo.heroImageUrl)
+      || '/uploads/seo-og-image.jpg';
+    // Force .jpg extension so Content-Type is always image/jpeg
+    realOgImage = realOgImage.replace(/\.(webp|avif|png|gif|jpeg|svg|bmp|tiff?)$/i, '.jpg');
+    const realOgImageAbs = toAbsoluteUrl(realOgImage);
+
     const postsSnapshot = await getPublishedPostsSnapshot();
-    const sitemapKey = `${today}:${postsSnapshot.metadata.etag}`;
+    const sitemapKey = `${today}:${postsSnapshot.metadata.etag}:${realOgImageAbs}`;
     if (sitemapCache.key !== sitemapKey) {
       const posts = postsSnapshot.data;
       const coreUrls = routeTemplates.map((route) => {
@@ -324,16 +402,17 @@ router.get('/sitemap.xml', async (req, res) => {
           title: route.imageKey + ' — Comprehensive Cancer Center',
           caption: 'Comprehensive Cancer Center page',
         };
+        // Use the real OG image for the homepage; omit image for other core routes
+        // (no phantom placeholder files that return 404)
+        const imageXml = route.path === '/'
+          ? buildImageXml(realOgImageAbs, imgMeta.title, imgMeta.caption)
+          : '';
         return buildUrlXml({
           loc: base + pagePath,
           lastmod: today,
           changefreq: route.changefreq,
           priority: route.priority,
-          imageXml: buildImageXml(
-            base + '/uploads/seo-' + route.imageKey + '-image.jpg',
-            imgMeta.title,
-            imgMeta.caption
-          ),
+          imageXml,
           videoXml: '',
         });
       }).join('');
@@ -343,15 +422,28 @@ router.get('/sitemap.xml', async (req, res) => {
         .map((post) => {
           const safeSlug = encodeURIComponent(String(post.slug));
           const postLoc = base + '/posts/' + safeSlug;
-          const imageLoc = post.featuredImage || (base + '/uploads/posts/' + safeSlug + '.jpg');
-          const imageTitle = post.seoTitle || post.title || 'POST_IMAGE_TITLE_PLACEHOLDER';
-          const imageCaption = post.seoDescription || post.excerpt || 'POST_IMAGE_CAPTION_PLACEHOLDER';
-          const videoXml = buildVideoXml(
-            post.videoUrl,
-            (post.title || 'POST_VIDEO_TITLE_PLACEHOLDER') + ' Video',
-            post.seoDescription || post.excerpt || 'POST_VIDEO_DESCRIPTION_PLACEHOLDER',
-            post.featuredImage || (base + '/uploads/posts/' + safeSlug + '-video-thumbnail.jpg')
-          );
+
+          // Use self-hosted image only — reject Facebook CDN / reel URLs
+          const rawImage = post.featuredImage || '';
+          const selfHostedFallback = base + '/uploads/posts/' + safeSlug + '.jpg';
+          const imageLoc = isSelfHostedImageUrl(toAbsoluteUrl(rawImage))
+            ? rawImage
+            : selfHostedFallback;
+
+          const imageTitle   = post.seoTitle || post.title || '';
+          const imageCaption = post.seoDescription || post.excerpt || '';
+
+          // Video: only include if videoUrl is set and thumbnail is self-hosted
+          const rawVideoUrl = post.videoUrl || '';
+          const rawThumb    = post.videoThumbnail || post.featuredImage || selfHostedFallback;
+          const videoXml = rawVideoUrl
+            ? buildVideoXml(
+                rawVideoUrl,
+                (post.title || '') + ' Video',
+                post.seoDescription || post.excerpt || '',
+                rawThumb
+              )
+            : '';
 
           return buildUrlXml({
             loc: postLoc,
@@ -392,21 +484,16 @@ router.get('/sitemap.xml', async (req, res) => {
   } catch (error) {
     logger.error('Sitemap generation failed', { error: error.message });
     res.type('application/xml');
+    // Minimal valid fallback — no phantom image references
     res.send(
       '<?xml version="1.0" encoding="UTF-8"?>\n' +
-      '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1" xmlns:video="http://www.google.com/schemas/sitemap-video/1.1">\n' +
-      buildUrlXml({
-        loc: base + '/',
-        lastmod: today,
-        changefreq: 'daily',
-        priority: '1.0',
-        imageXml: buildImageXml(
-          base + '/uploads/seo-home-image.jpg',
-          'HOME_IMAGE_TITLE_PLACEHOLDER',
-          'HOME_IMAGE_CAPTION_PLACEHOLDER'
-        ),
-        videoXml: '',
-      }) +
+      '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' +
+      '  <url>\n' +
+      '    <loc>' + escapeXmlSanitized(base + '/') + '</loc>\n' +
+      '    <lastmod>' + today + '</lastmod>\n' +
+      '    <changefreq>daily</changefreq>\n' +
+      '    <priority>1.0</priority>\n' +
+      '  </url>\n' +
       '</urlset>\n'
     );
   }
