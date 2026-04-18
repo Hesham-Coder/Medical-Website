@@ -9,12 +9,12 @@
       "ar": "طب متقدم ورعاية إنسانية متكاملة."
     },
     "heroHeading": {
-      "en": "Science That Heals. Care That Connects.",
-      "ar": "رعايتك تبدأ من التشخيص الدقيق"
+      "en": "Comprehensive Cancer Center",
+      "ar": "مركز شامل لعلاج الأورام"
     },
     "heroSubheading": {
-      "en": "Evidence-based cancer care tailored to you.",
-      "ar": "تنتهي بالعلاج الفعّال"
+      "en": "Expert Oncology Care in Alexandria, Egypt",
+      "ar": "رعاية الأورام المتخصصة في الإسكندرية، مصر"
     },
     "heroDescription": {
       "en": "Our multidisciplinary oncology team designs individualized care plans using current clinical guidelines, advanced diagnostics, and whole-person support. We focus on safety, quality, and helping you make informed decisions at every step.",
@@ -482,14 +482,15 @@
   ],
   "seo": {
     "metaTitle": {
-      "en": "Comprehensive Cancer Center | Evidence-Based Cancer Care in Alexandria",
-      "ar": "مركز شامل لعلاج الأورام | رعاية معتمدة على الدليل في الإسكندرية"
+      "en": "Comprehensive Cancer Center | Expert Oncology Care in Alexandria, Egypt",
+      "ar": "مركز شامل لعلاج الأورام | رعاية سرطانية متخصصة في الإسكندرية، مصر"
     },
     "metaDescription": {
-      "en": "Comprehensive Cancer Center provides coordinated, evidence-based cancer care in Alexandria, including diagnostics, systemic therapy, radiation, surgery, supportive care, and genetic counseling.",
-      "ar": "يقدم مركز شامل لعلاج الأورام في الإسكندرية رعاية منسقة قائمة على الدليل تشمل التشخيص والعلاج الدوائي والإشعاعي والجراحي والدعم النفسي والاستشارات الجينية."
+      "en": "Expert oncology care in Alexandria, Egypt — chemotherapy, radiation therapy, surgical oncology, genetic counseling & multidisciplinary supportive care. Book a consultation with our specialists today.",
+      "ar": "مركز شامل لعلاج الأورام في الإسكندرية — رعاية متكاملة تشمل العلاج الكيميائي والإشعاعي والجراحي والاستشارات الجينية والدعم النفسي. احجز استشارتك مع متخصصينا اليوم."
     },
-    "ogImage": "/uploads/img-1770764937645-dg1cvg.jpg"
+    "ogImage": "/uploads/img-1770764937645-dg1cvg.jpg",
+    "twitterHandle": "@cccofegypt"
   },
   "testimonialsSection": {
     "heading": {

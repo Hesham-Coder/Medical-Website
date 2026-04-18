@@ -169,15 +169,71 @@ router.get('/desktop', async (req, res) => {
   }
 });
 
-router.get('/desktop/posts/:slug', (req, res) => {
-  res.sendFile(path.join(WEBSITE_DIR, 'post-desktop.html'));
+// SEO metadata for each core sitemap route
+const SITEMAP_IMAGE_META = {
+  home:     { title: 'Comprehensive Cancer Center — Expert Oncology Care in Alexandria', caption: 'Multidisciplinary cancer care: chemotherapy, radiation, surgical oncology & genetic counseling in Alexandria, Egypt' },
+  desktop:  { title: 'CCC Full Experience — Comprehensive Cancer Center', caption: 'Interactive cancer center portal with services, team, and appointment booking' },
+  news:     { title: 'Cancer Center News — Comprehensive Cancer Center', caption: 'Latest oncology news, medical updates, and announcements from CCC Alexandria' },
+  services: { title: 'Oncology Services — Chemotherapy, Radiation & Surgical Oncology', caption: 'Full-spectrum cancer care services including systemic therapies, radiation, surgery and supportive care' },
+  team:     { title: 'Expert Cancer Specialists — Comprehensive Cancer Center', caption: 'Board-certified oncologists, surgeons and radiation specialists in Alexandria, Egypt' },
+  stories:  { title: 'Patient Stories & Testimonials — CCC Alexandria', caption: 'Real recovery journeys and patient experiences at Comprehensive Cancer Center' },
+  updates:  { title: 'Medical Updates — Comprehensive Cancer Center', caption: 'Latest clinical updates, new treatments and announcements from our cancer center' },
+  articles: { title: 'Cancer Care Articles & Research Insights — CCC', caption: 'Evidence-based oncology articles, research highlights, and patient education content' },
+  about:    { title: 'About Comprehensive Cancer Center — Alexandria, Egypt', caption: 'Our mission, multidisciplinary team, and commitment to guideline-based cancer care' },
+  contact:  { title: 'Contact CCC — Book a Cancer Care Consultation', caption: 'Get in touch with our patient coordination team to schedule a consultation' },
+};
+
+/**
+ * Build a post-specific content object for SEO injection on /posts/:slug pages.
+ */
+function buildPostSeoContent(post) {
+  if (!post) return {};
+  const title = post.seoTitle || post.title || 'Article';
+  const description = (post.seoDescription || post.excerpt || '').substring(0, 160);
+  const image = post.featuredImage || '/uploads/seo-og-image.jpg';
+  return {
+    siteInfo: {
+      title: 'Comprehensive Cancer Center',
+      heroHeading: { en: title, ar: title },
+      heroDescription: { en: description, ar: description },
+    },
+    seo: {
+      metaTitle: { en: `${title} | Comprehensive Cancer Center` },
+      metaDescription: { en: description },
+      ogImage: image,
+      twitterHandle: '@cccofegypt',
+    },
+  };
+}
+
+router.get('/desktop/posts/:slug', async (req, res) => {
+  try {
+    const slug = String(req.params.slug || '').trim().toLowerCase();
+    const lang = detectLanguage(req);
+    const post = await getPublishedPostBySlug(slug).catch(() => null);
+    const postContent = buildPostSeoContent(post);
+    const filePath = path.join(WEBSITE_DIR, 'post-desktop.html');
+    await serveSeoHtmlFile(res, filePath, postContent, lang);
+  } catch (error) {
+    logger.error('Error in /desktop/posts/:slug', { error: error.message });
+    res.sendFile(path.join(WEBSITE_DIR, 'post-desktop.html'));
+  }
 });
 
-router.get('/posts/:slug', (req, res) => {
-  // Serve the stable standalone post page on all devices.
-  // The mobile SPA post bootstrap currently depends on missing modules.
-  res.sendFile(path.join(WEBSITE_DIR, 'post-desktop.html'));
+router.get('/posts/:slug', async (req, res) => {
+  try {
+    const slug = String(req.params.slug || '').trim().toLowerCase();
+    const lang = detectLanguage(req);
+    const post = await getPublishedPostBySlug(slug).catch(() => null);
+    const postContent = buildPostSeoContent(post);
+    const filePath = path.join(WEBSITE_DIR, 'post-desktop.html');
+    await serveSeoHtmlFile(res, filePath, postContent, lang);
+  } catch (error) {
+    logger.error('Error in /posts/:slug', { error: error.message });
+    res.sendFile(path.join(WEBSITE_DIR, 'post-desktop.html'));
+  }
 });
+
 
 router.get('/posts', (req, res) => {
   // Legacy path -> new navigation-driven route (no anchor scrolling)
@@ -209,12 +265,37 @@ router.get('/posts', (req, res) => {
 
 router.get('/robots.txt', (req, res) => {
   res.type('text/plain');
-  res.send(
-    'User-agent: *\nAllow: /\nDisallow: /admin/\nDisallow: /login.html\nDisallow: /dashboard.html\nDisallow: /referral.html\nDisallow: /api/\n\nSitemap: ' +
-    SITEMAP_BASE_URL +
-    '/sitemap.xml\n'
-  );
+  const lines = [
+    'User-agent: *',
+    'Allow: /',
+    'Disallow: /admin',
+    'Disallow: /admin/',
+    'Disallow: /login.html',
+    'Disallow: /dashboard.html',
+    'Disallow: /referral.html',
+    'Disallow: /api/',
+    'Disallow: /health',
+    '',
+    '# Faster crawl for Googlebot (no delay)',
+    'User-agent: Googlebot',
+    'Allow: /',
+    'Disallow: /admin',
+    'Disallow: /admin/',
+    'Disallow: /login.html',
+    'Disallow: /api/',
+    '',
+    'User-agent: Bingbot',
+    'Allow: /',
+    'Disallow: /admin',
+    'Disallow: /admin/',
+    'Disallow: /login.html',
+    'Disallow: /api/',
+    '',
+    'Sitemap: ' + SITEMAP_BASE_URL + '/sitemap.xml',
+  ];
+  res.send(lines.join('\n'));
 });
+
 
 router.get('/sitemap.xml', async (req, res) => {
   const base = SITEMAP_BASE_URL.replace(/\/$/, '');
@@ -239,6 +320,10 @@ router.get('/sitemap.xml', async (req, res) => {
       const posts = postsSnapshot.data;
       const coreUrls = routeTemplates.map((route) => {
         const pagePath = route.path === '/' ? '' : route.path;
+        const imgMeta = SITEMAP_IMAGE_META[route.imageKey] || {
+          title: route.imageKey + ' — Comprehensive Cancer Center',
+          caption: 'Comprehensive Cancer Center page',
+        };
         return buildUrlXml({
           loc: base + pagePath,
           lastmod: today,
@@ -246,8 +331,8 @@ router.get('/sitemap.xml', async (req, res) => {
           priority: route.priority,
           imageXml: buildImageXml(
             base + '/uploads/seo-' + route.imageKey + '-image.jpg',
-            route.imageKey.toUpperCase() + '_IMAGE_TITLE_PLACEHOLDER',
-            route.imageKey.toUpperCase() + '_IMAGE_CAPTION_PLACEHOLDER'
+            imgMeta.title,
+            imgMeta.caption
           ),
           videoXml: '',
         });
