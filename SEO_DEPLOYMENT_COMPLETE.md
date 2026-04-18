@@ -70,8 +70,8 @@ Each request now includes:
 <meta property="og:type" content="website">
 <meta property="og:title" content="Science That Heals">
 <meta property="og:description" content="Evidence-based cancer care...">
-<meta property="og:image" content="https://www.comprehensivecancercenter.com/uploads/seo-og-image.jpg">
-<meta property="og:url" content="https://www.comprehensivecancercenter.com">
+<meta property="og:image" content="https://waleedarafat.org//uploads/seo-og-image.jpg">
+<meta property="og:url" content="https://waleedarafat.org/">
 
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Science That Heals">

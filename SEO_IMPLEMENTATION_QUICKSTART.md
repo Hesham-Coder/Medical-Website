@@ -142,7 +142,7 @@ res.setHeader('Cache-Control', 'public, max-age=3600');
 If dynamic content is unavailable, these defaults are used:
 ```javascript
 // Edit lib/seoInjector.js:
-const SITE_URL = process.env.SITE_URL || 'https://www.comprehensivecancercenter.com';
+const SITE_URL = process.env.SITE_URL || 'https://waleedarafat.org/';
 ```
 
 ---
@@ -189,8 +189,8 @@ const SITE_URL = process.env.SITE_URL || 'https://www.comprehensivecancercenter.
   <meta property="og:type" content="website">
   <meta property="og:title" content="Science That Heals. Care That Connects.">
   <meta property="og:description" content="Our multidisciplinary oncology team designs individualized care plans...">
-  <meta property="og:image" content="https://www.comprehensivecancercenter.com/uploads/img-1770765094009-eigrur.jpg">
-  <meta property="og:url" content="https://www.comprehensivecancercenter.com/">
+  <meta property="og:image" content="https://waleedarafat.org//uploads/img-1770765094009-eigrur.jpg">
+  <meta property="og:url" content="https://waleedarafat.org//">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Science That Heals. Care That Connects.">
   <meta name="twitter:description" content="Our multidisciplinary oncology team...">
