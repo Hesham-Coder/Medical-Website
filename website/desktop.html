@@ -1438,7 +1438,7 @@
                         <a href="#contact" onclick="scrollToSection('contact')"
                             class="w-full sm:w-auto bg-gradient-to-r from-brand-red-cta to-red-500 text-white px-6 sm:px-8 py-3 sm:py-4 rounded-xl sm:rounded-2xl text-base sm:text-lg font-bold shadow-xl shadow-red-100 hover:shadow-red-200 transition-all hover:-translate-y-1 hover:scale-105 inline-flex justify-center"
                             data-content="siteInfo.heroCtaPrimary">Start Your Journey</a>
-                        <button onclick="scrollToSection('services')"
+                        <button type="button" onclick="scrollToSection('services')" data-scroll-target="services"
                             class="w-full sm:w-auto border-2 border-slate-200 text-slate-700 hover:bg-slate-50 px-6 sm:px-8 py-3 sm:py-4 rounded-xl sm:rounded-2xl text-base sm:text-lg font-bold transition-all hover:scale-105"
                             data-content="siteInfo.heroCtaSecondary">Explore Services</button>
                     </div>
@@ -2462,15 +2462,49 @@
         }
 
         // ===== Smooth Scroll to Section =====
+        function getScrollTargetTop(element) {
+            if (!element) return 0;
+            var header = document.querySelector('header');
+            var headerHeight = header ? header.getBoundingClientRect().height : 0;
+            var extraGap = 16;
+            var absoluteTop = element.getBoundingClientRect().top + window.pageYOffset;
+            return Math.max(0, absoluteTop - headerHeight - extraGap);
+        }
+
+        function smoothScrollToElement(element) {
+            if (!element) return;
+            window.scrollTo({
+                top: getScrollTargetTop(element),
+                behavior: 'smooth'
+            });
+        }
+
         function scrollToSection(sectionId) {
             const element = document.getElementById(sectionId);
-            if (element) {
-                element.scrollIntoView({
-                    behavior: 'smooth',
-                    block: 'start'
-                });
-            }
+            smoothScrollToElement(element);
         }
+
+        document.addEventListener('click', function (event) {
+            var scrollTrigger = event.target.closest('[data-scroll-target]');
+            if (scrollTrigger) {
+                var targetId = scrollTrigger.getAttribute('data-scroll-target');
+                var scrollTarget = targetId ? document.getElementById(targetId) : null;
+                if (scrollTarget) {
+                    event.preventDefault();
+                    smoothScrollToElement(scrollTarget);
+                    return;
+                }
+            }
+
+            var link = event.target.closest('a[href^="#"]');
+            if (!link) return;
+            var href = link.getAttribute('href') || '';
+            if (href.length <= 1) return;
+            var target = document.querySelector(href);
+            if (!target) return;
+            event.preventDefault();
+            smoothScrollToElement(target);
+        });
 
         // ===== Parallax Scrolling Effect =====
         let ticking = false;
@@ -2896,7 +2930,7 @@
                         if (!btn) return;
                         var targetId = btn.getAttribute('data-target');
                         var target = document.querySelector('[data-section-id="' + targetId + '"]');
-                        if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        if (target) smoothScrollToElement(target);
                     });
                     nav.dataset.bound = '1';
                 }
