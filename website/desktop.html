@@ -58,8 +58,6 @@
     <link rel="preload" as="font" crossorigin="anonymous"
         href="https://fonts.gstatic.com/s/manrope/v15/xn7_YHE41ni1AdIRqAuZuw1Bx9mbZk59FO_F87jxeN8.woff2" type="font/woff2">
 
-    <!-- Attention-Guided Navigation CSS -->
-    <link rel="stylesheet" href="/css/attention-guided-nav.css?v=3771ae62">
     <link rel="stylesheet" href="/css/tailwind.output.css?v=6c0316a5">
 
     <!-- Custom Styles -->
@@ -1450,19 +1448,19 @@
                         class="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 pt-6 sm:pt-8 border-t border-slate-200 animate-slide-in-up delay-600">
                         <div class="text-center lg:text-left perspective-container">
                             <p class="text-2xl sm:text-3xl font-black text-brand-blue-dark animate-pulse-3d"
-                                data-content="stats.successRate" data-suffix="%">98%</p>
+                                data-content="stats.successRate" data-count="95" data-count-format="number" data-suffix="%">95%</p>
                             <p class="text-[10px] sm:text-xs text-slate-500 font-bold uppercase tracking-wider">Success
                                 Rate</p>
                         </div>
                         <div class="text-center lg:text-left perspective-container">
                             <p class="text-2xl sm:text-3xl font-black text-brand-blue-dark animate-pulse-3d delay-200"
-                                data-content="stats.patientsServed" data-suffix="+">25k+</p>
+                                data-content="stats.patientsServed" data-count="5000" data-count-format="compact" data-suffix="+">5k+</p>
                             <p class="text-[10px] sm:text-xs text-slate-500 font-bold uppercase tracking-wider">Patients
                                 Helped</p>
                         </div>
                         <div class="text-center lg:text-left perspective-container">
                             <p class="text-2xl sm:text-3xl font-black text-brand-blue-dark animate-pulse-3d delay-400"
-                                data-content="stats.specialists" data-suffix="+">50+</p>
+                                data-content="stats.specialists" data-count="50" data-count-format="number" data-suffix="+">50+</p>
                             <p class="text-[10px] sm:text-xs text-slate-500 font-bold uppercase tracking-wider">Expert
                                 Doctors</p>
                         </div>
@@ -2366,7 +2364,7 @@
                 var isMobileOrTablet = window.innerWidth <= 1024;
                 if (isMobileOrTablet) {
                     // Check if critical data systems are ready
-                    var systemsReady = !!(window.websiteContent && window.attentionNav && window.languageManager);
+                    var systemsReady = !!window.websiteContent;
                     if (!systemsReady && performance.now() - t0 < 10000) {
                         // If not ready and under 10s, wait a bit more
                         setTimeout(hideLoader, 200);
@@ -2670,17 +2668,32 @@
         });
 
         // ===== Animated Counter for Stats =====
+        function formatCounterValue(element, value) {
+            const rounded = Math.max(0, Math.floor(value));
+            const format = element.dataset.countFormat || 'number';
+
+            if (format === 'compact' && rounded >= 1000) {
+                if (rounded >= 10000) {
+                    return Math.round(rounded / 1000) + 'k';
+                }
+                return (rounded / 1000).toFixed(1).replace(/\.0$/, '') + 'k';
+            }
+
+            return String(rounded);
+        }
+
         function animateCounter(element, target, duration = 2000) {
             let start = 0;
             const increment = target / (duration / 16);
+            const suffix = element.dataset.suffix || '';
 
             const timer = setInterval(() => {
                 start += increment;
                 if (start >= target) {
-                    element.textContent = target + (element.dataset.suffix || '');
+                    element.textContent = formatCounterValue(element, target) + suffix;
                     clearInterval(timer);
                 } else {
-                    element.textContent = Math.floor(start) + (element.dataset.suffix || '');
+                    element.textContent = formatCounterValue(element, start) + suffix;
                 }
             }, 16);
         }
@@ -3038,6 +3051,15 @@
                     var text = getLocalized(val, lang);
                     if (text == null) return;
                     var suffix = el.getAttribute('data-suffix') || '';
+                    if (el.hasAttribute('data-count') || el.hasAttribute('data-count-format')) {
+                        var numericText = String(text).replace(/[^\d.]/g, '');
+                        var numericValue = Number(numericText);
+                        if (!Number.isNaN(numericValue)) {
+                            el.dataset.count = String(numericValue);
+                            el.textContent = formatCounterValue(el, numericValue) + suffix;
+                            return;
+                        }
+                    }
                     el.textContent = text + suffix;
                 });
                 document.querySelectorAll('[data-content-src]').forEach(function (el) {
@@ -3531,7 +3553,6 @@
                 if (window.observeAnimatedElements) window.observeAnimatedElements();
             }).catch(function (err) {
                 console.error('❌ Error loading content:', err);
-                initDynamicSectionFocus();
                 setupCoverageModal();
                 setLanguage(currentLang);
                 document.querySelectorAll('.lang-toggle').forEach(function (btn) {
@@ -3541,9 +3562,6 @@
             });
         })();
     </script>
-
-    <!-- Attention-Guided Navigation System -->
-    <script src="/js/attention-guided-nav.js?v=5898b4d9"></script>
 
     <!-- Language Manager -->
     <script src="/js/language-manager.js?v=e159ee39"></script>
@@ -3557,16 +3575,6 @@
     <!-- Initialize Systems -->
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            // Initialize Attention-Guided Navigation
-            window.attentionNav = new AttentionGuidedNavigation({
-                focusZoneMargin: '30% 0px 20% 0px',
-                observerThreshold: 0.5,
-                debugMode: false,
-                enableLanguageTransition: true,
-                transitionDuration: 300,
-                staggerDelay: 80
-            });
-
             // Initialize Language Manager
             window.languageManager = new LanguageManager({
                 defaultLanguage: 'ar',
@@ -3684,32 +3692,29 @@
                 }
 
                 sections.forEach(function (section) {
-                    section.classList.add('aaa-depth-enter');
                     prepareSectionStagger(section);
                 });
                 headlineTargets.forEach(splitHeadlineWords);
 
                 if (!('IntersectionObserver' in window)) {
                     sections.forEach(function (section) {
-                        section.classList.add('is-depth-visible');
                         revealSectionStaggerOnce(section);
                     });
                     headlineTargets.forEach(revealHeadline);
                     return;
                 }
 
-                var ioRoot = main;
-                var depthObserver = new IntersectionObserver(function (entries) {
+                var ioRoot = null;
+                var sectionObserver = new IntersectionObserver(function (entries) {
                     entries.forEach(function (entry) {
                         if (!entry.isIntersecting) return;
-                        entry.target.classList.add('is-depth-visible');
                         revealSectionStaggerOnce(entry.target);
-                        depthObserver.unobserve(entry.target);
+                        sectionObserver.unobserve(entry.target);
                     });
                 }, { root: ioRoot, threshold: 0.35, rootMargin: '0px 0px -8% 0px' });
 
                 sections.forEach(function (section) {
-                    depthObserver.observe(section);
+                    sectionObserver.observe(section);
                 });
 
                 var headlineObserver = new IntersectionObserver(function (entries) {
@@ -3728,7 +3733,7 @@
                     var ticking = false;
                     function runParallax() {
                         ticking = false;
-                        var viewportCenter = main.clientHeight / 2;
+                        var viewportCenter = (window.innerHeight || document.documentElement.clientHeight || 1) / 2;
                         sections.forEach(function (section) {
                             var rect = section.getBoundingClientRect();
                             var sectionCenter = rect.top + (rect.height / 2);
@@ -3742,7 +3747,7 @@
                         ticking = true;
                         window.requestAnimationFrame(runParallax);
                     }
-                    main.addEventListener('scroll', scheduleParallax, { passive: true });
+                    window.addEventListener('scroll', scheduleParallax, { passive: true });
                     window.addEventListener('resize', scheduleParallax, { passive: true });
                     scheduleParallax();
                 }
@@ -3778,14 +3783,14 @@
                 }
 
                 if (header) {
-                    var lastScrollTop = main.scrollTop;
+                    var lastScrollTop = window.scrollY || window.pageYOffset || 0;
                     var headerHidden = false;
                     var pending = false;
                     var directionalDelta = 0;
 
                     function commitHeaderState() {
                         pending = false;
-                        var nextTop = main.scrollTop;
+                        var nextTop = window.scrollY || window.pageYOffset || 0;
                         var delta = nextTop - lastScrollTop;
                         lastScrollTop = nextTop;
                         if (Math.abs(delta) < 2) return;
@@ -3807,7 +3812,7 @@
                         }
                     }
 
-                    main.addEventListener('scroll', function () {
+                    window.addEventListener('scroll', function () {
                         if (pending) return;
                         pending = true;
                         requestAnimationFrame(commitHeaderState);
