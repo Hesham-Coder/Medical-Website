@@ -1,25 +1,5 @@
 [
   {
-    "id": "p-1777924094623-ovcgff5",
-    "title": "rrrr",
-    "slug": "r",
-    "type": "news",
-    "excerpt": "qq",
-    "content": "www",
-    "featuredImage": "",
-    "videoUrl": "https://www.facebook.com/watch/?v=515952447937465",
-    "author": "rrr",
-    "tags": [
-      "www"
-    ],
-    "isPublished": false,
-    "isFeatured": false,
-    "seoTitle": "qq",
-    "seoDescription": "ww",
-    "createdAt": "2026-05-04T19:48:14.623Z",
-    "updatedAt": "2026-05-04T19:48:14.623Z"
-  },
-  {
     "id": "p-20260215-004",
     "title": "What’s New: Same-Week New Diagnosis Navigation Calls",
     "slug": "same-week-diagnosis-navigation-calls",
@@ -41,48 +21,6 @@
     "seoDescription": "Same-week navigation calls now available for new diagnosis pathways.",
     "createdAt": "2026-02-10T15:45:00.000Z",
     "updatedAt": "2026-04-07T19:11:38.257Z"
-  },
-  {
-    "id": "p-20260215-007",
-    "title": "Article: How Multidisciplinary Tumor Boards Improve Treatment Decisions",
-    "slug": "how-tumor-boards-improve-treatment-decisions",
-    "type": "article",
-    "excerpt": "A practical overview of how multidisciplinary tumor boards align specialties and improve decision quality in complex oncology care.",
-    "content": "<h2>Why Tumor Boards Matter</h2><p>Tumor boards bring oncology, surgery, radiology, pathology, and supportive care together to review cases from multiple angles.</p><p>This structure helps reduce variation and improves treatment sequencing decisions.</p>",
-    "featuredImage": "https://images.unsplash.com/photo-1576091160550-2173dba999ef?auto=format&fit=crop&w=1200&q=80",
-    "videoUrl": "https://www.youtube.com/watch?v=ylgSrNarC2https://www.facebook.com/reel/1209319637498363U",
-    "author": "Dr. Sarah Chen",
-    "tags": [
-      "tumor-board",
-      "clinical-decision-making"
-    ],
-    "isPublished": false,
-    "isFeatured": false,
-    "seoTitle": "How Tumor Boards Improve Treatment Decisions",
-    "seoDescription": "Understand how multidisciplinary review improves treatment quality for complex oncology cases.",
-    "createdAt": "2026-02-08T08:40:00.000Z",
-    "updatedAt": "2026-04-07T17:39:14.721Z"
-  },
-  {
-    "id": "p-20260215-005",
-    "title": "What’s New: Extended Evening Infusion Slots",
-    "slug": "extended-evening-infusion-slots",
-    "type": "update",
-    "excerpt": "Infusion unit scheduling now includes additional evening slots on selected weekdays to improve flexibility.",
-    "content": "<p>To support patient access, selected infusion sessions are now available in extended evening windows based on treatment protocol suitability.</p>",
-    "featuredImage": "",
-    "videoUrl": "https://www.youtube.com/watch?v=qeRo1ceJ2xw",
-    "author": "Infusion Services",
-    "tags": [
-      "infusion",
-      "scheduling"
-    ],
-    "isPublished": false,
-    "isFeatured": false,
-    "seoTitle": "Extended Evening Infusion Slots",
-    "seoDescription": "Evening infusion slots added to improve treatment scheduling flexibility.",
-    "createdAt": "2026-02-06T11:20:00.000Z",
-    "updatedAt": "2026-02-15T02:16:08.782Z"
   },
   {
     "id": "p-20260215-001",
