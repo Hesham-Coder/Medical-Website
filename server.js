@@ -27,6 +27,8 @@ const {
   UPLOADS_DIR,
   DATA_DIR,
   SESSION_MAX_AGE_MS,
+  REDIS_PREFIX,
+  SERVICE_NAME,
 } = require('./lib/config');
 
 const publicRoutes = require('./routes/public');
@@ -110,6 +112,12 @@ if (SITE_URL.includes('comprehensivecancercenter.com')) {
 }
 
 async function configureSession() {
+  // Derive a service-specific session cookie name and Redis session key prefix.
+  // e.g. SERVICE_NAME=satt  → cookie "satt.sid", session keys "satt_sess:"
+  //      SERVICE_NAME=medical → cookie "medical.sid", session keys "medical_sess:"
+  const sessionCookieName = `${SERVICE_NAME}.sid`;
+  const sessionKeyPrefix = `${REDIS_PREFIX}sess:`;
+
   try {
     const redisClient = createRedisConnection();
     let loggedRedisError = false;
@@ -122,8 +130,8 @@ async function configureSession() {
     await redisClient.connect();
 
     const redisStore = new RedisStoreCtor({
-      client: redisClient,
-      prefix: 'sess:',
+      client: redisClient.raw,
+      prefix: sessionKeyPrefix,
     });
 
     app.locals.redisClient = redisClient;
@@ -134,7 +142,7 @@ async function configureSession() {
       secret: SESSION_SECRET,
       resave: false,
       saveUninitialized: false,
-      name: 'cancercenter.sid',
+      name: sessionCookieName,
       cookie: {
         secure: IS_PROD,
         httpOnly: true,
@@ -142,7 +150,12 @@ async function configureSession() {
         sameSite: 'strict',
       },
     }));
-    logger.info('Session store initialized with Redis');
+    logger.info('Session store initialized with Redis', {
+      service: SERVICE_NAME,
+      redisPrefix: REDIS_PREFIX,
+      sessionKeyPrefix,
+      cookieName: sessionCookieName,
+    });
   } catch (error) {
     if (IS_PROD) {
       logger.error('Redis is required in production. Refusing to start with MemoryStore.', { error: error.message });
@@ -160,7 +173,7 @@ async function configureSession() {
       secret: SESSION_SECRET,
       resave: false,
       saveUninitialized: false,
-      name: 'cancercenter.sid',
+      name: sessionCookieName,
       cookie: {
         secure: IS_PROD,
         httpOnly: true,
@@ -168,7 +181,10 @@ async function configureSession() {
         sameSite: 'strict',
       },
     }));
-    logger.info('Session store initialized with in-memory MemoryStore (fallback mode)');
+    logger.info('Session store initialized with in-memory MemoryStore (fallback mode)', {
+      service: SERVICE_NAME,
+      cookieName: sessionCookieName,
+    });
   }
 }
 
