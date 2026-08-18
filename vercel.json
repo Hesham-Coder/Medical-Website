@@ -1,0 +1,38 @@
+{
+  "version": 2,
+  "buildCommand": "npm run build",
+  "installCommand": "npm install",
+  "env": {
+    "NODE_ENV": "production"
+  },
+  "envPrefix": "VERCEL_",
+  "functions": {
+    "api/**/*.js": {
+      "maxDuration": 30
+    }
+  },
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "/api/$1",
+      "methods": ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"]
+    },
+    {
+      "src": "/uploads/(.*)",
+      "dest": "/api/storage/uploads?path=$1"
+    },
+    {
+      "src": "/admin/(.*)",
+      "dest": "/api/storage/admin?path=$1"
+    },
+    {
+      "src": "/(.*)\\.html$",
+      "dest": "/api/storage/website?path=$1.html"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/api/storage/website?path=$1/index.html",
+      "status": 200
+    }
+  ]
+}
