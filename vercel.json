@@ -7,32 +7,40 @@
   },
   "envPrefix": "VERCEL_",
   "functions": {
-    "api/**/*.js": {
+    "api/index.js": {
+      "includeFiles": [
+        "website/**",
+        "admin/**",
+        "public/**",
+        "data/**"
+      ],
       "maxDuration": 30
     }
   },
   "routes": [
     {
-      "src": "/api/(.*)",
-      "dest": "/api/$1",
-      "methods": ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"]
+      "src": "/assets/(.*)",
+      "dest": "/public/$1"
     },
     {
-      "src": "/uploads/(.*)",
-      "dest": "/api/storage/uploads?path=$1"
+      "src": "/css/(.*)",
+      "dest": "/website/css/$1"
     },
     {
-      "src": "/admin/(.*)",
-      "dest": "/api/storage/admin?path=$1"
+      "src": "/js/(.*)",
+      "dest": "/website/js/$1"
     },
     {
-      "src": "/(.*)\\.html$",
-      "dest": "/api/storage/website?path=$1.html"
+      "src": "/lib/(.*)",
+      "dest": "/website/lib/$1"
+    },
+    {
+      "src": "/img/(.*)",
+      "dest": "/website/img/$1"
     },
     {
       "src": "/(.*)",
-      "dest": "/api/storage/website?path=$1/index.html",
-      "status": 200
+      "dest": "/api/index.js"
     }
   ]
 }
