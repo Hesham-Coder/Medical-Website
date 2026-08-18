@@ -5,7 +5,6 @@
   "env": {
     "NODE_ENV": "production"
   },
-  "envPrefix": "VERCEL_",
   "functions": {
     "api/index.js": {
       "includeFiles": [
