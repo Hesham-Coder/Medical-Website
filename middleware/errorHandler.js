@@ -2,8 +2,13 @@ const path = require('path');
 const logger = require('../lib/logger');
 const { WEBSITE_DIR, IS_PROD } = require('../lib/config');
 
+function wantsJsonResponse(req) {
+  const routePath = req.path || '';
+  return routePath.startsWith('/api/') || routePath === '/login' || routePath === '/logout';
+}
+
 function notFoundHandler(req, res) {
-  if (req.path.startsWith('/api/')) {
+  if (wantsJsonResponse(req)) {
     return res.status(404).json({ error: 'Not found' });
   }
   res.status(404);
@@ -16,7 +21,7 @@ function notFoundHandler(req, res) {
 
 function errorHandler(err, req, res, next) {
   // Provide safer, actionable API errors for common security/multipart failures.
-  if (req.path && req.path.startsWith('/api/')) {
+  if (req.path && wantsJsonResponse(req)) {
     // CSRF failures
     if (err && err.code === 'EBADCSRFTOKEN') {
       return res.status(403).json({ error: 'Security token invalid or missing. Refresh the page and try again.' });
@@ -42,7 +47,7 @@ function errorHandler(err, req, res, next) {
     path: req.originalUrl || req.path,
     ...(IS_PROD ? {} : { stack: err && err.stack ? err.stack : '' }),
   });
-  if (req.path.startsWith('/api/')) {
+  if (wantsJsonResponse(req)) {
     return res.status(500).json({ error: 'Server error' });
   }
   res.status(500);
