@@ -1,36 +1,19 @@
-# Dependencies
+.gitignore
 node_modules/
-
-# Environment variables
 .env
-
-# Data files (contains sensitive information)
-users.json
-content.json
-content.backup.*.json
-data/users.json
-data/content.json
-data/content.backup.*.json
-
-# Uploaded images (dashboard)
-uploads/
-backups/*.zip
-
-# Logs
+.env.local
+.env.vercel
 *.log
 npm-debug.log*
-
-# OS files
+yarn-debug.log*
+yarn-error.log*
+data/
+uploads/
+backups/
 .DS_Store
-Thumbs.db
-desktop.ini
-
-# IDE
-.vscode/
-.idea/
-*.swp
-*.swo
-*~
-
-# PM2
-.pm2/
+dist/
+build/
+.vercel
+.next
+out/
+.cache
