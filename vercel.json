@@ -13,26 +13,6 @@
   },
   "routes": [
     {
-      "src": "/assets/(.*)",
-      "dest": "/public/$1"
-    },
-    {
-      "src": "/css/(.*)",
-      "dest": "/website/css/$1"
-    },
-    {
-      "src": "/js/(.*)",
-      "dest": "/website/js/$1"
-    },
-    {
-      "src": "/lib/(.*)",
-      "dest": "/website/lib/$1"
-    },
-    {
-      "src": "/img/(.*)",
-      "dest": "/website/img/$1"
-    },
-    {
       "src": "/(.*)",
       "dest": "/api/index.js"
     }
