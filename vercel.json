@@ -1,16 +1,10 @@
-{
-  "version": 2,
-  "buildCommand": "npm run build",
-  "installCommand": "npm install",
-  "env": {
-    "NODE_ENV": "production"
-  },
   "functions": {
     "api/index.js": {
       "includeFiles": "{website,admin,public,data}/**",
       "maxDuration": 30
     }
   },
+
   "routes": [
     {
       "src": "/(.*)",
@@ -18,3 +12,4 @@
     }
   ]
 }
+
