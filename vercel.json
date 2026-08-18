@@ -7,12 +7,7 @@
   },
   "functions": {
     "api/index.js": {
-      "includeFiles": [
-        "website/**",
-        "admin/**",
-        "public/**",
-        "data/**"
-      ],
+      "includeFiles": "{website,admin,public,data}/**",
       "maxDuration": 30
     }
   },
