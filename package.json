@@ -7,6 +7,8 @@
     "build": "node scripts/build.js",
     "build:css": "node scripts/build.js",
     "start": "node server.js",
+    "dev": "node server.js",
+    "vercel": "vercel dev",
     "watch:css": "postcss website/src/tailwind.css -o website/css/tailwind.output.css --watch",
     "backup": "node backup.js",
     "restore": "node restore.js",
@@ -22,7 +24,9 @@
   "dependencies": {
     "@mapbox/node-pre-gyp": "^2.0.3",
     "adm-zip": "^0.5.16",
+    "aws-sdk": "^2.1400.0",
     "bcrypt": "^5.1.1",
+    "cloudinary": "^1.35.0",
     "compression": "^1.8.1",
     "connect-redis": "^8.0.2",
     "cookie-parser": "^1.4.7",
@@ -34,6 +38,7 @@
     "helmet": "^7.1.0",
     "multer": "^1.4.5-lts.1",
     "nodemailer": "^8.0.1",
+    "pg": "^8.11.0",
     "redis": "^4.7.1",
     "sharp": "^0.33.5",
     "sortablejs": "^1.15.2",
@@ -50,5 +55,8 @@
   },
   "overrides": {
     "tar": ">=7.5.7"
+  },
+  "engines": {
+    "node": "18.x"
   }
 }
