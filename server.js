@@ -27,6 +27,7 @@ const {
   UPLOADS_DIR,
   DATA_DIR,
   SESSION_MAX_AGE_MS,
+  REDIS_URL,
 } = require('./lib/config');
 
 const publicRoutes = require('./routes/public');
@@ -144,8 +145,12 @@ async function configureSession() {
     }));
     logger.info('Session store initialized with Redis');
   } catch (error) {
-    if (IS_PROD) {
-      logger.error('Redis is required in production. Refusing to start with MemoryStore.', { error: error.message });
+    // If REDIS_URL is explicitly configured but the connection failed in production,
+    // treat this as a fatal error to avoid running with a misconfigured production setup.
+    // If no REDIS_URL is provided, allow falling back to in-memory sessions so the app remains usable
+    // (NOTE: in-memory sessions do NOT persist across restarts and are NOT safe for multi-instance setups).
+    if (IS_PROD && REDIS_URL) {
+      logger.error('Redis is required in production when REDIS_URL is configured but connection failed. Refusing to start.', { error: error.message });
       process.exit(1);
     }
     app.locals.redisClient = null;
@@ -153,7 +158,7 @@ async function configureSession() {
     app.locals.sessionReady = true;
     logger.warn('Redis session initialization failed; falling back to in-memory session store', {
       error: error.message,
-      note: 'Sessions will not persist across server restarts. For production, configure Redis.',
+      note: 'Sessions will not persist across server restarts. For production, configure REDIS_URL and SESSION_SECRET.',
     });
     app.use(session({
       store: new MemoryStore(),

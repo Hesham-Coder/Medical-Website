@@ -1,0 +1,6 @@
+﻿fix(vercel): update SITE_URL and make Redis fallback behavior safer
+
+- Update default SITE_URL and env templates to use https://waleedarafat.org
+- Allow the app to start with in-memory sessions when REDIS_URL is not configured (useful for dev); still fail in production if REDIS_URL is set but the connection cannot be established.
+
+Co-authored-by: Copilot <223556219+Copilot@users.noreply.github.com>
